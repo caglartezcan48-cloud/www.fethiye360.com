@@ -31,10 +31,13 @@ export default function BulkUploadPage() {
     reader.onload = (event) => {
       const text = event.target?.result as string
       const lines = text.split('\n').filter(line => line.trim())
-      const headers = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF]/g, '')) // BOM temizleme
+      
+      // Ayiriciyi otomatik bul (Virgul veya Noktali Virgul)
+      const delimiter = lines[0].includes(';') ? ';' : ','
+      const headers = lines[0].split(delimiter).map(h => h.trim().replace(/[\uFEFF]/g, ''))
       
       const result = lines.slice(1).map(line => {
-        const values = line.split(',').map(v => v.trim())
+        const values = line.split(delimiter).map(v => v.trim())
         const obj: any = {}
         headers.forEach((header, index) => {
           const dbColumn = columnMap[header] || header
@@ -52,8 +55,8 @@ export default function BulkUploadPage() {
 
   const downloadCSVTemplate = () => {
     const BOM = '\uFEFF'
-    const headers = Object.keys(columnMap).join(',') + '\n'
-    const sampleData = "Örnek Restoran,ornek-restoran,Fethiye Kordon,0252 614 00 00,https://isletme.com,Harika bir yer...,https://resim.jpg,5,KATEGORI_ID"
+    const headers = Object.keys(columnMap).join(';') + '\n'
+    const sampleData = "Örnek Restoran;ornek-restoran;Fethiye Kordon;0252 614 00 00;https://isletme.com;Harika bir yer...;https://resim.jpg;5;KATEGORI_ID"
     const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
