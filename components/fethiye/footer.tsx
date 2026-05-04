@@ -18,7 +18,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
-              {"Fethiye'nin"} güzelliklerini 360° sanal turlarla keşfedin. 
+              {"Fethiye'nin"} güzelliklerini 360° sanal turlarla keşfedin.
               Plajlar, tarihi yerler ve doğa harikaları bir tık uzağınızda.
             </p>
           </div>
@@ -54,8 +54,8 @@ export function Footer() {
                 <span>Fethiye, Muğla, Türkiye</span>
               </li>
               <li>
-                <a 
-                  href="mailto:info@fethiye360.com" 
+                <a
+                  href="mailto:info@fethiye360.com"
                   className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   <Mail className="w-4 h-4 text-primary flex-shrink-0" />
@@ -63,8 +63,8 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a 
-                  href="tel:+905438231556" 
+                <a
+                  href="tel:+905438231556"
                   className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
                 >
                   <Phone className="w-4 h-4 text-primary flex-shrink-0" />
@@ -72,8 +72,8 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://instagram.com/fethiye360" 
+                <a
+                  href="https://instagram.com/fethiye360"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
