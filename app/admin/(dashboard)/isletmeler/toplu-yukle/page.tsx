@@ -38,14 +38,16 @@ export default function BulkUploadPage() {
   }
 
   const downloadCSVTemplate = () => {
-    const headers = "name,slug,address,phone,category_id\n";
-    const sampleData = "Örnek İşletme,ornek-isletme,Fethiye Merkez,0252 000 00 00,KATEGORI_ID_BURAYA";
-    const blob = new Blob([headers + sampleData], { type: 'text/csv' });
+    // Excel'in Türkçe karakterleri doğru görmesi için BOM (Byte Order Mark) ekliyoruz
+    const BOM = '\uFEFF';
+    const headers = "name,slug,address,phone,website,description,main_image,rating,category_id\n";
+    const sampleData = "Örnek Restoran,ornek-restoran,Fethiye Kordon,0252 614 00 00,https://isletme.com,Harika bir restoran açıklaması...,https://resim-url.com,5,KATEGORI_ID_BURAYA";
+    const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.setAttribute('hidden', '');
     a.setAttribute('href', url);
-    a.setAttribute('download', 'fethiye360_isletme_sablonu.csv');
+    a.setAttribute('download', 'fethiye360_kapsamli_sablon.csv');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
