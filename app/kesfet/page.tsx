@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
 import { MapPin, Star, Building2, Search as SearchIcon } from 'lucide-react'
+import { CityStats } from '@/components/fethiye/city-stats'
 import Link from 'next/link'
 
 export default async function DiscoveryPage({
@@ -54,6 +55,16 @@ export default async function DiscoveryPage({
       <Header />
       
       <div className="container mx-auto px-4 pt-32 pb-20">
+        {/* Akilli Arama Yardimcisi: Eczane veya Hava Durumu aranirsa direkt bileseni goster */}
+        {(query.toLowerCase().includes('eczane') || query.toLowerCase().includes('hava')) && (
+          <div className="mb-12">
+            <p className="text-slate-400 text-xs mb-4 uppercase tracking-widest font-bold">Anlık Bilgiler</p>
+            <div className="rounded-3xl overflow-hidden border border-[#64ffda]/20 shadow-2xl shadow-[#64ffda]/5">
+              <CityStats />
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
