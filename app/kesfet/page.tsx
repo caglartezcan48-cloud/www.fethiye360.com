@@ -7,10 +7,11 @@ import Link from 'next/link'
 export default async function DiscoveryPage({
   searchParams,
 }: {
-  searchParams: { ara?: string }
+  searchParams: Promise<{ ara?: string }>
 }) {
   const supabase = await createClient()
-  const query = searchParams.ara || ''
+  const { ara } = await searchParams
+  const query = ara || ''
 
   // Isletmeleri arayalim
   let supabaseQuery = supabase

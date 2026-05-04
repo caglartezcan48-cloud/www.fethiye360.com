@@ -8,15 +8,16 @@ import { notFound } from 'next/navigation'
 export default async function CategoryDiscoveryPage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
   const supabase = await createClient()
+  const { slug } = await params
 
   // Once kategoriyi bulalim
   const { data: category } = await supabase
     .from('business_categories')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .single()
 
   if (!category) {

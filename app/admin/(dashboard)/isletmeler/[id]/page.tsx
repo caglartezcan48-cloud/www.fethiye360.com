@@ -5,15 +5,16 @@ import { notFound } from 'next/navigation'
 export default async function EditBusinessPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const supabase = await createClient()
+  const { id } = await params
 
   // Isletmeyi cekelim
   const { data: business } = await supabase
     .from('businesses')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!business) {
