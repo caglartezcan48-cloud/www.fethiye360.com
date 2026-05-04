@@ -1,4 +1,4 @@
-"use client"
+s"use client"
 
 import { Compass, Instagram, Mail, MapPin, Phone } from "lucide-react"
 
