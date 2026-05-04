@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, CheckCircle2, AlertCircle, Database } from 'lucide-react'
+import { Upload, CheckCircle2, AlertCircle, Database, Plus } from 'lucide-react'
 
 export default function BulkUploadPage() {
   const [data, setData] = useState('')
