@@ -14,9 +14,17 @@ export function SearchBar() {
     if (!query.trim()) return
 
     setIsSearching(true)
-    // Yeni sekmede acilmasi icin window.open kullaniyoruz
-    window.open(`/kesfet?ara=${encodeURIComponent(query.trim())}`, '_blank')
+    const q = query.toLowerCase().trim()
     
+    let targetUrl = `/kesfet?ara=${encodeURIComponent(q)}`
+    
+    if (q.includes('hava')) {
+      targetUrl = '/fethiye/hava-durumu'
+    } else if (q.includes('eczane')) {
+      targetUrl = '/fethiye/nobetci-ezcaneler'
+    }
+
+    window.open(targetUrl, '_blank')
     setTimeout(() => setIsSearching(false), 1000)
   }
 
