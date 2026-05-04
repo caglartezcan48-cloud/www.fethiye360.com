@@ -35,16 +35,38 @@ export default function BulkUploadPage() {
     }
   }
 
+  const copyTemplate = () => {
+    const template = [
+      {
+        "name": "İşletme Adı Girin",
+        "slug": "isletme-adi-girin",
+        "address": "Adres Bilgisi",
+        "phone": "0252 ...",
+        "category_id": "KATEGORI_UUID_BURAYA"
+      }
+    ]
+    setData(JSON.stringify(template, null, 2))
+  }
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-          <Database className="w-6 h-6" />
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+            <Database className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Toplu İşletme Yükle</h1>
+            <p className="text-muted-foreground text-sm">JSON formatında verileri sisteme aktarın.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">Toplu İşletme Yükle</h1>
-          <p className="text-muted-foreground text-sm">İşletme verilerini JSON formatında topluca sisteme aktarın.</p>
-        </div>
+        <button 
+          onClick={copyTemplate}
+          className="px-4 py-2 bg-secondary text-secondary-foreground rounded-xl text-xs font-bold hover:bg-secondary/80 transition-all flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Örnek Taslağı Getir
+        </button>
       </div>
 
       <div className="bg-card border rounded-3xl p-8 shadow-sm">
