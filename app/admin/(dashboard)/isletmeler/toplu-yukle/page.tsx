@@ -37,6 +37,20 @@ export default function BulkUploadPage() {
     reader.readAsText(file)
   }
 
+  const downloadCSVTemplate = () => {
+    const headers = "name,slug,address,phone,category_id\n";
+    const sampleData = "Örnek İşletme,ornek-isletme,Fethiye Merkez,0252 000 00 00,KATEGORI_ID_BURAYA";
+    const blob = new Blob([headers + sampleData], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('hidden', '');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'fethiye360_isletme_sablonu.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
   const handleUpload = async () => {
     try {
       setStatus('loading')
@@ -77,6 +91,12 @@ export default function BulkUploadPage() {
           </div>
         </div>
         <div className="flex gap-3">
+          <button 
+            onClick={downloadCSVTemplate}
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all hover:bg-blue-700 shadow-lg shadow-blue-500/20"
+          >
+            <Download className="w-4 h-4" /> Örnek CSV İndir
+          </button>
           <button onClick={copyTemplate} className="px-4 py-2 bg-secondary text-secondary-foreground rounded-xl text-xs font-bold flex items-center gap-2 transition-all hover:scale-105">
             <Plus className="w-4 h-4" /> JSON Taslağı
           </button>
