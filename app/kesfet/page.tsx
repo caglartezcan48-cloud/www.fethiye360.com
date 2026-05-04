@@ -16,16 +16,15 @@ export default async function DiscoveryPage({
   let businesses: any[] = []
 
   if (query) {
-    // 1. ADIM: Kategorilerde arama yapalim ve eslesen kategorilerin ID'lerini alalim
+    // 1. ADIM: Kategorilerde arama yapalim (Turkce karakter dostu)
     const { data: matchedCategories } = await supabase
       .from('business_categories')
       .select('id')
-      .ilike('name', `%${query}%`)
+      .or(`name.ilike.%${query}%,name.ilike.%${query.replace('İ', 'i').replace('I', 'ı')}%`)
 
     const categoryIds = matchedCategories?.map(c => c.id) || []
 
-    // 2. ADIM: Isletmelerde arama yapalim 
-    // (Ismi eslesenler VEYA kategorisi yukarida buldugumuz ID'lerden biri olanlar)
+    // 2. ADIM: Isletmelerde arama yapalim
     let dbQuery = supabase
       .from('businesses')
       .select(`
@@ -34,11 +33,9 @@ export default async function DiscoveryPage({
       `)
 
     if (categoryIds.length > 0) {
-      // Hem isimde ara hem de bulunan kategori ID'lerinde ara
-      dbQuery = dbQuery.or(`name.ilike.%${query}%,category_id.in.(${categoryIds.join(',')})`)
+      dbQuery = dbQuery.or(`name.ilike.%${query}%,name.ilike.%${query.replace('İ', 'i').replace('I', 'ı')}%,category_id.in.(${categoryIds.join(',')})`)
     } else {
-      // Sadece isimde ara
-      dbQuery = dbQuery.ilike('name', `%${query}%`)
+      dbQuery = dbQuery.or(`name.ilike.%${query}%,name.ilike.%${query.replace('İ', 'i').replace('I', 'ı')}%`)
     }
 
     const { data } = await dbQuery.order('is_featured', { ascending: false })
