@@ -2,7 +2,20 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, CheckCircle2, AlertCircle, Database, Plus, FileText, Download } from 'lucide-react'
+import { Upload, CheckCircle2, AlertCircle, Database, Plus, FileText, Download, Loader2 } from 'lucide-react'
+
+// Turkce Basliklar -> Veritabani Sutunlari Eslesmesi
+const columnMap: { [key: string]: string } = {
+  'İşletme Adı': 'name',
+  'URL Uzantısı': 'slug',
+  'Adres': 'address',
+  'Telefon': 'phone',
+  'Web Sitesi': 'website',
+  'Açıklama': 'description',
+  'Kapak Resmi URL': 'main_image',
+  'Puan': 'rating',
+  'Kategori ID': 'category_id'
+}
 
 export default function BulkUploadPage() {
   const [data, setData] = useState('')
@@ -10,7 +23,6 @@ export default function BulkUploadPage() {
   const [message, setMessage] = useState('')
   const supabase = createClient()
 
-  // CSV Dosyasini Okuma ve JSON'a Cevirme
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -18,165 +30,121 @@ export default function BulkUploadPage() {
     const reader = new FileReader()
     reader.onload = (event) => {
       const text = event.target?.result as string
-      const lines = text.split('\n')
-      const headers = lines[0].split(',').map(h => h.trim())
+      const lines = text.split('\n').filter(line => line.trim())
+      const headers = lines[0].split(',').map(h => h.trim().replace(/[\uFEFF]/g, '')) // BOM temizleme
       
       const result = lines.slice(1).map(line => {
         const values = line.split(',').map(v => v.trim())
         const obj: any = {}
         headers.forEach((header, index) => {
-          obj[header] = values[index]
+          const dbColumn = columnMap[header] || header
+          obj[dbColumn] = values[index]
         })
         return obj
-      }).filter(item => item.name) // Bos satirlari temizle
+      }).filter(item => item.name)
 
       setData(JSON.stringify(result, null, 2))
       setStatus('idle')
-      setMessage('Dosya başarıyla okundu. Aşağıdaki verileri kontrol edip "Sisteme Aktar" butonuna basabilirsiniz.')
+      setMessage('Dosya başarıyla okundu. Türkçe başlıklar veritabanına uyarlandı.')
     }
     reader.readAsText(file)
   }
 
   const downloadCSVTemplate = () => {
-    // Excel'in Türkçe karakterleri doğru görmesi için BOM (Byte Order Mark) ekliyoruz
-    const BOM = '\uFEFF';
-    const headers = "name,slug,address,phone,website,description,main_image,rating,category_id\n";
-    const sampleData = "Örnek Restoran,ornek-restoran,Fethiye Kordon,0252 614 00 00,https://isletme.com,Harika bir restoran açıklaması...,https://resim-url.com,5,KATEGORI_ID_BURAYA";
-    const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.setAttribute('hidden', '');
-    a.setAttribute('href', url);
-    a.setAttribute('download', 'fethiye360_kapsamli_sablon.csv');
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const BOM = '\uFEFF'
+    const headers = Object.keys(columnMap).join(',') + '\n'
+    const sampleData = "Örnek Restoran,ornek-restoran,Fethiye Kordon,0252 614 00 00,https://isletme.com,Harika bir yer...,https://resim.jpg,5,KATEGORI_ID"
+    const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'fethiye360_isletme_kayit_sablonu.csv'
+    a.click()
   }
 
   const handleUpload = async () => {
     try {
       setStatus('loading')
       const jsonData = JSON.parse(data)
-
-      if (!Array.isArray(jsonData)) throw new Error('Veri dizi formatında olmalıdır.')
-
-      // Supabase toplu yukleme (Chunking gerekebilir binlerce veri icin ama simdilik direkt gonderiyoruz)
       const { error } = await supabase.from('businesses').insert(jsonData)
-
       if (error) throw error
-
       setStatus('success')
-      setMessage(`${jsonData.length} işletme başarıyla yüklendi!`)
+      setMessage(`${jsonData.length} işletme başarıyla sisteme kaydedildi!`)
       setData('')
     } catch (err: any) {
-      console.error(err)
       setStatus('error')
-      setMessage(err.message || 'Hata oluştu.')
+      setMessage(err.message || 'Yükleme sırasında hata oluştu.')
     }
-  }
-
-  const copyTemplate = () => {
-    const template = [{ "name": "Örnek", "slug": "ornek", "address": "Adres", "phone": "0252", "category_id": "ID" }]
-    setData(JSON.stringify(template, null, 2))
   }
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-10">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-3xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
-            <Database className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-3xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda]">
+            <Database className="w-8 h-8" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Akıllı Toplu Yükleme</h1>
-            <p className="text-muted-foreground text-sm">CSV dosyası veya JSON ile binlerce işletmeyi anında ekleyin.</p>
+            <h1 className="text-3xl font-bold text-white">Toplu Kayıt Sistemi</h1>
+            <p className="text-slate-400 text-sm">Türkçe şablon ile binlerce işletmeyi saniyeler içinde tanımlayın.</p>
           </div>
         </div>
-        <div className="flex gap-3">
-          <button 
-            onClick={downloadCSVTemplate}
-            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all hover:bg-blue-700 shadow-lg shadow-blue-500/20"
-          >
-            <Download className="w-4 h-4" /> Örnek CSV İndir
-          </button>
-          <button onClick={copyTemplate} className="px-4 py-2 bg-secondary text-secondary-foreground rounded-xl text-xs font-bold flex items-center gap-2 transition-all hover:scale-105">
-            <Plus className="w-4 h-4" /> JSON Taslağı
-          </button>
-        </div>
+        <button 
+          onClick={downloadCSVTemplate}
+          className="px-6 py-3 bg-[#64ffda] text-[#0a192f] rounded-2xl font-bold flex items-center gap-2 hover:bg-[#52e0c4] transition-all shadow-xl shadow-[#64ffda]/10"
+        >
+          <Download className="w-5 h-5" />
+          Türkçe Şablonu İndir
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Sol Kolon: Dosya Yukleme ve Talimatlar */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-card border-2 border-dashed border-primary/20 rounded-[40px] p-8 text-center hover:border-primary/50 transition-all group relative overflow-hidden">
-            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <FileText className="w-12 h-12 text-primary/40 mx-auto mb-4 group-hover:scale-110 transition-transform" />
-            <h3 className="font-bold mb-2">CSV Dosyası Yükle</h3>
-            <p className="text-xs text-muted-foreground mb-6">Excel listenizi .csv olarak kaydedip buraya bırakın.</p>
-            <label className="cursor-pointer bg-primary text-primary-foreground px-6 py-3 rounded-2xl font-bold text-sm inline-block shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+          <div className="bg-[#112240] border-2 border-dashed border-slate-700 rounded-[40px] p-10 text-center hover:border-[#64ffda]/40 transition-all group">
+            <FileText className="w-16 h-16 text-slate-700 mx-auto mb-6 group-hover:text-[#64ffda] transition-colors" />
+            <h3 className="text-white font-bold mb-3">Excel Dosyanı Yükle</h3>
+            <p className="text-xs text-slate-500 mb-8 leading-relaxed">İndirdiğin şablonu doldurduktan sonra buraya yükleyebilirsin.</p>
+            <label className="cursor-pointer px-8 py-4 bg-slate-800 text-white rounded-2xl font-bold text-sm block hover:bg-slate-700 transition-all">
               Dosya Seç
               <input type="file" className="hidden" accept=".csv" onChange={handleFileUpload} />
             </label>
           </div>
 
-          <div className="bg-blue-500/5 border border-blue-500/10 rounded-[32px] p-6">
-            <h4 className="font-bold text-sm mb-3 flex items-center gap-2 text-blue-600">
-              <Download className="w-4 h-4" /> CSV Formatı Nasıl Olmalı?
-            </h4>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Dosyanızın ilk satırı şu başlıkları içermelidir:<br/>
-              <code className="bg-blue-500/10 p-1 rounded mt-2 block text-blue-700">name, slug, address, phone, category_id</code>
+          <div className="bg-[#64ffda]/5 border border-[#64ffda]/10 rounded-[32px] p-6 space-y-4">
+            <h4 className="text-[#64ffda] font-bold text-sm">Neden Türkçe Şablon?</h4>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Bu şablon sayesinde teknik terimlerle uğraşmadan, doğrudan Türkçe başlıklarla verilerinizi hazırlayabilirsiniz. Sistem verilerinizi otomatik olarak eşleştirir.
             </p>
           </div>
         </div>
 
-        {/* Sag Kolon: Veri Onizleme ve Onay */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-card border rounded-[40px] p-8 shadow-sm">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Veri Önizleme</span>
-              {data && (
-                <span className="text-[10px] bg-green-500/10 text-green-600 px-3 py-1 rounded-full font-bold">
-                  {JSON.parse(data).length} İşletme Hazır
-                </span>
-              )}
+          <div className="bg-[#112240] p-8 rounded-[40px] border border-slate-700/50">
+            <div className="flex justify-between items-center mb-6">
+              <h4 className="text-slate-500 font-bold text-xs uppercase tracking-widest">Yükleme Önizleme</h4>
+              {data && <span className="text-[10px] bg-[#64ffda]/10 text-[#64ffda] px-3 py-1 rounded-full font-bold">{JSON.parse(data).length} İşletme Beklemede</span>}
             </div>
-            
+
             <textarea
+              readOnly
               value={data}
-              onChange={(e) => setData(e.target.value)}
-              placeholder="Dosya seçtiğinizde veriler buraya dolacak veya JSON yapıştırabilirsiniz..."
-              className="w-full h-[400px] p-6 rounded-[32px] bg-muted/30 border-none focus:ring-2 focus:ring-primary font-mono text-[10px] leading-relaxed resize-none"
+              placeholder="Dosya seçtiğinizde veriler burada görünecektir..."
+              className="w-full h-[350px] bg-[#0a192f] border-none rounded-3xl p-6 text-slate-400 font-mono text-[10px] resize-none"
             />
 
-            <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleUpload}
-                disabled={status === 'loading' || !data}
-                className="px-12 py-4 bg-primary text-primary-foreground rounded-[24px] font-bold shadow-2xl shadow-primary/30 flex items-center gap-3 disabled:opacity-50 hover:scale-105 transition-all active:scale-95"
-              >
-                {status === 'loading' ? <><Loader2 className="w-5 h-5 animate-spin" /> Aktarılıyor...</> : <><Database className="w-5 h-5" /> Sisteme Aktar</>}
-              </button>
-            </div>
+            <button
+              onClick={handleUpload}
+              disabled={status === 'loading' || !data}
+              className="w-full mt-8 py-5 bg-[#64ffda] text-[#0a192f] rounded-2xl font-bold flex items-center justify-center gap-3 shadow-2xl shadow-[#64ffda]/10 disabled:opacity-50 transition-all hover:scale-[1.01]"
+            >
+              {status === 'loading' ? <><Loader2 className="w-6 h-6 animate-spin" /> Veriler Yazılıyor...</> : <><CheckCircle2 className="w-6 h-6" /> Kayıtları Tamamla</>}
+            </button>
 
-            {status === 'success' && (
-              <div className="mt-6 p-5 bg-green-500/10 border border-green-500/20 text-green-600 rounded-3xl flex items-center gap-4 animate-in slide-in-from-bottom-2">
-                <CheckCircle2 className="w-6 h-6" />
-                <span className="font-bold text-sm">{message}</span>
-              </div>
-            )}
-
-            {status === 'error' && (
-              <div className="mt-6 p-5 bg-destructive/10 border border-destructive/20 text-destructive rounded-3xl flex items-center gap-4">
-                <AlertCircle className="w-6 h-6" />
-                <span className="font-bold text-sm">{message}</span>
-              </div>
-            )}
+            {status === 'success' && <div className="mt-6 p-4 bg-green-500/10 text-green-500 rounded-2xl text-center text-sm font-bold">{message}</div>}
+            {status === 'error' && <div className="mt-6 p-4 bg-red-500/10 text-red-500 rounded-2xl text-center text-sm font-bold">{message}</div>}
           </div>
         </div>
       </div>
     </div>
   )
 }
-
-import { Loader2 } from 'lucide-react'
