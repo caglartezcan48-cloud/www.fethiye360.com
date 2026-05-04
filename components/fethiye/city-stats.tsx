@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Cloud, Sun, CloudRain, Thermometer, Pill, Clock, MapPin, ChevronRight } from 'lucide-react'
+import { Cloud, Sun, CloudRain, Thermometer, Pill, Clock, MapPin, ChevronRight, Plus } from 'lucide-react'
 
 export function CityStats() {
   const [weather, setWeather] = useState({ temp: 24, status: 'Güneşli', icon: 'sun' })
