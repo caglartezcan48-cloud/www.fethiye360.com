@@ -13,16 +13,16 @@ export default async function DiscoveryPage({
   const { ara } = await searchParams
   const query = ara || ''
 
-  // Isletmeleri arayalim (Hem isimden hem kategoriden)
+  // Isletmeleri arayalim
   let supabaseQuery = supabase
     .from('businesses')
     .select(`
       *,
-      business_categories!inner (name)
+      business_categories (name)
     `)
 
   if (query) {
-    // Isim veya Kategori ismi sorguyla eslesiyorsa getir
+    // Hem isimde hem de (varsa) kategoride ara
     supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,business_categories.name.ilike.%${query}%`)
   }
 
