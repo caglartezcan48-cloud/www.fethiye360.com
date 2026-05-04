@@ -14,11 +14,10 @@ export function SearchBar() {
     if (!query.trim()) return
 
     setIsSearching(true)
-    // Artik her seyi genel arama sayfasina gönderiyoruz, orasi hem isimden hem kategoriden bulacak.
-    router.push(`/kesfet?ara=${encodeURIComponent(query.trim())}`)
+    // Yeni sekmede acilmasi icin window.open kullaniyoruz
+    window.open(`/kesfet?ara=${encodeURIComponent(query.trim())}`, '_blank')
     
-    // Sayfa degisince loading'i kapatmak icin kisa bir sure bekletelim
-    setTimeout(() => setIsSearching(false), 2000)
+    setTimeout(() => setIsSearching(false), 1000)
   }
 
   return (
