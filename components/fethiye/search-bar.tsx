@@ -25,7 +25,7 @@ export function SearchBar() {
       targetUrl = '/fethiye/nobetci-ezcaneler'
     }
 
-    window.open(targetUrl, '_blank')
+    router.push(targetUrl)
     setTimeout(() => setIsSearching(false), 1000)
   }
 

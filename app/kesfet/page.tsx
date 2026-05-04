@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
-import { MapPin, Star, Building2, Search as SearchIcon, ArrowLeft } from 'lucide-react'
+import { MapPin, Star, Building2, Search as SearchIcon, X } from 'lucide-react'
 import { CityStats } from '@/components/fethiye/city-stats'
 import Link from 'next/link'
 
@@ -43,24 +43,28 @@ export default async function DiscoveryPage({
 
   return (
     <main className="min-h-screen bg-[#0a192f]">
-      <Header />
+      {/* Header gizlenebilir veya kucultulebilir, biz simdilik X butonuna odaklanalim */}
       
-      <div className="container mx-auto px-4 pt-24 md:pt-32 pb-10">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#64ffda] hover:text-[#0a192f] transition-all shadow-lg">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+      <div className="container mx-auto px-4 pt-8 pb-10">
+        {/* Ust Kontrol Cubugu */}
+        <div className="flex items-center justify-between mb-8 sticky top-0 bg-[#0a192f]/90 backdrop-blur-md py-4 z-50 border-b border-slate-700/50">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-white leading-tight">
-              {query ? `"${query}" Sonuçları` : 'Tüm İşletmeler'}
+            <h1 className="text-xl font-bold text-white">
+              {query ? `"${query}" Sonuçları` : 'Keşfet'}
             </h1>
-            <p className="text-slate-500 text-xs">{businesses.length} sonuç listeleniyor</p>
+            <p className="text-slate-500 text-xs">{businesses.length} işletme bulundu</p>
           </div>
+          <Link 
+            href="/" 
+            className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center text-white hover:bg-red-500 transition-all shadow-xl group"
+          >
+            <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
+          </Link>
         </div>
 
-        {/* Akilli Bilgi Kartlari (Daha kucuk) */}
+        {/* Akilli Bilgi Kartlari */}
         {(query.toLowerCase().includes('ecz') || query.toLowerCase().includes('hav')) && (
-          <div className="mb-8 scale-95 origin-left">
+          <div className="mb-8">
             <CityStats />
           </div>
         )}
@@ -71,9 +75,9 @@ export default async function DiscoveryPage({
               <Link 
                 key={business.id}
                 href={`/isletme/${business.slug}`}
-                className="flex items-center gap-4 bg-[#112240] p-3 rounded-2xl border border-slate-700/50 hover:border-[#64ffda]/30 transition-all group"
+                className="flex items-center gap-4 bg-[#112240] p-4 rounded-3xl border border-slate-700/50 hover:border-[#64ffda]/30 transition-all group"
               >
-                <div className="w-20 h-20 rounded-xl bg-slate-800 overflow-hidden shrink-0">
+                <div className="w-20 h-20 rounded-2xl bg-slate-800 overflow-hidden shrink-0">
                   <img src={business.main_image || "https://picsum.photos/200"} alt={business.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="flex-1 overflow-hidden">
@@ -96,14 +100,15 @@ export default async function DiscoveryPage({
             ))}
           </div>
         ) : (
-          <div className="py-20 text-center">
-            <h2 className="text-white font-bold mb-4">Sonuç Bulunamadı</h2>
-            <Link href="/" className="text-[#64ffda] text-sm hover:underline">Ana Sayfaya Dön</Link>
+          <div className="py-20 text-center bg-[#112240] rounded-3xl border border-dashed border-slate-700">
+            <SearchIcon className="w-12 h-12 text-slate-700 mx-auto mb-4" />
+            <h2 className="text-white font-bold mb-2">Sonuç Bulunamadı</h2>
+            <Link href="/" className="text-[#64ffda] text-sm hover:underline">Aramayı Temizle ve Dön</Link>
           </div>
         )}
       </div>
 
-      <Footer />
+      {/* Mobilde Footer kafa karistirabilir, arama sayfasinda basit tutalim */}
     </main>
   )
 }
