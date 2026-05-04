@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   Home,
+  Building2,
 } from 'lucide-react'
 
 interface AdminUser {
@@ -24,6 +25,7 @@ const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/turlar', label: 'Turlar', icon: Map },
   { href: '/admin/kategoriler', label: 'Kategoriler', icon: FolderOpen },
+  { href: '/admin/isletmeler', label: 'İşletmeler', icon: Building2 },
   { href: '/admin/istatistikler', label: 'Istatistikler', icon: BarChart3 },
   { href: '/admin/ayarlar', label: 'Ayarlar', icon: Settings },
 ]
