@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Plus, Building2, Pencil, Trash2, Star, CheckCircle2 } from 'lucide-react'
+import { Plus, Building2, Pencil, Trash2, Star, CheckCircle2, Database } from 'lucide-react'
 
 export default async function BusinessesPage() {
   const supabase = await createClient()
@@ -22,13 +22,22 @@ export default async function BusinessesPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold text-white">İşletmeler</h1>
-        <Link
-          href="/admin/isletmeler/ekle"
-          className="flex items-center gap-2 px-4 py-2 bg-[#64ffda] text-[#0a192f] rounded-lg font-medium hover:bg-[#52e0c4] transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Yeni İşletme Ekle
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/isletmeler/toplu-yukle"
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 transition-colors border border-slate-700"
+          >
+            <Database className="w-4 h-4" />
+            Toplu İşletme Yükle
+          </Link>
+          <Link
+            href="/admin/isletmeler/ekle"
+            className="flex items-center gap-2 px-4 py-2 bg-[#64ffda] text-[#0a192f] rounded-lg font-medium hover:bg-[#52e0c4] transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Yeni İşletme Ekle
+          </Link>
+        </div>
       </div>
 
       {businesses && businesses.length > 0 ? (
