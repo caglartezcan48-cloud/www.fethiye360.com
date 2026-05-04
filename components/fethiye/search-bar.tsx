@@ -18,9 +18,10 @@ export function SearchBar() {
     
     let targetUrl = `/kesfet?ara=${encodeURIComponent(q)}`
     
-    if (q.includes('hava')) {
+    // Akilli Tahmin: Kelimenin basina veya icine bakarak en yakin sayfaya yonlendir
+    if (q.includes('hav') || q.includes('durum')) {
       targetUrl = '/fethiye/hava-durumu'
-    } else if (q.includes('eczane')) {
+    } else if (q.includes('ecz') || q.includes('nobet')) {
       targetUrl = '/fethiye/nobetci-ezcaneler'
     }
 
