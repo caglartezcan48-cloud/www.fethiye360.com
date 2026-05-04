@@ -13,16 +13,17 @@ export default async function DiscoveryPage({
   const { ara } = await searchParams
   const query = ara || ''
 
-  // Isletmeleri arayalim
+  // Isletmeleri arayalim (Hem isimden hem kategoriden)
   let supabaseQuery = supabase
     .from('businesses')
     .select(`
       *,
-      business_categories (name)
+      business_categories!inner (name)
     `)
 
   if (query) {
-    supabaseQuery = supabaseQuery.ilike('name', `%${query}%`)
+    // Isim veya Kategori ismi sorguyla eslesiyorsa getir
+    supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,business_categories.name.ilike.%${query}%`)
   }
 
   const { data: businesses } = await supabaseQuery.order('is_featured', { ascending: false })
