@@ -1,1 +1,0 @@
-# www.fethiye360.com
