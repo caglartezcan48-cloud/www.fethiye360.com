@@ -13,27 +13,50 @@ export default async function DiscoveryPage({
   const { ara } = await searchParams
   const query = ara || ''
 
-  // Isletmeleri arayalim
-  let supabaseQuery = supabase
-    .from('businesses')
-    .select(`
-      *,
-      business_categories (name)
-    `)
+  let businesses: any[] = []
 
   if (query) {
-    // Hem isimde hem de (varsa) kategoride ara
-    supabaseQuery = supabaseQuery.or(`name.ilike.%${query}%,business_categories.name.ilike.%${query}%`)
-  }
+    // 1. ADIM: Kategorilerde arama yapalim ve eslesen kategorilerin ID'lerini alalim
+    const { data: matchedCategories } = await supabase
+      .from('business_categories')
+      .select('id')
+      .ilike('name', `%${query}%`)
 
-  const { data: businesses } = await supabaseQuery.order('is_featured', { ascending: false })
+    const categoryIds = matchedCategories?.map(c => c.id) || []
+
+    // 2. ADIM: Isletmelerde arama yapalim 
+    // (Ismi eslesenler VEYA kategorisi yukarida buldugumuz ID'lerden biri olanlar)
+    let dbQuery = supabase
+      .from('businesses')
+      .select(`
+        *,
+        business_categories (name)
+      `)
+
+    if (categoryIds.length > 0) {
+      // Hem isimde ara hem de bulunan kategori ID'lerinde ara
+      dbQuery = dbQuery.or(`name.ilike.%${query}%,category_id.in.(${categoryIds.join(',')})`)
+    } else {
+      // Sadece isimde ara
+      dbQuery = dbQuery.ilike('name', `%${query}%`)
+    }
+
+    const { data } = await dbQuery.order('is_featured', { ascending: false })
+    businesses = data || []
+  } else {
+    // Sorgu yoksa her seyi getir
+    const { data } = await supabase
+      .from('businesses')
+      .select('*, business_categories(name)')
+      .order('is_featured', { ascending: false })
+    businesses = data || []
+  }
 
   return (
     <main className="min-h-screen bg-[#0a192f]">
       <Header />
-
+      
       <div className="container mx-auto px-4 pt-32 pb-20">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
@@ -45,20 +68,18 @@ export default async function DiscoveryPage({
           </div>
         </div>
 
-        {/* Results Grid */}
         {businesses && businesses.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {businesses.map((business) => (
-              <Link
+              <Link 
                 key={business.id}
                 href={`/isletme/${business.slug}`}
                 className="group bg-[#112240] rounded-2xl border border-slate-700/50 overflow-hidden hover:border-[#64ffda]/50 transition-all hover:-translate-y-1 shadow-xl"
               >
-                {/* Image Container */}
                 <div className="relative h-48 bg-slate-800">
                   {business.main_image ? (
-                    <img
-                      src={business.main_image}
+                    <img 
+                      src={business.main_image} 
                       alt={business.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -67,22 +88,13 @@ export default async function DiscoveryPage({
                       <Building2 className="w-12 h-12" />
                     </div>
                   )}
-                  {/* Category Badge */}
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 rounded-full bg-[#0a192f]/80 backdrop-blur-md border border-[#64ffda]/20 text-[#64ffda] text-xs font-medium">
-                      {business.business_categories?.name}
+                      {business.business_categories?.name || 'Genel'}
                     </span>
-                  </div>
-                  {/* Rating Badge */}
-                  <div className="absolute top-4 right-4">
-                    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-black/50 backdrop-blur-md text-yellow-500 text-xs font-bold">
-                      <Star className="w-3 h-3 fill-yellow-500" />
-                      {business.rating || '0.0'}
-                    </div>
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-5">
                   <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#64ffda] transition-colors line-clamp-1">
                     {business.name}
@@ -91,9 +103,12 @@ export default async function DiscoveryPage({
                     <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
                     <span className="line-clamp-2">{business.address || 'Fethiye, Muğla'}</span>
                   </div>
-
+                  
                   <div className="pt-4 border-t border-slate-700/50 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">İncele</span>
+                    <div className="flex items-center gap-1 text-yellow-500 text-sm font-bold">
+                      <Star className="w-4 h-4 fill-yellow-500" />
+                      {business.rating || '0.0'}
+                    </div>
                     <div className="w-8 h-8 rounded-full bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda] group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
                       <SearchIcon className="w-4 h-4" />
                     </div>
@@ -107,9 +122,9 @@ export default async function DiscoveryPage({
             <SearchIcon className="w-16 h-16 text-slate-600 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-white mb-2">Sonuç Bulunamadı</h2>
             <p className="text-slate-400 mb-8 max-w-md mx-auto">
-              Aradığınız kelimeye uygun bir işletme henüz eklenmemiş olabilir. Farklı bir kelime deneyebilir veya tüm kategorilere göz atabilirsiniz.
+              Aradığınız kelimeye uygun bir işletme veya kategori bulunamadı. Lütfen yazım hatası yapmadığınızdan emin olun.
             </p>
-            <Link
+            <Link 
               href="/"
               className="inline-flex items-center px-8 py-3 bg-[#64ffda] text-[#0a192f] rounded-xl font-bold hover:bg-[#52e0c4] transition-colors"
             >
