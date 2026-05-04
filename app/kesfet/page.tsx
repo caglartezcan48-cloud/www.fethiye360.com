@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
-import { MapPin, Star, Building2, Search as SearchIcon } from 'lucide-react'
+import { MapPin, Star, Building2, Search as SearchIcon, ArrowLeft } from 'lucide-react'
 import { CityStats } from '@/components/fethiye/city-stats'
 import Link from 'next/link'
 
@@ -17,7 +17,6 @@ export default async function DiscoveryPage({
   let businesses: any[] = []
 
   if (query) {
-    // 1. ADIM: Kategorilerde arama yapalim (Turkce karakter dostu)
     const { data: matchedCategories } = await supabase
       .from('business_categories')
       .select('id')
@@ -25,7 +24,6 @@ export default async function DiscoveryPage({
 
     const categoryIds = matchedCategories?.map(c => c.id) || []
 
-    // 2. ADIM: Isletmelerde arama yapalim
     let dbQuery = supabase
       .from('businesses')
       .select(`
@@ -34,19 +32,12 @@ export default async function DiscoveryPage({
       `)
 
     if (categoryIds.length > 0) {
-      dbQuery = dbQuery.or(`name.ilike.%${query}%,name.ilike.%${query.replace('İ', 'i').replace('I', 'ı')}%,category_id.in.(${categoryIds.join(',')})`)
+      dbQuery = dbQuery.or(`name.ilike.%${query}%,category_id.in.(${categoryIds.join(',')})`)
     } else {
-      dbQuery = dbQuery.or(`name.ilike.%${query}%,name.ilike.%${query.replace('İ', 'i').replace('I', 'ı')}%`)
+      dbQuery = dbQuery.ilike('name', `%${query}%`)
     }
 
     const { data } = await dbQuery.order('is_featured', { ascending: false })
-    businesses = data || []
-  } else {
-    // Sorgu yoksa her seyi getir
-    const { data } = await supabase
-      .from('businesses')
-      .select('*, business_categories(name)')
-      .order('is_featured', { ascending: false })
     businesses = data || []
   }
 
@@ -54,71 +45,50 @@ export default async function DiscoveryPage({
     <main className="min-h-screen bg-[#0a192f]">
       <Header />
       
-      <div className="container mx-auto px-4 pt-32 pb-20">
-        {/* Akilli Arama Yardimcisi: Eczane veya Hava Durumu aranirsa direkt bileseni goster */}
-        {(query.toLowerCase().includes('eczane') || query.toLowerCase().includes('hava')) && (
-          <div className="mb-12">
-            <p className="text-slate-400 text-xs mb-4 uppercase tracking-widest font-bold">Anlık Bilgiler</p>
-            <div className="rounded-3xl overflow-hidden border border-[#64ffda]/20 shadow-2xl shadow-[#64ffda]/5">
-              <CityStats />
-            </div>
-          </div>
-        )}
-
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
+      <div className="container mx-auto px-4 pt-24 md:pt-32 pb-10">
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/" className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#64ffda] hover:text-[#0a192f] transition-all shadow-lg">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              {query ? `"${query}" için sonuçlar` : 'Fethiye\'yi Keşfet'}
+            <h1 className="text-xl md:text-2xl font-bold text-white leading-tight">
+              {query ? `"${query}" Sonuçları` : 'Tüm İşletmeler'}
             </h1>
-            <p className="text-slate-400">
-              {businesses?.length || 0} işletme bulundu
-            </p>
+            <p className="text-slate-500 text-xs">{businesses.length} sonuç listeleniyor</p>
           </div>
         </div>
 
+        {/* Akilli Bilgi Kartlari (Daha kucuk) */}
+        {(query.toLowerCase().includes('ecz') || query.toLowerCase().includes('hav')) && (
+          <div className="mb-8 scale-95 origin-left">
+            <CityStats />
+          </div>
+        )}
+
         {businesses && businesses.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {businesses.map((business) => (
               <Link 
                 key={business.id}
                 href={`/isletme/${business.slug}`}
-                className="group bg-[#112240] rounded-2xl border border-slate-700/50 overflow-hidden hover:border-[#64ffda]/50 transition-all hover:-translate-y-1 shadow-xl"
+                className="flex items-center gap-4 bg-[#112240] p-3 rounded-2xl border border-slate-700/50 hover:border-[#64ffda]/30 transition-all group"
               >
-                <div className="relative h-48 bg-slate-800">
-                  {business.main_image ? (
-                    <img 
-                      src={business.main_image} 
-                      alt={business.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600">
-                      <Building2 className="w-12 h-12" />
-                    </div>
-                  )}
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 rounded-full bg-[#0a192f]/80 backdrop-blur-md border border-[#64ffda]/20 text-[#64ffda] text-xs font-medium">
-                      {business.business_categories?.name || 'Genel'}
-                    </span>
-                  </div>
+                <div className="w-20 h-20 rounded-xl bg-slate-800 overflow-hidden shrink-0">
+                  <img src={business.main_image || "https://picsum.photos/200"} alt={business.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                 </div>
-
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-[#64ffda] transition-colors line-clamp-1">
-                    {business.name}
-                  </h3>
-                  <div className="flex items-start gap-2 text-slate-400 text-sm mb-4">
-                    <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span className="line-clamp-2">{business.address || 'Fethiye, Muğla'}</span>
+                <div className="flex-1 overflow-hidden">
+                  <div className="text-white font-bold truncate group-hover:text-[#64ffda] transition-colors">{business.name}</div>
+                  <div className="text-slate-400 text-[10px] flex items-center gap-1 mb-2">
+                    <MapPin className="w-3 h-3" />
+                    <span className="truncate">{business.address || 'Fethiye'}</span>
                   </div>
-                  
-                  <div className="pt-4 border-t border-slate-700/50 flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-yellow-500 text-sm font-bold">
-                      <Star className="w-4 h-4 fill-yellow-500" />
-                      {business.rating || '0.0'}
-                    </div>
-                    <div className="w-8 h-8 rounded-full bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda] group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
-                      <SearchIcon className="w-4 h-4" />
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded-md bg-[#0a192f] text-[#64ffda] text-[9px] font-bold border border-[#64ffda]/10">
+                      {business.business_categories?.name}
+                    </span>
+                    <div className="flex items-center gap-1 text-yellow-500 text-[10px] font-bold">
+                      <Star className="w-3 h-3 fill-yellow-500" />
+                      {business.rating || '5.0'}
                     </div>
                   </div>
                 </div>
@@ -126,18 +96,9 @@ export default async function DiscoveryPage({
             ))}
           </div>
         ) : (
-          <div className="bg-[#112240] rounded-3xl border border-slate-700/50 p-20 text-center">
-            <SearchIcon className="w-16 h-16 text-slate-600 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-2">Sonuç Bulunamadı</h2>
-            <p className="text-slate-400 mb-8 max-w-md mx-auto">
-              Aradığınız kelimeye uygun bir işletme veya kategori bulunamadı. Lütfen yazım hatası yapmadığınızdan emin olun.
-            </p>
-            <Link 
-              href="/"
-              className="inline-flex items-center px-8 py-3 bg-[#64ffda] text-[#0a192f] rounded-xl font-bold hover:bg-[#52e0c4] transition-colors"
-            >
-              Ana Sayfaya Dön
-            </Link>
+          <div className="py-20 text-center">
+            <h2 className="text-white font-bold mb-4">Sonuç Bulunamadı</h2>
+            <Link href="/" className="text-[#64ffda] text-sm hover:underline">Ana Sayfaya Dön</Link>
           </div>
         )}
       </div>

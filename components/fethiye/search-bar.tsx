@@ -18,10 +18,10 @@ export function SearchBar() {
     
     let targetUrl = `/kesfet?ara=${encodeURIComponent(q)}`
     
-    // Akilli Tahmin: Kelimenin basina veya icine bakarak en yakin sayfaya yonlendir
+    // Akilli Tahmin: Turkce karakter ve harf hatalarina karsi esnek kontrol
     if (q.includes('hav') || q.includes('durum')) {
       targetUrl = '/fethiye/hava-durumu'
-    } else if (q.includes('ecz') || q.includes('nobet')) {
+    } else if (q.includes('ecz') || q.includes('ezc') || q.includes('nobet') || q.includes('nöbet')) {
       targetUrl = '/fethiye/nobetci-ezcaneler'
     }
 
