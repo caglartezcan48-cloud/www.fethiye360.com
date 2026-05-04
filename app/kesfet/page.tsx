@@ -14,7 +14,6 @@ export default async function DiscoveryPage({
   const query = ara ? decodeURIComponent(ara) : ''
 
   let businesses: any[] = []
-  let debugInfo = { query, categoryCount: 0 }
 
   if (query) {
     // 1. ADIM: Kategorilerde arama yapalim (Turkce karakter dostu)
@@ -24,7 +23,6 @@ export default async function DiscoveryPage({
       .or(`name.ilike.%${query}%,name.ilike.%${query.replace('İ', 'i').replace('I', 'ı')}%`)
 
     const categoryIds = matchedCategories?.map(c => c.id) || []
-    debugInfo.categoryCount = categoryIds.length
 
     // 2. ADIM: Isletmelerde arama yapalim
     let dbQuery = supabase
@@ -54,11 +52,6 @@ export default async function DiscoveryPage({
   return (
     <main className="min-h-screen bg-[#0a192f]">
       <Header />
-      
-      {/* GEÇİCİ DEBUG ALANI - Sorunu gormek icin */}
-      <div className="fixed top-20 left-4 z-[60] bg-red-500/90 text-white text-[10px] p-2 rounded shadow-xl font-mono">
-        DEBUG: Q=[{debugInfo.query}] | CATS=[{debugInfo.categoryCount}]
-      </div>
       
       <div className="container mx-auto px-4 pt-32 pb-20">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
