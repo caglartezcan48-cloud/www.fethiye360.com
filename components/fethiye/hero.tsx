@@ -2,6 +2,7 @@
 
 import { ArrowDown, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { SearchBar } from "./search-bar"
 
 export function Hero() {
   return (
@@ -37,8 +38,11 @@ export function Hero() {
             doğadan şehir merkezine kadar her köşeyi keşfet.
           </p>
 
+          {/* Search Bar */}
+          <SearchBar />
+
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
             <Button
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90 text-lg px-8 py-6 group"
