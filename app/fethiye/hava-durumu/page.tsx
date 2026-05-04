@@ -1,95 +1,68 @@
 import { Header } from '@/components/fethiye/header'
-import { Footer } from '@/components/fethiye/footer'
-import { Sun, Cloud, CloudRain, Thermometer, Wind, Droplets, Sunrise, Sunset } from 'lucide-react'
+import { Sun, Cloud, CloudRain, Thermometer, Wind, Droplets, X } from 'lucide-react'
+import Link from 'next/link'
 
 export default function WeatherPage() {
   const forecast = [
-    { day: 'Pazartesi', temp: 24, status: 'Güneşli', icon: <Sun className="w-8 h-8 text-yellow-500" /> },
-    { day: 'Salı', temp: 22, status: 'Parçalı Bulutlu', icon: <Cloud className="w-8 h-8 text-slate-400" /> },
-    { day: 'Çarşamba', temp: 21, status: 'Hafif Yağmurlu', icon: <CloudRain className="w-8 h-8 text-blue-400" /> },
-    { day: 'Perşembe', temp: 25, status: 'Güneşli', icon: <Sun className="w-8 h-8 text-yellow-500" /> },
-    { day: 'Cuma', temp: 26, status: 'Açık', icon: <Sun className="w-8 h-8 text-yellow-500" /> },
+    { day: 'Pzt', temp: 24, icon: <Sun className="w-5 h-5 text-yellow-500" /> },
+    { day: 'Sal', temp: 22, icon: <Cloud className="w-5 h-5 text-slate-400" /> },
+    { day: 'Çar', temp: 21, icon: <CloudRain className="w-5 h-5 text-blue-400" /> },
+    { day: 'Per', temp: 25, icon: <Sun className="w-5 h-5 text-yellow-500" /> },
+    { day: 'Cum', temp: 26, icon: <Sun className="w-5 h-5 text-yellow-500" /> },
   ]
 
   return (
-    <main className="min-h-screen bg-[#0a192f]">
-      <Header />
-      
-      <div className="container mx-auto px-4 pt-32 pb-20">
-        <h1 className="text-4xl font-bold text-white mb-8">Fethiye Hava Durumu</h1>
-        
-        {/* Main Card */}
-        <div className="bg-[#112240] rounded-3xl border border-slate-700/50 p-8 md:p-12 mb-12 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-12 opacity-5">
-            <Sun className="w-64 h-64 text-yellow-500" />
+    <main className="min-h-screen bg-[#0a192f] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Arka Plan Suslemesi */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#64ffda]/5 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px]" />
+
+      <div className="w-full max-w-md bg-[#112240]/80 backdrop-blur-xl rounded-[40px] border border-white/10 shadow-2xl relative z-10 overflow-hidden">
+        {/* Kapat Butonu */}
+        <Link href="/" className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-red-500 transition-all z-20">
+          <X className="w-5 h-5" />
+        </Link>
+
+        <div className="p-8">
+          <div className="text-center mb-10 pt-4">
+            <p className="text-[#64ffda] font-bold text-[10px] uppercase tracking-[0.2em] mb-2">Fethiye Hava Durumu</p>
+            <div className="flex items-center justify-center gap-6">
+              <Sun className="w-16 h-16 text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.3)]" />
+              <div className="text-7xl font-bold text-white tracking-tighter">24°</div>
+            </div>
+            <p className="text-slate-400 text-sm mt-2 font-medium">Güneşli ve Açık</p>
           </div>
 
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <div className="text-8xl md:text-9xl font-bold text-white mb-4">24°</div>
-              <div className="text-2xl text-[#64ffda] font-medium mb-8">Güneşli • Fethiye, Muğla</div>
-              
-              <div className="grid grid-cols-2 gap-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-blue-400">
-                    <Droplets className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-500 uppercase font-bold">Nem</div>
-                    <div className="text-white font-bold">%45</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
-                    <Wind className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-500 uppercase font-bold">Rüzgar</div>
-                    <div className="text-white font-bold">12 km/s</div>
-                  </div>
-                </div>
+          <div className="grid grid-cols-2 gap-3 mb-10">
+            <div className="bg-white/5 rounded-3xl p-4 border border-white/5 flex items-center gap-3">
+              <Droplets className="w-5 h-5 text-blue-400" />
+              <div>
+                <p className="text-slate-500 text-[9px] uppercase font-bold">Nem</p>
+                <p className="text-white font-bold text-sm">%45</p>
               </div>
             </div>
-
-            <div className="bg-[#0a192f]/50 rounded-2xl p-8 border border-slate-700/30">
-              <h3 className="text-white font-bold mb-6">Günün Detayları</h3>
-              <div className="space-y-6">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400 flex items-center gap-2"><Sunrise className="w-4 h-4" /> Gün Doğumu</span>
-                  <span className="text-white font-bold">06:12</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400 flex items-center gap-2"><Sunset className="w-4 h-4" /> Gün Batımı</span>
-                  <span className="text-white font-bold">19:45</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400 flex items-center gap-2"><Thermometer className="w-4 h-4" /> En Yüksek</span>
-                  <span className="text-white font-bold text-red-400">26°</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-400 flex items-center gap-2"><Thermometer className="w-4 h-4" /> En Düşük</span>
-                  <span className="text-white font-bold text-blue-400">18°</span>
-                </div>
+            <div className="bg-white/5 rounded-3xl p-4 border border-white/5 flex items-center gap-3">
+              <Wind className="w-5 h-5 text-slate-400" />
+              <div>
+                <p className="text-slate-500 text-[9px] uppercase font-bold">Rüzgar</p>
+                <p className="text-white font-bold text-sm">12 km/s</p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* 5 Day Forecast */}
-        <h2 className="text-2xl font-bold text-white mb-6">5 Günlük Tahmin</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {forecast.map((f, i) => (
-            <div key={i} className="bg-[#112240] rounded-2xl border border-slate-700/50 p-6 text-center hover:border-[#64ffda]/30 transition-all">
-              <div className="text-slate-500 text-xs font-bold uppercase mb-4">{f.day}</div>
-              <div className="mb-4 flex justify-center">{f.icon}</div>
-              <div className="text-2xl font-bold text-white mb-1">{f.temp}°</div>
-              <div className="text-[10px] text-slate-400 uppercase tracking-tighter">{f.status}</div>
+          <div className="bg-white/5 rounded-[32px] p-6 border border-white/5">
+            <div className="flex justify-between mb-6">
+              {forecast.map((f, i) => (
+                <div key={i} className="text-center">
+                  <p className="text-slate-500 text-[10px] font-bold mb-3">{f.day}</p>
+                  <div className="mb-2 flex justify-center">{f.icon}</div>
+                  <p className="text-white font-bold text-sm">{f.temp}°</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
-
-      <Footer />
     </main>
   )
 }
