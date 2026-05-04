@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
-import { MapPin, Phone, Globe, Star, Clock, CheckCircle2, Package, Image as ImageIcon, MessageSquare, Send } from 'lucide-react'
+import { MapPin, Phone, Globe, Star, Clock, CheckCircle2, Package, Image as ImageIcon, MessageSquare, Send, CornerDownRight } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { ReviewForm } from '@/components/fethiye/review-form'
 
@@ -130,6 +130,17 @@ export default async function BusinessDetailPage({
                       </div>
                     </div>
                     <p className="text-slate-300 leading-relaxed italic">"{review.comment}"</p>
+                    
+                    {/* İşletme Sahibi Yanıtı */}
+                    {review.reply && (
+                      <div className="mt-6 pt-6 border-t border-slate-700/50 flex gap-4">
+                        <CornerDownRight className="w-5 h-5 text-[#64ffda] shrink-0 mt-1" />
+                        <div className="bg-[#0a192f] p-5 rounded-2xl flex-1 border border-[#64ffda]/10">
+                          <span className="text-[#64ffda] font-bold text-xs uppercase tracking-widest block mb-2">İşletme Sahibinin Yanıtı</span>
+                          <p className="text-slate-400 text-sm leading-relaxed">{review.reply}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
                 {reviews?.length === 0 && (
