@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button"
 import { CityStats } from "./city-stats"
 
 const navLinks = [
-  { href: "#turlar", label: "Turlar" },
-  { href: "#harita", label: "Harita" },
-  { href: "#hakkinda", label: "Hakkında" },
-  { href: "#iletisim", label: "İletişim" },
+  { href: "/#turlar", label: "Turlar" },
+  { href: "/#harita", label: "Harita" },
+  { href: "/#hakkinda", label: "Hakkında" },
+  { href: "/#iletisim", label: "İletişim" },
 ]
 
 export function Header() {
