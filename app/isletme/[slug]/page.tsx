@@ -271,10 +271,19 @@ export default async function BusinessDetailPage({
                   </div>
                 </a>
                 
-                <button className="w-full group py-5 bg-[#64ffda] hover:bg-[#52e0c4] text-[#0a192f] rounded-[32px] font-black transition-all shadow-[0_20px_40px_rgba(100,255,218,0.2)] uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-95">
+                <a 
+                  href={
+                    business.location_lat && business.location_lng 
+                      ? `https://www.google.com/maps/dir/?api=1&destination=${business.location_lat},${business.location_lng}`
+                      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(business.name + ' ' + (business.address || 'Fethiye'))}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full group py-5 bg-[#64ffda] hover:bg-[#52e0c4] text-[#0a192f] rounded-[32px] font-black transition-all shadow-[0_20px_40px_rgba(100,255,218,0.2)] uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-95 no-underline"
+                >
                   <Navigation className="w-4 h-4" />
                   Yol Tarifi Al
-                </button>
+                </a>
               </div>
 
               {/* Business Info Items */}
