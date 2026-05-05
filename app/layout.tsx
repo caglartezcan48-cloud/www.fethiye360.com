@@ -4,8 +4,10 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const inter = Inter({ 
-  subsets: ["latin"],
-  variable: '--font-inter'
+  subsets: ["latin", "latin-ext"],
+  variable: '--font-inter',
+  display: 'swap',
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -13,6 +15,28 @@ export const metadata: Metadata = {
   description: 'Fethiye\'nin en güzel noktalarını 360° sanal turlarla keşfedin. Plajlar, tarihi yerler, doğa ve şehir merkezi turları.',
   keywords: 'Fethiye, sanal tur, 360 derece, turizm, plaj, Ölüdeniz, Kayaköy, Likya',
   generator: 'v0.app',
+  metadataBase: new URL('https://www.fethiye360.com'),
+  openGraph: {
+    type: 'website',
+    locale: 'tr_TR',
+    url: 'https://www.fethiye360.com',
+    siteName: 'Fethiye 360',
+    title: 'Fethiye 360 | Sanal Tur Deneyimi',
+    description: 'Fethiye\'nin en güzel noktalarını 360° sanal turlarla keşfedin.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Fethiye 360 | Sanal Tur Deneyimi',
+    description: 'Fethiye\'nin en güzel noktalarını 360° sanal turlarla keşfedin.',
+    images: ['/twitter-image.png'],
+  },
   icons: {
     icon: [
       {
@@ -36,6 +60,8 @@ export const viewport: Viewport = {
   themeColor: '#0a192f',
   width: 'device-width',
   initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 5,
 }
 
 export default function RootLayout({
@@ -45,6 +71,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" className="bg-background">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
