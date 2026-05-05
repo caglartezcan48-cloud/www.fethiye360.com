@@ -28,7 +28,7 @@ export default function SocialFeedPage() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
 
-      // Tum gonderileri getir (Ilıskılı tablolarla)
+      // Tum gonderileri getir (SADECE ONAYLI OLANLAR)
       const { data, error } = await supabase
         .from('user_posts')
         .select(`
@@ -40,6 +40,7 @@ export default function SocialFeedPage() {
           ),
           post_likes (user_id)
         `)
+        .eq('is_approved', true) // Filtre eklendi
         .order('created_at', { ascending: false })
 
       if (!error) setPosts(data || [])
