@@ -71,10 +71,12 @@ export default async function BusinessDetailPage({
     .select('*')
     .eq('business_id', business.id)
 
+  // 4. Sadece Onaylı Yorumlari getir
   const { data: reviews } = await supabase
     .from('business_reviews')
     .select('*')
     .eq('business_id', business.id)
+    .eq('is_approved', true) // Sadece onaylıları göster
     .order('created_at', { ascending: false })
 
   return (

@@ -24,7 +24,8 @@ export function ReviewForm({ businessId }: { businessId: string }) {
           business_id: businessId, 
           user_name: name, 
           comment, 
-          rating 
+          rating,
+          is_approved: false // Manuel olarak beklemeye alıyoruz
         }
       ])
 
@@ -33,18 +34,18 @@ export function ReviewForm({ businessId }: { businessId: string }) {
       setSuccess(true)
       setName('')
       setComment('')
-      setTimeout(() => setSuccess(false), 5000)
+      setTimeout(() => setSuccess(false), 8000)
     }
   }
 
   if (success) {
     return (
-      <div className="bg-green-500/10 border border-green-500/20 p-8 rounded-[32px] text-center animate-in fade-in zoom-in duration-500">
-        <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white">
-          <CheckCircle2 className="w-8 h-8" />
+      <div className="bg-[#64ffda]/5 border border-[#64ffda]/20 p-10 rounded-[48px] text-center animate-in fade-in zoom-in duration-500 backdrop-blur-xl">
+        <div className="w-20 h-20 bg-[#64ffda] rounded-full flex items-center justify-center mx-auto mb-6 text-[#0a192f] shadow-[0_0_30px_rgba(100,255,218,0.4)]">
+          <CheckCircle2 className="w-10 h-10" />
         </div>
-        <h3 className="text-white font-bold text-xl mb-2">Yorumunuz Alındı!</h3>
-        <p className="text-slate-400">Deneyiminizi paylaştığınız için teşekkür ederiz.</p>
+        <h3 className="text-white font-black text-2xl mb-3 tracking-tighter uppercase">Yorumunuz Alındı!</h3>
+        <p className="text-slate-400 text-lg">Deneyiminizi paylaştığınız için teşekkür ederiz. Yorumunuz yönetici onayından sonra yayına alınacaktır.</p>
       </div>
     )
   }
