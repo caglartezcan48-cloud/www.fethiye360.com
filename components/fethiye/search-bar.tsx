@@ -1,16 +1,24 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, Loader2, Store, Tag, ArrowRight } from 'lucide-react'
 
-export function SearchBar() {
-  const [query, setQuery] = useState('')
+function SearchBarContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const urlQuery = searchParams.get('ara') || ''
+  
+  const [query, setQuery] = useState(urlQuery)
   const [results, setResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const router = useRouter()
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // URL'deki arama değiştiğinde inputu güncelle
+  useEffect(() => {
+    setQuery(urlQuery)
+  }, [urlQuery])
 
   // Disari tıklandığında menüyü kapat
   useEffect(() => {
@@ -26,7 +34,7 @@ export function SearchBar() {
   // Anlık arama tetikleyicisi
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
-      if (query.length >= 2) {
+      if (query.length >= 2 && query !== urlQuery) {
         setIsSearching(true)
         try {
           const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
@@ -45,12 +53,17 @@ export function SearchBar() {
     }, 300)
 
     return () => clearTimeout(delayDebounceFn)
-  }, [query])
+  }, [query, urlQuery])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
-    router.push(`/kesfet?ara=${encodeURIComponent(query)}`)
+    router.push(`/kesfet?ara=${encodeURIComponent(query.trim())}`)
+    setIsOpen(false)
+  }
+
+  const navigateTo = (path: string) => {
+    router.push(path)
     setIsOpen(false)
   }
 
@@ -94,8 +107,7 @@ export function SearchBar() {
                   const url = result.type === 'category' 
                     ? `/kesfet/${result.slug}` 
                     : `/isletme/${result.slug}`;
-                  router.push(url);
-                  setIsOpen(false);
+                  navigateTo(url);
                 }}
                 className="w-full flex items-center justify-between p-4 hover:bg-white/5 rounded-xl transition-colors group/item"
               >
@@ -134,7 +146,7 @@ export function SearchBar() {
             type="button"
             onClick={() => {
               setQuery(tag)
-              router.push(`/kesfet?ara=${encodeURIComponent(tag)}`)
+              navigateTo(`/kesfet?ara=${encodeURIComponent(tag)}`)
             }}
             className="text-xs text-slate-400 hover:text-[#64ffda] bg-white/5 hover:bg-[#64ffda]/10 px-4 py-1.5 rounded-full border border-white/5 hover:border-[#64ffda]/30 transition-all"
           >
@@ -143,5 +155,13 @@ export function SearchBar() {
         ))}
       </div>
     </div>
+  )
+}
+
+export function SearchBar() {
+  return (
+    <Suspense fallback={<div className="h-20" />}>
+      <SearchBarContent />
+    </Suspense>
   )
 }
