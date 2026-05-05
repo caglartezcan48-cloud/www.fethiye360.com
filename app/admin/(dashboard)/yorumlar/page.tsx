@@ -33,18 +33,38 @@ export default function AdminReviewsPage() {
     fetchReviews()
   }, [])
 
-  const handleApprove = async (id: string) => {
-    const { error } = await supabase
+  const handleApprove = async (id: string, businessId: string) => {
+    // 1. Yorumu onayla
+    const { error: approveError } = await supabase
       .from('business_reviews')
       .update({ is_approved: true })
       .eq('id', id)
 
-    if (error) {
+    if (approveError) {
       toast.error('Onaylama işlemi başarısız')
-    } else {
-      toast.success('Yorum onaylandı ve yayına alındı')
-      setReviews(reviews.filter(r => r.id !== id))
+      return
     }
+
+    // 2. İşletmenin yeni ortalama puanını hesapla
+    const { data: allReviews, error: reviewsError } = await supabase
+      .from('business_reviews')
+      .select('rating')
+      .eq('business_id', businessId)
+      .eq('is_approved', true)
+
+    if (!reviewsError && allReviews) {
+      const avgRating = allReviews.reduce((acc, curr) => acc + curr.rating, 0) / allReviews.length
+      const roundedRating = Math.round(avgRating * 10) / 10 // Örn: 4.7
+
+      // 3. İşletme tablosunu güncelle
+      await supabase
+        .from('businesses')
+        .update({ rating: roundedRating })
+        .eq('id', businessId)
+    }
+
+    toast.success('Yorum onaylandı ve işletme puanı güncellendi')
+    setReviews(reviews.filter(r => r.id !== id))
   }
 
   const handleDelete = async (id: string) => {
@@ -108,7 +128,7 @@ export default function AdminReviewsPage() {
 
               <div className="flex items-center gap-3 shrink-0">
                 <button
-                  onClick={() => handleApprove(review.id)}
+                  onClick={() => handleApprove(review.id, review.business_id)}
                   className="flex items-center gap-2 px-6 py-3 bg-[#64ffda] text-[#0a192f] rounded-xl font-bold hover:bg-[#52e0c4] transition-all"
                 >
                   <Check className="w-4 h-4" />
