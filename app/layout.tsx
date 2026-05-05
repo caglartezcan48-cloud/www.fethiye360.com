@@ -11,10 +11,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Fethiye 360 | Sanal Tur Deneyimi',
-  description: 'Fethiye\'nin en güzel noktalarını 360° sanal turlarla keşfedin. Plajlar, tarihi yerler, doğa ve şehir merkezi turları.',
-  keywords: 'Fethiye, sanal tur, 360 derece, turizm, plaj, Ölüdeniz, Kayaköy, Likya',
-  generator: 'v0.app',
+  title: 'Fethiye 360 | Şehir Rehberi ve İşletme Portalı',
+  description: 'Fethiye\'nin en kapsamlı dijital rehberi. 360° sanal turlar, en iyi restoranlar, oteller, gezilecek yerler ve işletme rehberi.',
+  keywords: 'Fethiye, Fethiye rehberi, Fethiye işletmeleri, Fethiye restoranlar, Fethiye oteller, Ölüdeniz, sanal tur, 360 derece, tatil rehberi, Likya yolu',
+  generator: 'Fethiye360',
   metadataBase: new URL('https://www.fethiye360.com'),
   openGraph: {
     type: 'website',
