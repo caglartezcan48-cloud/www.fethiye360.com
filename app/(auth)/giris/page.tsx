@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { LogIn, Mail, Lock, Loader2, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react'
+import { LogIn, Phone, Lock, Loader2, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
 export default function UnifiedLoginPage() {
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('') // Telefon veya E-posta
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -36,19 +36,23 @@ export default function UnifiedLoginPage() {
     setLoading(true)
     setError(null)
 
+    // Eger girilen deger e-posta degilse (icinde @ yoksa), telefon gibi davran ve hayalet e-postaya cevir
+    const virtualEmail = identifier.includes('@') 
+      ? identifier 
+      : `${identifier.replace(/\s+/g, '')}@fethiye360.com`
+
     const { data, error: loginError } = await supabase.auth.signInWithPassword({
-      email,
+      email: virtualEmail,
       password,
     })
 
     if (loginError) {
-      setError('E-posta veya şifre hatalı')
+      setError('Telefon numarası veya şifre hatalı')
       setLoading(false)
       return
     }
 
     if (data.user) {
-      // AKILLI YONLENDIRME MANTIGI
       const { data: business } = await supabase
         .from('businesses')
         .select('id')
@@ -60,7 +64,7 @@ export default function UnifiedLoginPage() {
         return
       }
 
-      if (email === 'admin@fethiye360.com') {
+      if (identifier === 'admin@fethiye360.com') {
         router.push('/admin')
         return
       }
@@ -81,11 +85,12 @@ export default function UnifiedLoginPage() {
             <div className="absolute inset-0 bg-[#64ffda]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
             <LogIn className="w-10 h-10 text-[#64ffda] relative z-10" />
           </div>
-          <h1 className="text-4xl font-black text-white mb-2 tracking-tighter uppercase italic">Hoş Geldiniz</h1>
-          <p className="text-slate-400 font-medium">İşletme veya Ziyaretçi hesabı ile giriş yapın</p>
+          <h1 className="text-4xl font-black text-white mb-2 tracking-tighter uppercase italic">Giriş Yap</h1>
+          <p className="text-slate-400 font-medium">Telefon numaranız ile hesabınıza erişin</p>
         </div>
 
         <div className="space-y-6 bg-[#112240]/50 backdrop-blur-3xl p-8 rounded-[40px] border border-white/5 shadow-2xl relative overflow-hidden">
+          
           <button 
             onClick={handleGoogleLogin}
             type="button"
@@ -107,13 +112,13 @@ export default function UnifiedLoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">E-Posta Adresiniz</label>
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Telefon veya E-Posta</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input 
-                  required type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#0a192f] border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
-                  placeholder="mail@example.com"
+                  required type="text" value={identifier} onChange={(e) => setIdentifier(e.target.value)}
+                  className="w-full bg-[#0a192f] border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-bold"
+                  placeholder="05XX XXX XX XX"
                 />
               </div>
             </div>
@@ -148,9 +153,6 @@ export default function UnifiedLoginPage() {
           <div className="flex flex-col gap-2 pt-4 text-center">
             <Link href="/kayit" className="text-slate-400 text-xs font-medium hover:text-[#64ffda] transition-colors">
               Hesabınız yok mu? <span className="text-[#64ffda] font-black uppercase tracking-widest ml-1">Kayıt Ol</span>
-            </Link>
-            <Link href="/isletme-basvuru" className="text-slate-400 text-xs font-medium hover:text-[#64ffda] transition-colors">
-              İşletmenizi <span className="text-[#64ffda] font-black uppercase tracking-widest ml-1">Eklemek İster Misiniz?</span>
             </Link>
           </div>
         </div>
