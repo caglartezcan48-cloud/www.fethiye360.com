@@ -5,7 +5,11 @@ import { createClient } from '@/lib/supabase/client'
 import { PostCard } from '@/components/sosyal/post-card'
 import { Stories } from '@/components/sosyal/stories'
 import { 
-  ImageIcon 
+  ImageIcon,
+  ArrowLeft,
+  Sparkles,
+  Camera,
+  Users
 } from 'lucide-react'
 import { PostSkeleton } from '@/components/sosyal/post-skeleton'
 import Link from 'next/link'

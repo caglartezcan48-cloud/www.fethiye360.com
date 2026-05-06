@@ -9,7 +9,14 @@ import {
   LogOut, 
   Plus, 
   Video,
-  Share2
+  Share2,
+  Heart,
+  MessageSquare,
+  Sparkles,
+  Lock,
+  Eye,
+  EyeOff,
+  Check
 } from 'lucide-react'
 import { PostGridSkeleton } from '@/components/sosyal/post-skeleton'
 import Image from 'next/image'
