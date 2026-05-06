@@ -12,10 +12,10 @@ import {
   Shield, 
   Edit2,
   ExternalLink,
-  MoreVertical,
   Filter,
   ChevronRight,
-  ArrowUpDown
+  ArrowUpDown,
+  Phone
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -38,7 +38,9 @@ interface UserProfile {
   avatar_url: string
   bio: string
   is_public: boolean
+  phone: string
   updated_at: string
+  created_at: string
 }
 
 export default function AdminUsersPage() {
@@ -51,7 +53,8 @@ export default function AdminUsersPage() {
   const [editForm, setEditForm] = useState({
     full_name: '',
     username: '',
-    bio: ''
+    bio: '',
+    phone: ''
   })
   const [updating, setUpdating] = useState(false)
 
@@ -83,7 +86,8 @@ export default function AdminUsersPage() {
     setEditForm({
       full_name: user.full_name || '',
       username: user.username || '',
-      bio: user.bio || ''
+      bio: user.bio || '',
+      phone: user.phone || ''
     })
   }
 
@@ -98,6 +102,7 @@ export default function AdminUsersPage() {
           full_name: editForm.full_name,
           username: editForm.username,
           bio: editForm.bio,
+          phone: editForm.phone,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingUser.id)
@@ -116,7 +121,8 @@ export default function AdminUsersPage() {
 
   const filteredUsers = users.filter(user => 
     user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.username?.toLowerCase().includes(searchQuery.toLowerCase())
+    user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.phone?.includes(searchQuery)
   )
 
   return (
@@ -162,9 +168,10 @@ export default function AdminUsersPage() {
               <tr className="border-b border-white/5 bg-white/[0.02]">
                 <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Profil / Kullanıcı</th>
                 <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Biyografi</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">İletişim (Telefon)</th>
                 <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
                   <div className="flex items-center gap-2">
-                    Son Güncelleme <ArrowUpDown className="w-3 h-3" />
+                    Kayıt Tarihi <ArrowUpDown className="w-3 h-3" />
                   </div>
                 </th>
                 <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] text-right">Aksiyon</th>
@@ -229,9 +236,15 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-8 py-6">
+                      <div className="flex items-center gap-2 text-white font-bold text-sm bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                        <Phone className="w-3.5 h-3.5 text-[#64ffda]" />
+                        {user.phone || 'Girilmemiş'}
+                      </div>
+                    </td>
+                    <td className="px-8 py-6">
                       <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                         <Calendar className="w-4 h-4 text-[#64ffda]" />
-                        {new Date(user.updated_at).toLocaleDateString('tr-TR')}
+                        {new Date(user.created_at || user.updated_at).toLocaleDateString('tr-TR')}
                       </div>
                     </td>
                     <td className="px-8 py-6 text-right">
@@ -286,6 +299,15 @@ export default function AdminUsersPage() {
               <Input 
                 value={editForm.username}
                 onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
+              />
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Telefon Numarası</Label>
+              <Input 
+                value={editForm.phone}
+                onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
                 className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
               />
             </div>
