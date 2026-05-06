@@ -231,6 +231,12 @@ export default function UserProfilePage() {
                 >
                   Profili Düzenle
                 </button>
+                <button 
+                  onClick={togglePrivacy}
+                  disabled={updating}
+                  className={`p-2.5 rounded-xl border transition-all ${profile?.is_public ? 'border-white/10 text-white hover:bg-white/5' : 'border-[#64ffda]/30 text-[#64ffda] bg-[#64ffda]/5'}`}
+                  title={profile?.is_public ? "Hesabı Gizle" : "Hesabı Herkese Aç"}
+                >
                   {profile?.is_public ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
                 <button 

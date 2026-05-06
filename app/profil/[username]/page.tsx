@@ -260,6 +260,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 >
                   {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><UserMinus className="w-4 h-4" /> Takibi Bırak</> : <><UserPlus className="w-4 h-4" /> Takip Et</>}
                 </button>
+                <button 
+                  onClick={handleMessage}
+                  disabled={messageLoading}
+                  className="px-8 py-3 bg-white/5 text-white border border-white/10 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2 shadow-xl"
+                >
                   {messageLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><MessageSquare className="w-4 h-4" /> Mesaj Gönder</>}
                 </button>
                 <button 
