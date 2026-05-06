@@ -37,6 +37,7 @@ interface UserProfile {
   full_name: string
   avatar_url: string
   bio: string
+  is_public: boolean
   updated_at: string
 }
 
@@ -203,17 +204,29 @@ export default function AdminUsersPage() {
                           )}
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-white font-bold text-base group-hover:text-[#64ffda] transition-colors line-clamp-1">
-                            {user.full_name || 'İsimsiz Kullanıcı'}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-bold text-base group-hover:text-[#64ffda] transition-colors line-clamp-1">
+                              {user.full_name || 'İsimsiz Kullanıcı'}
+                            </span>
+                            {user.is_public ? (
+                              <Unlock className="w-3 h-3 text-[#64ffda]/50" />
+                            ) : (
+                              <Lock className="w-3 h-3 text-red-400/50" />
+                            )}
+                          </div>
                           <span className="text-slate-500 text-xs font-black uppercase tracking-widest mt-0.5">@{user.username}</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-8 py-6">
-                      <p className="text-slate-400 text-sm italic line-clamp-2 max-w-md">
-                        {user.bio ? `"${user.bio}"` : '—'}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${user.is_public ? 'bg-[#64ffda]/5 border-[#64ffda]/20 text-[#64ffda]' : 'bg-red-500/5 border-red-500/20 text-red-400'}`}>
+                          {user.is_public ? 'Halka Açık' : 'Gizli Profil'}
+                        </div>
+                        <p className="text-slate-500 text-sm italic line-clamp-1 max-w-[200px]">
+                          {user.bio ? `"${user.bio}"` : '—'}
+                        </p>
+                      </div>
                     </td>
                     <td className="px-8 py-6">
                       <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
