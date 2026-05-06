@@ -38,6 +38,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { BottomNav } from '@/components/sosyal/bottom-nav'
 
 export default function UserProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -329,6 +330,9 @@ export default function UserProfilePage() {
           </DialogContent>
         </Dialog>
       </main>
+
+      {/* Global Navigation */}
+      <BottomNav />
     </div>
   )
 }

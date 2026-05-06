@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { BottomNav } from '@/components/sosyal/bottom-nav'
 
 export default function SocialFeedPage() {
   const [posts, setPosts] = useState<any[]>([])
@@ -126,6 +127,7 @@ export default function SocialFeedPage() {
           </Link>
         )}
       </main>
+      <BottomNav />
     </div>
   )
 }

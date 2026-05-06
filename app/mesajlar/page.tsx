@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { toast } from 'sonner'
 
 export default function MessagesListPage() {
@@ -180,6 +181,7 @@ export default function MessagesListPage() {
           </div>
         )}
       </main>
+      <BottomNav />
     </div>
   )
 }

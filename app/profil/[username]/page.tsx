@@ -18,6 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react'
 import Image from 'next/image'
+import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { toast } from 'sonner'
 
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -330,6 +331,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
         </div>
 
       </main>
+      <BottomNav />
     </div>
   )
 }
