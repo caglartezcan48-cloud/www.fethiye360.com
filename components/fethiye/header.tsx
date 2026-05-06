@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Menu, X, Compass, User, Building2, Bell, LogIn, MessageCircle } from "lucide-react"
+import { Menu, X, Compass, User, Building2, Bell, LogIn, MessageCircle, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CityStats } from "./city-stats"
 import { createClient } from "@/lib/supabase/client"
@@ -102,6 +102,16 @@ export function Header() {
                   {isOwner ? "Panelim" : "Profilim"}
                 </Button>
               </Link>
+              <button 
+                onClick={async () => {
+                  await supabase.auth.signOut()
+                  window.location.href = '/'
+                }}
+                className="p-2.5 text-red-400 hover:text-white bg-red-500/5 hover:bg-red-500 border border-red-500/10 rounded-xl transition-all group shadow-lg"
+                title="Çıkış Yap"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
             </div>
           ) : (
             <Link href="/giris">
@@ -137,8 +147,9 @@ export function Header() {
               </Link>
             ))}
             {user ? (
-              <Link 
-                href={isOwner ? "/isletme-paneli" : "/profil"}
+              <>
+                <Link 
+                  href={isOwner ? "/isletme-paneli" : "/profil"}
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10"
               >
@@ -149,6 +160,21 @@ export function Header() {
                   {isOwner ? "İşletme Panelim" : "Kullanıcı Profilim"}
                 </div>
               </Link>
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut()
+                  window.location.href = '/'
+                }}
+                className="flex items-center gap-4 p-4 bg-red-500/5 rounded-2xl border border-red-500/10 text-red-400"
+              >
+                <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
+                  <LogOut className="w-5 h-5" />
+                </div>
+                <div className="font-black uppercase tracking-widest text-sm">
+                  Çıkış Yap
+                </div>
+              </button>
+            </>
             ) : (
               <Link href="/giris" onClick={() => setMobileMenuOpen(false)}>
                 <Button className="bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] w-full py-6 rounded-2xl font-black uppercase tracking-widest">
