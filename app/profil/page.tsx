@@ -8,17 +8,10 @@ import {
   Grid, 
   LogOut, 
   Plus, 
-  Loader2, 
-  Heart, 
-  MessageSquare,
-  Sparkles,
-  Check,
-  Lock,
-  Eye,
-  EyeOff,
   Video,
   Share2
 } from 'lucide-react'
+import { PostGridSkeleton } from '@/components/sosyal/post-skeleton'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import {
@@ -184,8 +177,18 @@ export default function UserProfilePage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0a192f] flex flex-col items-center justify-center gap-4">
-      <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin" />
+    <div className="min-h-screen bg-[#0a192f] p-8 md:p-12 lg:p-24">
+      <div className="max-w-6xl mx-auto space-y-12 animate-pulse">
+        <div className="flex flex-col md:flex-row items-center gap-12">
+          <div className="w-48 h-48 rounded-[64px] bg-white/5" />
+          <div className="space-y-4 flex-1">
+            <div className="w-64 h-8 bg-white/10 rounded-full" />
+            <div className="w-32 h-4 bg-white/5 rounded-full" />
+            <div className="flex gap-4"><div className="w-24 h-10 bg-white/5 rounded-xl" /><div className="w-24 h-10 bg-white/5 rounded-xl" /></div>
+          </div>
+        </div>
+        <PostGridSkeleton />
+      </div>
     </div>
   )
 

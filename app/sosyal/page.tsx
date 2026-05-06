@@ -5,13 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import { PostCard } from '@/components/sosyal/post-card'
 import { Stories } from '@/components/sosyal/stories'
 import { 
-  Loader2, 
-  Sparkles, 
-  Camera, 
-  ArrowLeft, 
-  Users, 
-  Image as ImageIcon 
+  ImageIcon 
 } from 'lucide-react'
+import { PostSkeleton } from '@/components/sosyal/post-skeleton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BottomNav } from '@/components/sosyal/bottom-nav'
@@ -52,9 +48,15 @@ export default function SocialFeedPage() {
   }, [])
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0a192f] flex flex-col items-center justify-center gap-4">
-      <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin" />
-      <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px]">Fethiye Dünyası Yükleniyor</span>
+    <div className="min-h-screen bg-[#0a192f] pb-20">
+      <header className="sticky top-0 z-50 bg-[#0a192f]/80 backdrop-blur-2xl border-b border-white/5 px-6 py-4">
+        <div className="max-w-xl mx-auto flex items-center justify-center h-10">
+          <div className="w-32 h-4 bg-white/10 rounded-full animate-pulse" />
+        </div>
+      </header>
+      <main className="max-w-xl mx-auto px-4 pt-8 space-y-10">
+        {[1, 2, 3].map(i => <PostSkeleton key={i} />)}
+      </main>
     </div>
   )
 

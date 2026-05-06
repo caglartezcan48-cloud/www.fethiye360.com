@@ -35,25 +35,47 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   
   const supabase = createClient()
   const handleLike = async () => {
-    if (!currentUserId) return toast.error('Beğenmek için giriş yapmalısınız')
+    if (!currentUserId) {
+      toast.error('Beğenmek için giriş yapmalısınız')
+      return
+    }
 
-    if (isLiked) {
-      setLikes(likes - 1)
-      setIsLiked(false)
-      await supabase.from('post_likes').delete().eq('post_id', post.id).eq('user_id', currentUserId)
-    } else {
-      setLikes(likes + 1)
-      setIsLiked(true)
-      await supabase.from('post_likes').upsert({ post_id: post.id, user_id: currentUserId })
+    // Optimistic Update: Hemen arayüzü güncelle
+    const wasLiked = isLiked
+    const prevLikes = likes
+    
+    setIsLiked(!wasLiked)
+    setLikes(prev => wasLiked 
+      ? prev.filter((l: any) => l.user_id !== currentUserId)
+      : [...prev, { user_id: currentUserId }]
+    )
 
-      if (post.user_id !== currentUserId) {
-        await supabase.from('notifications').insert({
-          user_id: post.user_id,
-          actor_id: currentUserId,
-          type: 'like',
-          post_id: post.id
-        })
+    try {
+      if (wasLiked) {
+        await supabase
+          .from('post_likes')
+          .delete()
+          .eq('post_id', post.id)
+          .eq('user_id', currentUserId)
+      } else {
+        await supabase
+          .from('post_likes')
+          .insert([{ post_id: post.id, user_id: currentUserId }])
+
+        if (post.user_id !== currentUserId) {
+          await supabase.from('notifications').insert({
+            user_id: post.user_id,
+            actor_id: currentUserId,
+            type: 'like',
+            post_id: post.id
+          })
+        }
       }
+    } catch (error) {
+      // Hata durumunda eski haline getir
+      setIsLiked(wasLiked)
+      setLikes(prevLikes)
+      toast.error('İşlem başarısız oldu')
     }
   }
 
