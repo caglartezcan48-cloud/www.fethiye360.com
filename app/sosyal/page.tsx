@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { PostCard } from '@/components/sosyal/post-card'
+import { Stories } from '@/components/sosyal/stories'
 import { 
   Loader2, 
   Sparkles, 
@@ -85,19 +86,8 @@ export default function SocialFeedPage() {
 
       <main className="max-w-xl mx-auto px-4 pt-8 space-y-12">
         
-        {/* Stories Style Highlight (Static for now) */}
-        <section className="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-          {['Turlar', 'Restoranlar', 'Plajlar', 'Gece Hayatı', 'Doğa'].map((category) => (
-            <div key={category} className="flex flex-col items-center gap-2 shrink-0">
-              <div className="w-16 h-16 rounded-3xl bg-white/5 border border-white/5 p-1 flex items-center justify-center group cursor-pointer hover:border-[#64ffda] transition-all">
-                <div className="w-full h-full bg-[#112240] rounded-2xl flex items-center justify-center text-[#64ffda] group-hover:scale-90 transition-transform">
-                  <TrendingUp className="w-6 h-6" />
-                </div>
-              </div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{category}</span>
-            </div>
-          ))}
-        </section>
+        {/* Stories System */}
+        <Stories />
 
         {/* Feed Posts */}
         <div className="space-y-10">
