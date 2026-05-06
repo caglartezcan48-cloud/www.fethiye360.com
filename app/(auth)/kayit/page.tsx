@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { UserPlus, Phone, Lock, Loader2, ArrowRight, User, Sparkles } from 'lucide-react'
+import { UserPlus, Phone, Lock, Loader2, ArrowRight, User } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 

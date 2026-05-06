@@ -15,6 +15,7 @@ const navLinks = [
 ]
 
 export function Header() {
+  const [user, setUser] = useState<any>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)

@@ -8,14 +8,12 @@ import {
   Loader2, 
   Heart, 
   MessageSquare,
-  User as UserIcon,
   Sparkles,
   Lock,
   UserPlus,
   UserMinus,
   ArrowLeft,
-  Video,
-  MessageSquare
+  Video
 } from 'lucide-react'
 import Image from 'next/image'
 import { BottomNav } from '@/components/sosyal/bottom-nav'

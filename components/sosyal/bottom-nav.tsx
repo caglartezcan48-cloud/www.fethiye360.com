@@ -7,8 +7,7 @@ import {
   Compass, 
   PlusSquare, 
   MessageCircle, 
-  User,
-  Bell
+  User
 } from 'lucide-react'
 
 export function BottomNav() {

@@ -9,7 +9,6 @@ import {
   Sparkles, 
   Camera, 
   ArrowLeft, 
-  TrendingUp, 
   Users, 
   Image as ImageIcon 
 } from 'lucide-react'

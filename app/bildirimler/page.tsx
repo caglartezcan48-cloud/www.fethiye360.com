@@ -10,7 +10,6 @@ import {
   UserPlus, 
   Loader2, 
   ArrowLeft,
-  Circle,
   Clock,
   ChevronRight
 } from 'lucide-react'
