@@ -10,12 +10,25 @@ import {
   User as UserIcon, 
   Loader2, 
   Shield, 
-  MoreHorizontal,
+  Edit2,
   ExternalLink,
-  MapPin
+  X,
+  Check,
+  AlertCircle
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 interface UserProfile {
   id: string
@@ -24,13 +37,22 @@ interface UserProfile {
   avatar_url: string
   bio: string
   updated_at: string
-  // created_at profiles tablosunda yoksa updated_at kullanılır veya profil olusturma tarihi
 }
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  
+  // Düzenleme State'leri
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
+  const [editForm, setEditForm] = useState({
+    full_name: '',
+    username: '',
+    bio: ''
+  })
+  const [updating, setUpdating] = useState(false)
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -49,9 +71,52 @@ export default function AdminUsersPage() {
       setUsers(data || [])
     } catch (error: any) {
       toast.error('Kullanıcılar yüklenirken bir hata oluştu')
-      console.error(error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleEditClick = (user: UserProfile) => {
+    setEditingUser(user)
+    setEditForm({
+      full_name: user.full_name || '',
+      username: user.username || '',
+      bio: user.bio || ''
+    })
+  }
+
+  const handleUpdateUser = async () => {
+    if (!editingUser) return
+
+    try {
+      setUpdating(true)
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          full_name: editForm.full_name,
+          username: editForm.username,
+          bio: editForm.bio,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingUser.id)
+
+      if (error) {
+        if (error.code === '23505') {
+          toast.error('Bu kullanıcı adı zaten alınmış')
+        } else {
+          throw error
+        }
+        return
+      }
+
+      toast.success('Kullanıcı başarıyla güncellendi')
+      setEditingUser(null)
+      fetchUsers() // Listeyi tazele
+    } catch (error: any) {
+      toast.error('Güncelleme sırasında bir hata oluştu')
+      console.error(error)
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -62,7 +127,7 @@ export default function AdminUsersPage() {
 
   return (
     <div className="p-8">
-      {/* Header */}
+      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
           <h1 className="text-3xl font-black text-white flex items-center gap-3">
@@ -71,14 +136,14 @@ export default function AdminUsersPage() {
             </div>
             Kullanıcı Yönetimi
           </h1>
-          <p className="text-slate-400 mt-2 font-medium">Siteye kayıtlı tüm ziyaretçileri görüntüleyin ve yönetin.</p>
+          <p className="text-slate-400 mt-2 font-medium">Site ziyaretçilerini listeleyin ve bilgilerini revize edin.</p>
         </div>
 
         <div className="relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-[#64ffda] transition-colors" />
           <input
             type="text"
-            placeholder="Kullanıcı ara (Ad veya Kullanıcı Adı)..."
+            placeholder="İsim veya kullanıcı adı ile ara..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full md:w-80 bg-[#112240] border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
@@ -86,18 +151,11 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Users Grid/Table */}
+      {/* Content Grid */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin" />
-          <p className="text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">Kullanıcılar Yükleniyor...</p>
-        </div>
-      ) : filteredUsers.length === 0 ? (
-        <div className="text-center py-20 bg-[#112240]/50 rounded-[40px] border border-white/5">
-          <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <Users className="w-10 h-10 text-slate-600" />
-          </div>
-          <p className="text-slate-400 font-medium text-lg">Kullanıcı bulunamadı.</p>
+          <p className="text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">Veriler Alınıyor...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -106,21 +164,11 @@ export default function AdminUsersPage() {
               key={user.id}
               className="bg-[#112240]/50 border border-white/5 rounded-[32px] p-6 hover:border-[#64ffda]/30 transition-all group relative overflow-hidden"
             >
-              {/* Background Decoration */}
-              <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity">
-                <Shield className="w-24 h-24 text-[#64ffda]" />
-              </div>
-
               <div className="flex items-start gap-4 relative z-10">
                 <div className="relative">
                   <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/5 group-hover:border-[#64ffda]/50 transition-colors bg-[#0a192f]">
                     {user.avatar_url ? (
-                      <Image 
-                        src={user.avatar_url} 
-                        alt={user.username}
-                        fill
-                        className="object-cover"
-                      />
+                      <Image src={user.avatar_url} alt={user.username} fill className="object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-[#64ffda]/10">
                         <UserIcon className="w-8 h-8 text-[#64ffda]" />
@@ -143,7 +191,7 @@ export default function AdminUsersPage() {
               <div className="mt-8 space-y-3 relative z-10">
                 <div className="flex items-center gap-3 text-xs text-slate-400 font-bold uppercase tracking-widest bg-white/5 p-3 rounded-xl">
                   <Calendar className="w-4 h-4 text-[#64ffda]" />
-                  Son Güncelleme: {new Date(user.updated_at).toLocaleDateString('tr-TR')}
+                  Güncelleme: {new Date(user.updated_at).toLocaleDateString('tr-TR')}
                 </div>
                 
                 {user.bio && (
@@ -155,20 +203,78 @@ export default function AdminUsersPage() {
 
               <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between relative z-10">
                 <button 
-                  onClick={() => toast.info('Detay sayfası yakında eklenecek')}
-                  className="flex items-center gap-2 text-xs font-black text-[#64ffda] uppercase tracking-[0.2em] hover:opacity-80 transition-opacity"
+                  onClick={() => handleEditClick(user)}
+                  className="flex items-center gap-2 text-xs font-black text-[#64ffda] uppercase tracking-[0.2em] hover:bg-[#64ffda]/10 p-2 rounded-lg transition-all"
                 >
-                  Profili Gör <ExternalLink className="w-4 h-4" />
+                  <Edit2 className="w-4 h-4" /> Revize Et
                 </button>
                 
-                <div className="flex gap-2">
-                   {/* Buraya Silme veya Düzenleme butonları eklenebilir */}
-                </div>
+                <button className="p-2 text-slate-500 hover:text-white transition-colors">
+                  <ExternalLink className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Edit Modal */}
+      <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
+        <DialogContent className="bg-[#112240] border-white/10 text-white max-w-lg rounded-[32px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black flex items-center gap-3">
+              <Edit2 className="w-6 h-6 text-[#64ffda]" />
+              Kullanıcıyı Revize Et
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6 py-6">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Ad Soyad</Label>
+              <Input 
+                value={editForm.full_name}
+                onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
+                className="bg-[#0a192f] border-white/5 rounded-xl h-12 focus:ring-[#64ffda]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Kullanıcı Adı (@)</Label>
+              <Input 
+                value={editForm.username}
+                onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                className="bg-[#0a192f] border-white/5 rounded-xl h-12 focus:ring-[#64ffda]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Biyografi / Hakkında</Label>
+              <Textarea 
+                value={editForm.bio}
+                onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                className="bg-[#0a192f] border-white/5 rounded-xl min-h-[100px] focus:ring-[#64ffda]"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-3">
+            <Button 
+              variant="ghost" 
+              onClick={() => setEditingUser(null)}
+              className="rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-white/5"
+            >
+              İptal
+            </Button>
+            <Button 
+              onClick={handleUpdateUser}
+              disabled={updating}
+              className="bg-[#64ffda] text-[#0a192f] rounded-xl font-black uppercase tracking-widest text-xs px-8 hover:bg-[#52e0c4]"
+            >
+              {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Değişiklikleri Kaydet'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
