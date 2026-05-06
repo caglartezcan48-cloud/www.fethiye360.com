@@ -39,6 +39,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { BottomNav } from '@/components/sosyal/bottom-nav'
+import { Header } from '@/components/fethiye/header'
 
 export default function UserProfilePage() {
   const [user, setUser] = useState<any>(null)
@@ -196,7 +197,8 @@ export default function UserProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#0a192f] text-white pb-20">
-      <main className="max-w-4xl mx-auto px-6 pt-12 md:pt-20">
+      <Header />
+      <main className="max-w-4xl mx-auto px-6 pt-32 md:pt-40">
         
         {/* Profile Info Section */}
         <section className="flex flex-col md:flex-row items-center md:items-start gap-10 md:gap-16 mb-16 animate-in fade-in duration-700">

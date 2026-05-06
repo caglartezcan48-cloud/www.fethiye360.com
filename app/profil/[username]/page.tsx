@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { BottomNav } from '@/components/sosyal/bottom-nav'
+import { Header } from '@/components/fethiye/header'
 import { toast } from 'sonner'
 
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -213,7 +214,8 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
   return (
     <div className="min-h-screen bg-[#0a192f] text-white pb-20">
-      <main className="max-w-4xl mx-auto px-6 pt-12 md:pt-20">
+      <Header />
+      <main className="max-w-4xl mx-auto px-6 pt-32 md:pt-40">
         
         {/* Back Button */}
         <button onClick={() => router.back()} className="mb-10 flex items-center gap-2 text-slate-500 hover:text-[#64ffda] transition-colors group">
