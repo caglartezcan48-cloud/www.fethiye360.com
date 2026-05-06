@@ -14,7 +14,8 @@ import {
   UserPlus,
   UserMinus,
   ArrowLeft,
-  Video
+  Video,
+  MessageSquare
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -28,6 +29,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
   const [isFollowing, setIsFollowing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [followLoading, setFollowLoading] = useState(false)
+  const [messageLoading, setMessageLoading] = useState(false)
   
   const supabase = createClient()
   const router = useRouter()
@@ -155,6 +157,51 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
     }
   }
 
+  const handleMessage = async () => {
+    if (!currentUser) {
+      toast.error('Mesaj göndermek için giriş yapmalısınız')
+      router.push('/giris')
+      return
+    }
+
+    try {
+      setMessageLoading(true)
+      
+      // 1. Mevcut sohbeti kontrol et
+      const { data: existingMember } = await supabase
+        .rpc('get_existing_conversation', { 
+          user1: currentUser.id, 
+          user2: profile.id 
+        })
+
+      if (existingMember && existingMember.length > 0) {
+        router.push(`/mesajlar/${existingMember[0].conversation_id}`)
+        return
+      }
+
+      // 2. Yoksa yeni olustur
+      const { data: newConv, error: convError } = await supabase
+        .from('conversations')
+        .insert({})
+        .select()
+        .single()
+      
+      if (convError) throw convError
+
+      await supabase.from('conversation_members').insert([
+        { conversation_id: newConv.id, user_id: currentUser.id },
+        { conversation_id: newConv.id, user_id: profile.id }
+      ])
+
+      router.push(`/mesajlar/${newConv.id}`)
+    } catch (error) {
+      console.error(error)
+      toast.error('Sohbet başlatılamadı')
+    } finally {
+      setMessageLoading(false)
+    }
+  }
+
   if (loading) return (
     <div className="min-h-screen bg-[#0a192f] flex flex-col items-center justify-center gap-4">
       <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin" />
@@ -198,17 +245,26 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                   <Lock className="w-4 h-4 text-slate-500" />
                 )}
               </h1>
-              <button 
-                onClick={handleFollow}
-                disabled={followLoading}
-                className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${
-                  isFollowing 
-                    ? 'bg-white/5 text-white border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20' 
-                    : 'bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] shadow-[#64ffda]/10'
-                }`}
-              >
-                {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><UserMinus className="w-4 h-4" /> Takibi Bırak</> : <><UserPlus className="w-4 h-4" /> Takip Et</>}
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleFollow}
+                  disabled={followLoading}
+                  className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${
+                    isFollowing 
+                      ? 'bg-white/5 text-white border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20' 
+                      : 'bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] shadow-[#64ffda]/10'
+                  }`}
+                >
+                  {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><UserMinus className="w-4 h-4" /> Takibi Bırak</> : <><UserPlus className="w-4 h-4" /> Takip Et</>}
+                </button>
+                <button 
+                  onClick={handleMessage}
+                  disabled={messageLoading}
+                  className="px-8 py-3 bg-white/5 text-white border border-white/10 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2 shadow-xl"
+                >
+                  {messageLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><MessageSquare className="w-4 h-4" /> Mesaj Gönder</>}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-center md:justify-start gap-12 text-sm font-bold">
