@@ -20,7 +20,6 @@ import Image from 'next/image'
 import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { Header } from '@/components/fethiye/header'
 import { toast } from 'sonner'
-import { Share2 } from 'lucide-react'
 
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params)
