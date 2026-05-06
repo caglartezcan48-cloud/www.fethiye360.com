@@ -3,11 +3,8 @@ import { createClient } from '@/lib/supabase/client'
 import { 
   Heart, 
   MessageSquare, 
-  Send, 
   MapPin, 
-  MoreHorizontal, 
   Loader2, 
-  Sparkles, 
   ThumbsDown, 
   Bookmark, 
   AlertTriangle, 
@@ -33,17 +30,26 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   const [showComments, setShowComments] = useState(false)
   
   const supabase = createClient()
+  const handleLike = async () => {
+    if (!currentUserId) return toast.error('Beğenmek için giriş yapmalısınız')
 
-    await supabase.from('post_likes').upsert({ post_id: post.id, user_id: currentUserId })
+    if (isLiked) {
+      setLikes(likes - 1)
+      setIsLiked(false)
+      await supabase.from('post_likes').delete().eq('post_id', post.id).eq('user_id', currentUserId)
+    } else {
+      setLikes(likes + 1)
+      setIsLiked(true)
+      await supabase.from('post_likes').upsert({ post_id: post.id, user_id: currentUserId })
 
-    // Bildirim Gonder (Eger kendi postu degilse ve begendiyse)
-    if (!isLiked && post.user_id !== currentUserId) {
-      await supabase.from('notifications').insert({
-        user_id: post.user_id,
-        actor_id: currentUserId,
-        type: 'like',
-        post_id: post.id
-      })
+      if (post.user_id !== currentUserId) {
+        await supabase.from('notifications').insert({
+          user_id: post.user_id,
+          actor_id: currentUserId,
+          type: 'like',
+          post_id: post.id
+        })
+      }
     }
   }
 
