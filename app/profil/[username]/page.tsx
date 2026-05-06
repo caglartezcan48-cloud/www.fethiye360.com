@@ -308,7 +308,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 {posts.map((post) => (
                   <div 
                     key={post.id} 
-                    onClick={() => toast.info('Gönderi detayı çok yakında! ✨')}
+                    onClick={() => router.push(`/sosyal/post/${post.id}`)}
                     className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer shadow-2xl transition-transform active:scale-95"
                   >
                     <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-all duration-1000" />

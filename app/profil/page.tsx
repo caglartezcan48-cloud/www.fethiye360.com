@@ -302,10 +302,9 @@ export default function UserProfilePage() {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] hidden md:block">Yeni Paylaşım</span>
             </button>
 
-            {posts.map((post) => (
               <div 
                 key={post.id} 
-                onClick={() => toast.info('Gönderi detayı çok yakında! ✨')}
+                onClick={() => router.push(`/sosyal/post/${post.id}`)}
                 className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
               >
                 <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />

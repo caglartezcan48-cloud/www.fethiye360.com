@@ -39,7 +39,8 @@ export default function SocialFeedPage() {
             *,
             user_profiles (username, avatar_url)
           ),
-          post_likes (user_id)
+          post_likes (user_id),
+          businesses (id, name, slug)
         `)
         .eq('is_approved', true) // Filtre eklendi
         .order('created_at', { ascending: false })

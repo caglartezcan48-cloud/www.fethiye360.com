@@ -26,6 +26,24 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     fetchNotifications()
+
+    // Realtime Dinleyici Ekle
+    const channel = supabase
+      .channel('notifications_realtime')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'notifications' 
+      }, (payload) => {
+        // Yeni bildirim gelince listeye ekle
+        fetchNotifications() // Kolaylık olması açısından tekrar çekelim (actor bilgisi için)
+        toast.info('Yeni bir bildirim aldınız! 🔔')
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const fetchNotifications = async () => {

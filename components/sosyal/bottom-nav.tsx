@@ -7,7 +7,8 @@ import {
   Compass, 
   PlusSquare, 
   MessageCircle, 
-  User
+  User,
+  Bell
 } from 'lucide-react'
 
 export function BottomNav() {
@@ -17,7 +18,7 @@ export function BottomNav() {
     { href: '/sosyal', icon: Home, label: 'Akış' },
     { href: '/kesfet', icon: Compass, label: 'Keşfet' },
     { href: '/sosyal/yukle', icon: PlusSquare, label: 'Paylaş', special: true },
-    { href: '/mesajlar', icon: MessageCircle, label: 'Mesajlar' },
+    { href: '/bildirimler', icon: Bell, label: 'Bildirimler' },
     { href: '/profil', icon: User, label: 'Profil' }
   ]
 

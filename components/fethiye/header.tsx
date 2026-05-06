@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Menu, X, Compass, User, Building2, Bell, LogIn } from "lucide-react"
+import { Menu, X, Compass, User, Building2, Bell, LogIn, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CityStats } from "./city-stats"
 import { createClient } from "@/lib/supabase/client"
@@ -82,6 +82,9 @@ export function Header() {
 
           {user ? (
             <div className="flex items-center gap-4">
+              <Link href="/mesajlar" className="relative p-2.5 text-slate-400 hover:text-[#64ffda] bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all group">
+                <MessageCircle className="w-5 h-5" />
+              </Link>
               <Link href="/bildirimler" className="relative p-2.5 text-slate-400 hover:text-[#64ffda] bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all group">
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (

@@ -12,7 +12,10 @@ import {
   MapPin,
   Sparkles,
   Clock,
-  LayoutGrid
+  LayoutGrid,
+  Building2,
+  Search,
+  Check
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -30,6 +33,12 @@ function UploadContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
+  // Isletme Etiketleme State
+  const [businesses, setBusinesses] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedBusiness, setSelectedBusiness] = useState<any>(null)
+  const [isSearching, setIsSearching] = useState(false)
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   const router = useRouter()
@@ -41,6 +50,22 @@ function UploadContent() {
       setPreview(URL.createObjectURL(selectedFile))
       setMediaType(selectedFile.type.startsWith('video') ? 'video' : 'image')
     }
+  }
+
+  const searchBusinesses = async (query: string) => {
+    setSearchQuery(query)
+    if (query.length < 2) {
+      setBusinesses([])
+      return
+    }
+    setIsSearching(true)
+    const { data } = await supabase
+      .from('businesses')
+      .select('id, name, slug')
+      .ilike('name', `%${query}%`)
+      .limit(5)
+    setBusinesses(data || [])
+    setIsSearching(false)
   }
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -77,6 +102,7 @@ function UploadContent() {
             media_type: mediaType,
             caption: caption,
             location: location,
+            business_id: selectedBusiness?.id || null,
             is_approved: true
           }])
         if (dbError) throw dbError
@@ -189,6 +215,55 @@ function UploadContent() {
                   className="w-full bg-[#0a192f] border-none rounded-2xl p-5 text-white focus:ring-2 focus:ring-[#64ffda] outline-none min-h-[140px] transition-all text-sm leading-relaxed"
                   placeholder="Bu anı anlatacak bir şeyler yaz..."
                 />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                  <Building2 className="w-3 h-3 text-[#64ffda]" /> İşletme Etiketle (Opsiyonel)
+                </label>
+                <div className="relative">
+                  <div className="relative">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                    <input 
+                      value={selectedBusiness ? selectedBusiness.name : searchQuery}
+                      onChange={(e) => !selectedBusiness && searchBusinesses(e.target.value)}
+                      readOnly={!!selectedBusiness}
+                      className="w-full bg-[#0a192f] border-none rounded-2xl p-5 pl-12 text-white focus:ring-2 focus:ring-[#64ffda] outline-none transition-all text-sm font-medium"
+                      placeholder="İşletme ara... (Örn: Limon Cafe)"
+                    />
+                    {selectedBusiness && (
+                      <button 
+                        type="button"
+                        onClick={() => { setSelectedBusiness(null); setSearchQuery(''); }}
+                        className="absolute right-5 top-1/2 -translate-y-1/2 text-red-400 hover:text-red-300 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {isSearching && (
+                    <div className="absolute top-full left-0 w-full mt-2 bg-[#112240] border border-white/5 rounded-2xl p-4 z-50 flex items-center justify-center">
+                      <Loader2 className="w-4 h-4 text-[#64ffda] animate-spin" />
+                    </div>
+                  )}
+
+                  {!selectedBusiness && businesses.length > 0 && (
+                    <div className="absolute top-full left-0 w-full mt-2 bg-[#112240] border border-white/5 rounded-2xl overflow-hidden z-50 shadow-2xl">
+                      {businesses.map((b) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => { setSelectedBusiness(b); setBusinesses([]); }}
+                          className="w-full p-4 flex items-center justify-between text-left hover:bg-white/5 transition-colors group"
+                        >
+                          <span className="text-sm font-medium text-white group-hover:text-[#64ffda]">{b.name}</span>
+                          <Check className="w-4 h-4 text-[#64ffda] opacity-0 group-hover:opacity-100" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-3">

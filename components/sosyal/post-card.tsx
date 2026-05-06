@@ -8,10 +8,11 @@ import {
   ThumbsDown, 
   Bookmark, 
   AlertTriangle, 
-  Share2 
+  Share2,
+  Building2
 } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface PostCardProps {
@@ -28,6 +29,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   const [newComment, setNewComment] = useState('')
   const [loading, setLoading] = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const router = useRouter()
   
   const supabase = createClient()
   const handleLike = async () => {
@@ -105,8 +107,19 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
             <Link href={`/profil/${post.user_profiles?.username}`} className="text-white font-black text-sm uppercase tracking-widest hover:text-[#64ffda] transition-colors">
               {post.user_profiles?.username}
             </Link>
-            <div className="flex items-center gap-1 text-[#64ffda] text-[10px] font-bold">
-              <MapPin className="w-3 h-3" /> {post.location || 'Fethiye'}
+            <div className="flex items-center gap-1 text-[#64ffda] text-[10px] font-bold mt-0.5">
+              {post.businesses ? (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); router.push(`/isletme/${post.businesses.slug}`); }}
+                  className="flex items-center gap-1 hover:underline decoration-2"
+                >
+                  <Building2 className="w-3 h-3" /> {post.businesses.name}
+                </button>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3" /> {post.location || 'Fethiye'}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -116,8 +129,11 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
         </button>
       </div>
 
-      {/* Media Content (Image or Video) */}
-      <div className="relative aspect-square overflow-hidden" onDoubleClick={handleLike}>
+      <div 
+        className="relative aspect-square overflow-hidden cursor-pointer" 
+        onDoubleClick={handleLike}
+        onClick={() => router.push(`/sosyal/post/${post.id}`)}
+      >
         {post.media_type === 'video' ? (
           <video 
             src={post.image_url} 
@@ -148,7 +164,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
             <button onClick={() => setIsDisliked(!isDisliked)} className={`flex items-center gap-2 group ${isDisliked ? 'text-blue-500' : 'text-slate-400 hover:text-blue-500'}`}>
               <ThumbsDown className={`w-7 h-7 transition-transform group-active:scale-150 ${isDisliked ? 'fill-current' : ''}`} />
             </button>
-            <button onClick={() => setShowComments(!showComments)} className="flex items-center gap-2 text-slate-400 hover:text-[#64ffda]">
+            <button onClick={() => router.push(`/sosyal/post/${post.id}`)} className="flex items-center gap-2 text-slate-400 hover:text-[#64ffda]">
               <MessageSquare className="w-7 h-7" />
               <span className="font-black text-xs uppercase">{comments.length}</span>
             </button>
