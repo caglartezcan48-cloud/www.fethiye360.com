@@ -13,12 +13,14 @@ import {
   UserPlus,
   UserMinus,
   ArrowLeft,
-  Video
+  Video,
+  Share2
 } from 'lucide-react'
 import Image from 'next/image'
 import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { Header } from '@/components/fethiye/header'
 import { toast } from 'sonner'
+import { Share2 } from 'lucide-react'
 
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params)
@@ -258,12 +260,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 >
                   {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><UserMinus className="w-4 h-4" /> Takibi Bırak</> : <><UserPlus className="w-4 h-4" /> Takip Et</>}
                 </button>
-                <button 
-                  onClick={handleMessage}
-                  disabled={messageLoading}
-                  className="px-8 py-3 bg-white/5 text-white border border-white/10 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2 shadow-xl"
-                >
                   {messageLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><MessageSquare className="w-4 h-4" /> Mesaj Gönder</>}
+                </button>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href)
+                    toast.success('Profil bağlantısı kopyalandı! 🔗')
+                  }}
+                  className="p-3 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-[#64ffda]/10 hover:text-[#64ffda] transition-all shadow-xl"
+                  title="Profili Paylaş"
+                >
+                  <Share2 className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -296,7 +303,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
               <div className="grid grid-cols-3 gap-1 md:gap-6">
                 {posts.map((post) => (
-                  <div key={post.id} className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer shadow-2xl transition-transform active:scale-95">
+                  <div 
+                    key={post.id} 
+                    onClick={() => toast.info('Gönderi detayı çok yakında! ✨')}
+                    className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer shadow-2xl transition-transform active:scale-95"
+                  >
                     <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-all duration-1000" />
                     {post.media_type === 'video' && (
                       <div className="absolute top-4 right-4 p-1.5 bg-black/40 backdrop-blur-md rounded-lg border border-white/10 z-10">

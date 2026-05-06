@@ -16,7 +16,8 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Video
+  Video,
+  Share2
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -230,15 +231,19 @@ export default function UserProfilePage() {
                 >
                   Profili Düzenle
                 </button>
-                <button 
-                  onClick={togglePrivacy}
-                  disabled={updating}
-                  className={`p-2.5 rounded-xl border transition-all ${profile?.is_public ? 'border-white/10 text-white hover:bg-white/5' : 'border-[#64ffda]/30 text-[#64ffda] bg-[#64ffda]/5'}`}
-                  title={profile?.is_public ? "Hesabı Gizle" : "Hesabı Herkese Aç"}
-                >
                   {profile?.is_public ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
                 </button>
-                <button onClick={handleLogout} className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all">
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/profil/${profile?.username}`)
+                    toast.success('Profil bağlantısı kopyalandı! 🔗')
+                  }}
+                  className="p-2.5 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-[#64ffda]/10 hover:text-[#64ffda] transition-all"
+                  title="Profili Paylaş"
+                >
+                  <Share2 className="w-5 h-5" />
+                </button>
+                <button onClick={handleLogout} className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all" title="Çıkış Yap">
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>
@@ -288,7 +293,11 @@ export default function UserProfilePage() {
             </button>
 
             {posts.map((post) => (
-              <div key={post.id} className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer active:scale-95 transition-transform">
+              <div 
+                key={post.id} 
+                onClick={() => toast.info('Gönderi detayı çok yakında! ✨')}
+                className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
+              >
                 <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
                 {post.media_type === 'video' && (
                   <div className="absolute top-4 right-4 p-1.5 bg-black/40 backdrop-blur-md rounded-lg border border-white/10 z-10">
