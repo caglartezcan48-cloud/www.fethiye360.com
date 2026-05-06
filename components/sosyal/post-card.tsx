@@ -14,6 +14,7 @@ import {
   Share2 
 } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { toast } from 'sonner'
 
 interface PostCardProps {
@@ -75,13 +76,15 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
       {/* Header */}
       <div className="p-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#64ffda] to-blue-500 p-[2px]">
+          <Link href={`/profil/${post.user_profiles?.username}`} className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#64ffda] to-blue-500 p-[2px] hover:scale-105 transition-transform active:scale-95">
             <div className="w-full h-full bg-[#0a192f] rounded-[14px] overflow-hidden relative">
-              <Image src={post.user_profiles?.avatar_url || ''} alt="Avatar" fill />
+              <Image src={post.user_profiles?.avatar_url || ''} alt="Avatar" fill className="object-cover" />
             </div>
-          </div>
+          </Link>
           <div>
-            <h4 className="text-white font-black text-sm uppercase tracking-widest">{post.user_profiles?.username}</h4>
+            <Link href={`/profil/${post.user_profiles?.username}`} className="text-white font-black text-sm uppercase tracking-widest hover:text-[#64ffda] transition-colors">
+              {post.user_profiles?.username}
+            </Link>
             <div className="flex items-center gap-1 text-[#64ffda] text-[10px] font-bold">
               <MapPin className="w-3 h-3" /> {post.location || 'Fethiye'}
             </div>
@@ -125,7 +128,9 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
         {/* Caption */}
         <div className="space-y-2">
           <p className="text-white text-sm leading-relaxed">
-            <span className="font-black mr-2 uppercase text-[#64ffda] tracking-widest">{post.user_profiles?.username}</span>
+            <Link href={`/profil/${post.user_profiles?.username}`} className="font-black mr-2 uppercase text-[#64ffda] tracking-widest hover:underline decoration-2">
+              {post.user_profiles?.username}
+            </Link>
             {post.caption}
           </p>
         </div>
