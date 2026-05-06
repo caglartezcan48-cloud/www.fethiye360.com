@@ -224,33 +224,37 @@ export default function UserProfilePage() {
                   <Lock className="w-4 h-4 text-slate-500" title="Gizli Profil" />
                 )}
               </h1>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                <button 
+                  onClick={() => router.push('/sosyal/yukle')}
+                  className="px-6 py-2.5 bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-[#64ffda]/20"
+                >
+                  <Plus className="w-4 h-4" /> Paylaşım Yap
+                </button>
                 <button 
                   onClick={() => setIsEditModalOpen(true)}
-                  className="px-6 py-2.5 bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] rounded-xl font-black text-xs uppercase tracking-widest transition-all"
+                  className="px-6 py-2.5 bg-white/5 text-white border border-white/10 hover:bg-white/10 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2"
                 >
-                  Profili Düzenle
+                  Düzenle
                 </button>
                 <button 
                   onClick={togglePrivacy}
                   disabled={updating}
-                  className={`p-2.5 rounded-xl border transition-all ${profile?.is_public ? 'border-white/10 text-white hover:bg-white/5' : 'border-[#64ffda]/30 text-[#64ffda] bg-[#64ffda]/5'}`}
-                  title={profile?.is_public ? "Hesabı Gizle" : "Hesabı Herkese Aç"}
+                  className={`px-4 py-2.5 rounded-xl border transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest ${profile?.is_public ? 'border-white/10 text-white hover:bg-white/5' : 'border-[#64ffda]/30 text-[#64ffda] bg-[#64ffda]/5'}`}
                 >
-                  {profile?.is_public ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                  {profile?.is_public ? <><Eye className="w-4 h-4" /> Herkese Açık</> : <><EyeOff className="w-4 h-4" /> Gizli Profil</>}
                 </button>
                 <button 
                   onClick={() => {
                     navigator.clipboard.writeText(`${window.location.origin}/profil/${profile?.username}`)
                     toast.success('Profil bağlantısı kopyalandı! 🔗')
                   }}
-                  className="p-2.5 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-[#64ffda]/10 hover:text-[#64ffda] transition-all"
-                  title="Profili Paylaş"
+                  className="px-4 py-2.5 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-[#64ffda]/10 hover:text-[#64ffda] transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest"
                 >
-                  <Share2 className="w-5 h-5" />
+                  <Share2 className="w-4 h-4" /> Paylaş
                 </button>
-                <button onClick={handleLogout} className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all" title="Çıkış Yap">
-                  <LogOut className="w-5 h-5" />
+                <button onClick={handleLogout} className="px-4 py-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all flex items-center gap-2 font-black text-[10px] uppercase tracking-widest">
+                  <LogOut className="w-4 h-4" /> Çıkış
                 </button>
               </div>
             </div>

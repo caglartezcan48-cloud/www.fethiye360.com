@@ -247,7 +247,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                   <Lock className="w-4 h-4 text-slate-500" />
                 )}
               </h1>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                 <button 
                   onClick={handleFollow}
                   disabled={followLoading}
@@ -271,10 +271,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                     navigator.clipboard.writeText(window.location.href)
                     toast.success('Profil bağlantısı kopyalandı! 🔗')
                   }}
-                  className="p-3 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-[#64ffda]/10 hover:text-[#64ffda] transition-all shadow-xl"
-                  title="Profili Paylaş"
+                  className="px-6 py-3 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-[#64ffda]/10 hover:text-[#64ffda] transition-all shadow-xl flex items-center gap-2 font-black text-xs uppercase tracking-widest"
                 >
-                  <Share2 className="w-5 h-5" />
+                  <Share2 className="w-4 h-4" /> Paylaş
                 </button>
               </div>
             </div>
