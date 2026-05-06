@@ -4,6 +4,7 @@ import { ArrowDown, Play, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "./search-bar"
 import Image from "next/image"
+import Link from "next/link"
 
 export function Hero() {
   return (
@@ -48,9 +49,22 @@ export function Hero() {
             işletmelerden gizli kalmış köşelere kadar her yeri HD kalitede keşfet.
           </p>
 
-          {/* Instant Search Bar Wrapper */}
           <div className="animate-in fade-in zoom-in-95 duration-1000 delay-300">
             <SearchBar />
+          </div>
+
+          {/* Hero Action Buttons */}
+          <div className="mt-10 flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-14 duration-1000 delay-400">
+            <Link href="/kesfet">
+              <Button className="bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-xs px-10 h-14 rounded-2xl shadow-xl shadow-[#64ffda]/20 group">
+                Hemen Keşfet
+              </Button>
+            </Link>
+            <Link href="#turlar">
+              <Button variant="outline" className="border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-widest text-xs px-10 h-14 rounded-2xl">
+                Sanal Turlar
+              </Button>
+            </Link>
           </div>
 
           {/* Stats - HD Cards */}

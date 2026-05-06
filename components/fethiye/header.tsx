@@ -12,6 +12,8 @@ const navLinks = [
   { href: "/sosyal", label: "Sosyal" },
   { href: "/#turlar", label: "Turlar" },
   { href: "/#harita", label: "Harita" },
+  { href: "/#hakkinda", label: "Hakkında" },
+  { href: "/#iletisim", label: "İletişim" },
 ]
 
 export function Header() {
