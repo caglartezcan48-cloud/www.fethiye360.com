@@ -12,9 +12,10 @@ import {
   Shield, 
   Edit2,
   ExternalLink,
-  X,
-  Check,
-  AlertCircle
+  MoreVertical,
+  Filter,
+  ChevronRight,
+  ArrowUpDown
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -100,21 +101,13 @@ export default function AdminUsersPage() {
         })
         .eq('id', editingUser.id)
 
-      if (error) {
-        if (error.code === '23505') {
-          toast.error('Bu kullanıcı adı zaten alınmış')
-        } else {
-          throw error
-        }
-        return
-      }
+      if (error) throw error
 
       toast.success('Kullanıcı başarıyla güncellendi')
       setEditingUser(null)
-      fetchUsers() // Listeyi tazele
+      fetchUsers()
     } catch (error: any) {
       toast.error('Güncelleme sırasında bir hata oluştu')
-      console.error(error)
     } finally {
       setUpdating(false)
     }
@@ -126,151 +119,189 @@ export default function AdminUsersPage() {
   )
 
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-7xl mx-auto animate-in fade-in duration-700">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-        <div>
-          <h1 className="text-3xl font-black text-white flex items-center gap-3">
-            <div className="p-3 bg-[#64ffda]/10 rounded-2xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+        <div className="space-y-2">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-[#64ffda]/10 rounded-[24px] border border-[#64ffda]/20">
               <Users className="w-8 h-8 text-[#64ffda]" />
             </div>
-            Kullanıcı Yönetimi
-          </h1>
-          <p className="text-slate-400 mt-2 font-medium">Site ziyaretçilerini listeleyin ve bilgilerini revize edin.</p>
+            <div>
+              <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic">Kullanıcı Yönetimi</h1>
+              <div className="flex items-center gap-2 text-[#64ffda] text-[10px] font-black uppercase tracking-[0.3em]">
+                <Shield className="w-3 h-3" /> Toplam {users.length} Kayıtlı Ziyaretçi
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-[#64ffda] transition-colors" />
-          <input
-            type="text"
-            placeholder="İsim veya kullanıcı adı ile ara..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full md:w-80 bg-[#112240] border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
-          />
+        <div className="flex items-center gap-4">
+          <div className="relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-[#64ffda] transition-all" />
+            <input
+              type="text"
+              placeholder="İsim veya kullanıcı adı ara..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full md:w-96 bg-[#112240] border border-white/5 rounded-[20px] py-5 pl-14 pr-6 text-white focus:ring-2 focus:ring-[#64ffda]/50 transition-all outline-none text-sm font-medium shadow-2xl"
+            />
+          </div>
+          <button className="p-5 bg-[#112240] border border-white/5 rounded-[20px] text-[#64ffda] hover:bg-[#1d3359] transition-all">
+            <Filter className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
-      {/* Content Grid */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin" />
-          <p className="text-slate-400 font-bold animate-pulse uppercase tracking-widest text-xs">Veriler Alınıyor...</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredUsers.map((user) => (
-            <div 
-              key={user.id}
-              className="bg-[#112240]/50 border border-white/5 rounded-[32px] p-6 hover:border-[#64ffda]/30 transition-all group relative overflow-hidden"
-            >
-              <div className="flex items-start gap-4 relative z-10">
-                <div className="relative">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/5 group-hover:border-[#64ffda]/50 transition-colors bg-[#0a192f]">
-                    {user.avatar_url ? (
-                      <Image src={user.avatar_url} alt={user.username} fill className="object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-[#64ffda]/10">
-                        <UserIcon className="w-8 h-8 text-[#64ffda]" />
+      {/* Users List View (Table-like) */}
+      <div className="bg-[#112240]/40 backdrop-blur-3xl rounded-[40px] border border-white/5 overflow-hidden shadow-2xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-white/5 bg-white/[0.02]">
+                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Profil / Kullanıcı</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Biyografi</th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+                  <div className="flex items-center gap-2">
+                    Son Güncelleme <ArrowUpDown className="w-3 h-3" />
+                  </div>
+                </th>
+                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] text-right">Aksiyon</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="py-32 text-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin" />
+                      <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-xs">Veritabanı Okunuyor...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="py-32 text-center">
+                    <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <Users className="w-10 h-10 text-slate-700" />
+                    </div>
+                    <p className="text-slate-500 font-bold italic">Aradığınız kriterde bir kullanıcı bulunamadı.</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-4">
+                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-white/10 p-0.5 bg-[#0a192f] shrink-0">
+                          {user.avatar_url ? (
+                            <Image src={user.avatar_url} alt={user.username} fill className="object-cover rounded-xl" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[#64ffda]/10 rounded-xl">
+                              <UserIcon className="w-6 h-6 text-[#64ffda]" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-white font-bold text-base group-hover:text-[#64ffda] transition-colors line-clamp-1">
+                            {user.full_name || 'İsimsiz Kullanıcı'}
+                          </span>
+                          <span className="text-slate-500 text-xs font-black uppercase tracking-widest mt-0.5">@{user.username}</span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#64ffda] rounded-lg flex items-center justify-center border-2 border-[#0a192f]">
-                    <Shield className="w-3 h-3 text-[#0a192f]" />
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-white group-hover:text-[#64ffda] transition-colors truncate">
-                    {user.full_name || 'İsimsiz Kullanıcı'}
-                  </h3>
-                  <p className="text-slate-400 text-sm font-medium">@{user.username}</p>
-                </div>
-              </div>
-
-              <div className="mt-8 space-y-3 relative z-10">
-                <div className="flex items-center gap-3 text-xs text-slate-400 font-bold uppercase tracking-widest bg-white/5 p-3 rounded-xl">
-                  <Calendar className="w-4 h-4 text-[#64ffda]" />
-                  Güncelleme: {new Date(user.updated_at).toLocaleDateString('tr-TR')}
-                </div>
-                
-                {user.bio && (
-                  <div className="text-slate-300 text-sm line-clamp-2 italic px-2">
-                    "{user.bio}"
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between relative z-10">
-                <button 
-                  onClick={() => handleEditClick(user)}
-                  className="flex items-center gap-2 text-xs font-black text-[#64ffda] uppercase tracking-[0.2em] hover:bg-[#64ffda]/10 p-2 rounded-lg transition-all"
-                >
-                  <Edit2 className="w-4 h-4" /> Revize Et
-                </button>
-                
-                <button className="p-2 text-slate-500 hover:text-white transition-colors">
-                  <ExternalLink className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
+                    </td>
+                    <td className="px-8 py-6">
+                      <p className="text-slate-400 text-sm italic line-clamp-2 max-w-md">
+                        {user.bio ? `"${user.bio}"` : '—'}
+                      </p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+                        <Calendar className="w-4 h-4 text-[#64ffda]" />
+                        {new Date(user.updated_at).toLocaleDateString('tr-TR')}
+                      </div>
+                    </td>
+                    <td className="px-8 py-6 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEditClick(user)}
+                          className="h-10 px-4 bg-[#64ffda]/5 text-[#64ffda] border border-[#64ffda]/20 rounded-xl hover:bg-[#64ffda] hover:text-[#0a192f] transition-all font-black uppercase tracking-widest text-[10px]"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 mr-2" /> Revize Et
+                        </Button>
+                        <button className="p-2.5 text-slate-500 hover:text-white bg-white/5 rounded-xl transition-all">
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
 
-      {/* Edit Modal */}
+      {/* Edit Modal (Dialog) */}
       <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
-        <DialogContent className="bg-[#112240] border-white/10 text-white max-w-lg rounded-[32px]">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-black flex items-center gap-3">
-              <Edit2 className="w-6 h-6 text-[#64ffda]" />
-              Kullanıcıyı Revize Et
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="bg-[#112240] border-white/10 text-white rounded-[40px] max-w-lg shadow-2xl p-0 overflow-hidden">
+          <div className="p-8 border-b border-white/5 bg-white/[0.02]">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black flex items-center gap-4 tracking-tighter italic uppercase">
+                <div className="p-3 bg-[#64ffda]/10 rounded-2xl">
+                  <Edit2 className="w-6 h-6 text-[#64ffda]" />
+                </div>
+                Profil Revize
+              </DialogTitle>
+            </DialogHeader>
+          </div>
 
-          <div className="space-y-6 py-6">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Ad Soyad</Label>
+          <div className="p-8 space-y-8">
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Tam Ad Soyad</Label>
               <Input 
                 value={editForm.full_name}
                 onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                className="bg-[#0a192f] border-white/5 rounded-xl h-12 focus:ring-[#64ffda]"
+                className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Kullanıcı Adı (@)</Label>
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Kullanıcı Adı</Label>
               <Input 
                 value={editForm.username}
                 onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                className="bg-[#0a192f] border-white/5 rounded-xl h-12 focus:ring-[#64ffda]"
+                className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-slate-400">Biyografi / Hakkında</Label>
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Biyografi</Label>
               <Textarea 
                 value={editForm.bio}
                 onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
-                className="bg-[#0a192f] border-white/5 rounded-xl min-h-[100px] focus:ring-[#64ffda]"
+                className="bg-[#0a192f] border-white/5 rounded-2xl min-h-[140px] p-6 focus:ring-2 focus:ring-[#64ffda] text-white resize-none text-sm leading-relaxed"
+                placeholder="Kullanıcı hakkında bir şeyler yazın..."
               />
             </div>
           </div>
 
-          <DialogFooter className="gap-3">
+          <DialogFooter className="p-8 bg-white/[0.02] border-t border-white/5 gap-4">
             <Button 
               variant="ghost" 
               onClick={() => setEditingUser(null)}
-              className="rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-white/5"
+              className="rounded-2xl font-black uppercase tracking-widest text-[10px] h-14 px-8 hover:bg-white/5 text-slate-400"
             >
               İptal
             </Button>
             <Button 
               onClick={handleUpdateUser}
               disabled={updating}
-              className="bg-[#64ffda] text-[#0a192f] rounded-xl font-black uppercase tracking-widest text-xs px-8 hover:bg-[#52e0c4]"
+              className="bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-[10px] h-14 px-10 hover:bg-[#52e0c4] shadow-xl shadow-[#64ffda]/10 flex-1"
             >
-              {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Değişiklikleri Kaydet'}
+              {updating ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Güncellemeyi Onayla'}
             </Button>
           </DialogFooter>
         </DialogContent>
