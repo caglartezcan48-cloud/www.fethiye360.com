@@ -10,7 +10,8 @@ import {
   ArrowRight
 } from 'lucide-react'
 import Link from 'next/link'
-import { PostCard } from '@/components/sosyal/post-card'
+import { DiscoveryCard } from '@/components/sosyal/discovery-card'
+import { PostGridSkeleton } from '@/components/sosyal/post-skeleton'
 
 export default async function DiscoveryPage({
   searchParams,
@@ -31,7 +32,6 @@ export default async function DiscoveryPage({
       businesses (id, name, slug)
     `)
     .eq('is_approved', true)
-
   // Filtreleme Mantigi (DB Seviyesi)
   if (filtre === 'yeni' || filtre === 'populer') {
     query = query.order('created_at', { ascending: false })
@@ -41,14 +41,15 @@ export default async function DiscoveryPage({
     query = query.eq('media_type', 'image').order('created_at', { ascending: false })
   }
 
-  let { data: posts } = await query.limit(100)
+  const { data: posts } = await query.limit(100)
 
-  // Ekstra Populerlik Siralamasi (Memory Seviyesi)
-  if (filtre === 'populer' && posts) {
-    posts = [...posts].sort((a, b) => (b.post_likes?.length || 0) - (a.post_likes?.length || 0))
+  // Filtreleme Mantigi (Memory Seviyesi)
+  let processedPosts = posts || []
+  if (filtre === 'populer') {
+    processedPosts = [...processedPosts].sort((a, b) => (b.post_likes?.length || 0) - (a.post_likes?.length || 0))
   }
   
-  const displayedPosts = posts?.slice(0, 24) || []
+  const displayedPosts = processedPosts.slice(0, 50)
 
   const filterItems = [
     { id: 'yeni', label: 'En Yeni', icon: Clock },
@@ -98,12 +99,21 @@ export default async function DiscoveryPage({
             })}
           </div>
 
-          {/* Grid View */}
+          {/* Grid View - Instagram Style */}
           {displayedPosts && displayedPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {displayedPosts.map((post: any) => (
-                <PostCard key={post.id} post={post} currentUserId={user?.id} />
-              ))}
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-4 lg:gap-6 auto-rows-[150px] md:auto-rows-[250px] lg:auto-rows-[300px]">
+              {displayedPosts.map((post: any, index: number) => {
+                // Instagram tarzı: Bazı öğeler 2x2 yer kaplasın (Her 6. öğe gibi)
+                const isLarge = (index + 1) % 10 === 3 || (index + 1) % 10 === 8
+                return (
+                  <div 
+                    key={post.id} 
+                    className={`${isLarge ? 'row-span-2 col-span-1 md:col-span-2' : 'col-span-1'}`}
+                  >
+                    <DiscoveryCard post={post} aspectRatio="h-full" />
+                  </div>
+                )
+              })}
             </div>
           ) : (
             <div className="py-32 text-center bg-white/5 rounded-[48px] border border-white/5 border-dashed">
