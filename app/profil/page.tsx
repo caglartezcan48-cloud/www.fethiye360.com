@@ -12,7 +12,6 @@ import {
   Heart, 
   MessageSquare,
   Sparkles,
-  Image as ImageIcon,
   Check,
   Lock,
   Eye,

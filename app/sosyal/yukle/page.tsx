@@ -9,10 +9,8 @@ import {
   Loader2, 
   ArrowLeft, 
   Send, 
-  Image as ImageIcon,
   MapPin,
   Sparkles,
-  Video,
   Clock,
   LayoutGrid
 } from 'lucide-react'

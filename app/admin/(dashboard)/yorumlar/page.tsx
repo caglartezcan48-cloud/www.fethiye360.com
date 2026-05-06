@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Check, X, MessageSquare, Star, Loader2, AlertCircle } from 'lucide-react'
+import { Check, X, MessageSquare, Star, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function AdminReviewsPage() {

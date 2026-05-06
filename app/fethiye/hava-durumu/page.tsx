@@ -1,7 +1,7 @@
 import { Header } from '@/components/fethiye/header'
 import { Hero } from '@/components/fethiye/hero'
 import { Footer } from '@/components/fethiye/footer'
-import { Sun, Cloud, CloudRain, Thermometer, Wind, Droplets, CloudSun, CloudLightning } from 'lucide-react'
+import { Sun, Cloud, CloudRain, Thermometer, Wind, CloudSun, CloudLightning } from 'lucide-react'
 import { getWeatherData, getWeatherStatus } from '@/lib/city-data'
 
 export default async function WeatherPage() {

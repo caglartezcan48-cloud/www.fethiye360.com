@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Menu, X, Compass, User, Building2, Sparkles, Bell, LogIn } from "lucide-react"
+import { Menu, X, Compass, User, Building2, Bell, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CityStats } from "./city-stats"
 import { createClient } from "@/lib/supabase/client"
