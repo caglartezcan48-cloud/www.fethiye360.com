@@ -302,6 +302,7 @@ export default function UserProfilePage() {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] hidden md:block">Yeni Paylaşım</span>
             </button>
 
+            {posts.map((post) => (
               <div 
                 key={post.id} 
                 onClick={() => router.push(`/sosyal/post/${post.id}`)}
