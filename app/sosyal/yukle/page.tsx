@@ -19,6 +19,8 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 
 function UploadContent() {
   const searchParams = useSearchParams()
@@ -38,6 +40,7 @@ function UploadContent() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedBusiness, setSelectedBusiness] = useState<any>(null)
   const [isSearching, setIsSearching] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
@@ -50,6 +53,47 @@ function UploadContent() {
       setPreview(URL.createObjectURL(selectedFile))
       setMediaType(selectedFile.type.startsWith('video') ? 'video' : 'image')
     }
+  }
+
+  const compressImage = (file: File): Promise<Blob | File> => {
+    if (!file.type.startsWith('image/')) return Promise.resolve(file)
+    
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (event) => {
+        const img = new window.Image()
+        img.src = event.target?.result as string
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_WIDTH = 1200
+          const MAX_HEIGHT = 1200
+          let width = img.width
+          let height = img.height
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width
+              width = MAX_WIDTH
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height
+              height = MAX_HEIGHT
+            }
+          }
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx?.drawImage(img, 0, 0, width, height)
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob)
+            else resolve(file)
+          }, 'image/jpeg', 0.8)
+        }
+      }
+      reader.onerror = (error) => reject(error)
+    })
   }
 
   const searchBusinesses = async (query: string) => {
@@ -79,13 +123,16 @@ function UploadContent() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Giriş yapmalısınız')
 
+      // Fotograf ise sikistir
+      const uploadFile = mediaType === 'image' ? await compressImage(file) : file
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${shareType}_${user.id}_${Date.now()}.${fileExt}`
       const filePath = `${shareType}s/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from('tour-images')
-        .upload(filePath, file)
+        .upload(filePath, uploadFile)
 
       if (uploadError) throw uploadError
 
@@ -103,7 +150,7 @@ function UploadContent() {
             caption: caption,
             location: location,
             business_id: selectedBusiness?.id || null,
-            is_approved: true
+            is_approved: false // Admin onayi bekliyor
           }])
         if (dbError) throw dbError
       } else {
@@ -117,9 +164,8 @@ function UploadContent() {
         if (dbError) throw dbError
       }
 
-      toast.success(`${shareType === 'post' ? 'Gönderi' : 'Hikaye'} başarıyla paylaşıldı! ✨`)
-      router.push('/sosyal')
-      router.refresh()
+      setLoading(false)
+      setShowSuccess(true)
     } catch (err: any) {
       setError(err.message)
       toast.error('Paylaşım başarısız oldu')
@@ -288,6 +334,38 @@ function UploadContent() {
             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <>Paylaşımı Yayınla <Send className="w-5 h-5" /></>}
           </button>
         </form>
+
+        {/* Success Modal */}
+        <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+          <DialogContent className="bg-[#112240] border-white/5 rounded-[48px] p-8 md:p-12 text-center overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/10 rounded-full blur-[50px] -mr-16 -mt-16" />
+            
+            <div className="relative z-10 space-y-6">
+              <div className="w-20 h-20 bg-[#64ffda]/10 rounded-[32px] flex items-center justify-center mx-auto border border-[#64ffda]/20 animate-bounce">
+                <Check className="w-10 h-10 text-[#64ffda]" />
+              </div>
+              
+              <div className="space-y-2">
+                <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Paylaşımınız Alındı!</h2>
+                <p className="text-slate-400 font-medium leading-relaxed">
+                  Site yönetimi tarafından onaylanan fotoğraflarınız en kısa sürede yayınlanacaktır. <br />
+                  <span className="text-[#64ffda]">Paylaşımınız için teşekkür ederiz.</span>
+                </p>
+              </div>
+
+              <Button 
+                onClick={() => {
+                  setShowSuccess(false)
+                  router.push('/sosyal')
+                  router.refresh()
+                }}
+                className="w-full h-16 bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#64ffda]/20"
+              >
+                Anladım
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
