@@ -13,7 +13,8 @@ import {
   Lock,
   UserPlus,
   UserMinus,
-  ArrowLeft
+  ArrowLeft,
+  Video
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -136,6 +137,13 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
             following_id: profile.id
           })
         
+        // Bildirim Gonder
+        await supabase.from('notifications').insert({
+          user_id: profile.id,
+          actor_id: currentUser.id,
+          type: 'follow'
+        })
+        
         setIsFollowing(true)
         setCounts(prev => ({ ...prev, followers: prev.followers + 1 }))
         toast.success(`${profile.username} takip ediliyor! ✨`)
@@ -233,6 +241,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 {posts.map((post) => (
                   <div key={post.id} className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer shadow-2xl transition-transform active:scale-95">
                     <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-all duration-1000" />
+                    {post.media_type === 'video' && (
+                      <div className="absolute top-4 right-4 p-1.5 bg-black/40 backdrop-blur-md rounded-lg border border-white/10 z-10">
+                        <Video className="w-4 h-4 text-white" />
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-8">
                       <div className="flex flex-col items-center gap-1 text-white font-black"><Heart className="w-7 h-7 fill-[#64ffda] text-[#64ffda]" /> {post.post_likes?.length || 0}</div>
                       <div className="flex flex-col items-center gap-1 text-white font-black"><MessageSquare className="w-7 h-7 fill-white" /> {post.post_comments?.length || 0}</div>

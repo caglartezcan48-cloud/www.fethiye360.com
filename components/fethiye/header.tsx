@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Menu, X, Compass, User, Building2, Sparkles } from "lucide-react"
+import { Menu, X, Compass, User, Building2, Sparkles, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CityStats } from "./city-stats"
 import { createClient } from "@/lib/supabase/client"
@@ -16,8 +16,8 @@ const navLinks = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
   const [isOwner, setIsOwner] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const supabase = createClient()
 
   useEffect(() => {
@@ -32,6 +32,15 @@ export function Header() {
           .eq('owner_id', user.id)
           .single()
         setIsOwner(!!business)
+
+        // Okunmamis bildirim sayisini getir
+        const { count } = await supabase
+          .from('notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_read', false)
+        
+        setUnreadCount(count || 0)
       }
     }
     checkUser()
@@ -71,12 +80,22 @@ export function Header() {
           <div className="h-6 w-[1px] bg-white/10 mx-2" />
 
           {user ? (
-            <Link href={isOwner ? "/isletme-paneli" : "/profil"}>
-              <Button className="bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-[10px] px-6 rounded-xl flex items-center gap-2 shadow-lg shadow-[#64ffda]/10">
-                {isOwner ? <Building2 className="w-4 h-4" /> : <User className="w-4 h-4" />}
-                {isOwner ? "Panelim" : "Profilim"}
-              </Button>
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/bildirimler" className="relative p-2.5 text-slate-400 hover:text-[#64ffda] bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all group">
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-[#0a192f] flex items-center justify-center text-[8px] font-black text-white animate-pulse">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+              <Link href={isOwner ? "/isletme-paneli" : "/profil"}>
+                <Button className="bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-[10px] px-6 rounded-xl flex items-center gap-2 shadow-lg shadow-[#64ffda]/10">
+                  {isOwner ? <Building2 className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                  {isOwner ? "Panelim" : "Profilim"}
+                </Button>
+              </Link>
+            </div>
           ) : (
             <Link href="/giris">
               <Button className="bg-white/5 text-white hover:bg-white/10 border border-white/10 font-black uppercase tracking-widest text-[10px] px-6 rounded-xl flex items-center gap-2">

@@ -34,13 +34,17 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   
   const supabase = createClient()
 
-  const handleLike = async () => {
-    if (!currentUserId) return toast.error('Giriş yapmalısınız')
-    setIsLiked(!isLiked)
-    setLikes(prev => isLiked ? prev - 1 : prev + 1)
-    if (isDisliked) setIsDisliked(false)
-    
     await supabase.from('post_likes').upsert({ post_id: post.id, user_id: currentUserId })
+
+    // Bildirim Gonder (Eger kendi postu degilse ve begendiyse)
+    if (!isLiked && post.user_id !== currentUserId) {
+      await supabase.from('notifications').insert({
+        user_id: post.user_id,
+        actor_id: currentUserId,
+        type: 'like',
+        post_id: post.id
+      })
+    }
   }
 
   const handleReport = async () => {
@@ -67,6 +71,16 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
     if (!error) {
       setComments([data, ...comments])
       setNewComment('')
+
+      // Bildirim Gonder (Eger kendi postu degilse)
+      if (post.user_id !== currentUserId) {
+        await supabase.from('notifications').insert({
+          user_id: post.user_id,
+          actor_id: currentUserId,
+          type: 'comment',
+          post_id: post.id
+        })
+      }
     }
     setLoading(false)
   }
@@ -96,9 +110,25 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
         </button>
       </div>
 
-      {/* Image */}
+      {/* Media Content (Image or Video) */}
       <div className="relative aspect-square overflow-hidden" onDoubleClick={handleLike}>
-        <Image src={post.image_url} alt="Post" fill className="object-cover transition-transform duration-[2s] hover:scale-110" />
+        {post.media_type === 'video' ? (
+          <video 
+            src={post.image_url} 
+            className="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : (
+          <Image 
+            src={post.image_url} 
+            alt="Post" 
+            fill 
+            className="object-cover transition-transform duration-[2s] hover:scale-110" 
+          />
+        )}
       </div>
 
       {/* Actions */}
