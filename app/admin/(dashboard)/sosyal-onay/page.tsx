@@ -101,6 +101,7 @@ export default function SocialModerationPage() {
       {/* DEBUG ALANI: Veritabanından Gelen Ham Veri */}
       <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl mb-8 overflow-auto max-h-60">
         <p className="text-red-400 font-bold mb-2">Hata Ayıklama (Gelen Veri Sayısı: {posts.length})</p>
+        <p className="text-xs text-white mb-2">Bağlı Olunan Veritabanı: {process.env.NEXT_PUBLIC_SUPABASE_URL}</p>
         <pre className="text-xs text-red-300">{JSON.stringify(posts, null, 2)}</pre>
       </div>
 
