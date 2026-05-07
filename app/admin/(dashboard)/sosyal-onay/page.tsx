@@ -32,7 +32,12 @@ export default function SocialModerationPage() {
       .eq('is_approved', false)
       .order('created_at', { ascending: false })
 
-    if (!error) setPosts(data || [])
+    if (error) {
+      console.error("Fetch pending posts error:", error)
+      toast.error(`Paylaşımlar yüklenirken hata: ${error.message}`)
+    } else {
+      setPosts(data || [])
+    }
     setLoading(false)
   }
 

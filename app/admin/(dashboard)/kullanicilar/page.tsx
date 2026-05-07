@@ -85,7 +85,8 @@ export default function AdminUsersPage() {
       if (error) throw error
       setUsers(data || [])
     } catch (error: any) {
-      toast.error('Kullanıcılar yüklenirken bir hata oluştu')
+      console.error("Fetch users error:", error)
+      toast.error(`Kullanıcılar yüklenirken hata: ${error.message}`)
     } finally {
       setLoading(false)
     }
