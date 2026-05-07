@@ -28,8 +28,7 @@ export default function SocialModerationPage() {
     setLoading(true)
     const { data, error } = await supabase
       .from('user_posts')
-      .select('*, user_profiles(username, full_name, avatar_url)')
-      .eq('is_approved', false)
+      .select('*')
       .order('created_at', { ascending: false })
 
     if (error) {
