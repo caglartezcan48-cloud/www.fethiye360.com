@@ -49,9 +49,20 @@ function UploadContent() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
+      const isVideo = selectedFile.type.startsWith('video')
+      
+      // Video için 10 MB sınırı koyalım (10 * 1024 * 1024 byte)
+      if (isVideo && selectedFile.size > 10 * 1024 * 1024) {
+        toast.error('Video çok büyük! Lütfen sistemin donmaması için maksimum 10 MB (yaklaşık 10-15 saniyelik) bir video seçin.', {
+          duration: 5000,
+        })
+        e.target.value = '' // Input'u temizle
+        return
+      }
+
       setFile(selectedFile)
       setPreview(URL.createObjectURL(selectedFile))
-      setMediaType(selectedFile.type.startsWith('video') ? 'video' : 'image')
+      setMediaType(isVideo ? 'video' : 'image')
     }
   }
 
