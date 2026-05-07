@@ -20,6 +20,7 @@ import { toast } from 'sonner'
 export default function SocialModerationPage() {
   const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [dbError, setDbError] = useState<any>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   
   const supabase = createClient()
@@ -33,9 +34,11 @@ export default function SocialModerationPage() {
 
     if (error) {
       console.error("Fetch pending posts error:", error)
+      setDbError(error)
       toast.error(`Paylaşımlar yüklenirken hata: ${error.message}`)
     } else {
       setPosts(data || [])
+      setDbError(null)
     }
     setLoading(false)
   }
@@ -104,8 +107,8 @@ export default function SocialModerationPage() {
         <p className="text-xs text-white mb-2">Bağlı Olunan Veritabanı: {process.env.NEXT_PUBLIC_SUPABASE_URL}</p>
         <pre className="text-xs text-red-300">
           {JSON.stringify({ 
-            veri: posts, 
-            hata: error 
+            veri_sayisi: posts.length, 
+            hata: dbError 
           }, null, 2)}
         </pre>
       </div>
