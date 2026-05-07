@@ -28,7 +28,7 @@ export default function SocialModerationPage() {
     setLoading(true)
     const { data, error } = await supabase
       .from('user_posts')
-      .select('*')
+      .select('*, user_profiles(username, full_name, avatar_url)')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -96,6 +96,12 @@ export default function SocialModerationPage() {
         <div className="bg-[#64ffda]/10 px-6 py-3 rounded-2xl border border-[#64ffda]/20 text-[#64ffda] font-black text-xs uppercase tracking-widest">
           {posts.length} Bekleyen Paylaşım
         </div>
+      </div>
+
+      {/* DEBUG ALANI: Veritabanından Gelen Ham Veri */}
+      <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl mb-8 overflow-auto max-h-60">
+        <p className="text-red-400 font-bold mb-2">Hata Ayıklama (Gelen Veri Sayısı: {posts.length})</p>
+        <pre className="text-xs text-red-300">{JSON.stringify(posts, null, 2)}</pre>
       </div>
 
       {posts.length === 0 ? (
