@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Upload, Loader2, X, Image as ImageIcon, Building2, MapPin, Phone, Globe, Clock, Star } from 'lucide-react'
+import { compressImage } from '@/lib/utils'
 import Link from 'next/link'
 
 interface Category {
@@ -74,13 +75,14 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
     setError(null)
 
     try {
+      const compressedFile = await compressImage(file)
       const fileExt = file.name.split('.').pop()
       const fileName = `business_${Date.now()}.${fileExt}`
       const filePath = `businesses/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from('tour-images') // Mevcut bucket'ı kullanıyoruz
-        .upload(filePath, file)
+        .upload(filePath, compressedFile)
 
       if (uploadError) throw uploadError
 

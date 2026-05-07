@@ -15,8 +15,14 @@ import {
   Filter,
   ChevronRight,
   ArrowUpDown,
-  Phone
+  Phone,
+  Unlock,
+  Lock,
+  MoreVertical,
+  Camera,
+  X
 } from 'lucide-react'
+import { compressImage } from '@/lib/utils'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import {
@@ -54,8 +60,12 @@ export default function AdminUsersPage() {
     full_name: '',
     username: '',
     bio: '',
-    phone: ''
+    phone: '',
+    avatar_url: '',
+    is_public: true
   })
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [updating, setUpdating] = useState(false)
 
   const supabase = createClient()
@@ -87,8 +97,20 @@ export default function AdminUsersPage() {
       full_name: user.full_name || '',
       username: user.username || '',
       bio: user.bio || '',
-      phone: user.phone || ''
+      phone: user.phone || '',
+      avatar_url: user.avatar_url || '',
+      is_public: user.is_public ?? true
     })
+    setAvatarPreview(user.avatar_url || null)
+    setAvatarFile(null)
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setAvatarFile(file)
+      setAvatarPreview(URL.createObjectURL(file))
+    }
   }
 
   const handleUpdateUser = async () => {
@@ -96,6 +118,28 @@ export default function AdminUsersPage() {
 
     try {
       setUpdating(true)
+      
+      let currentAvatarUrl = editForm.avatar_url
+
+      if (avatarFile) {
+        const compressedFile = await compressImage(avatarFile)
+        const fileExt = avatarFile.name.split('.').pop()
+        const fileName = `avatar_${editingUser.id}_${Date.now()}.${fileExt}`
+        const filePath = `avatars/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('tour-images') // Reusing the same bucket for simplicity, check if 'avatars' exists
+          .upload(filePath, compressedFile)
+
+        if (uploadError) throw uploadError
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('tour-images')
+          .getPublicUrl(filePath)
+        
+        currentAvatarUrl = publicUrl
+      }
+
       const { error } = await supabase
         .from('user_profiles')
         .update({
@@ -103,6 +147,8 @@ export default function AdminUsersPage() {
           username: editForm.username,
           bio: editForm.bio,
           phone: editForm.phone,
+          avatar_url: currentAvatarUrl,
+          is_public: editForm.is_public,
           updated_at: new Date().toISOString()
         })
         .eq('id', editingUser.id)
@@ -111,9 +157,11 @@ export default function AdminUsersPage() {
 
       toast.success('Kullanıcı başarıyla güncellendi')
       setEditingUser(null)
+      setAvatarFile(null)
       fetchUsers()
     } catch (error: any) {
-      toast.error('Güncelleme sırasında bir hata oluştu')
+      console.error('Update error:', error)
+      toast.error('Güncelleme sırasında bir hata oluştu: ' + (error.message || ''))
     } finally {
       setUpdating(false)
     }
@@ -284,32 +332,76 @@ export default function AdminUsersPage() {
             </DialogHeader>
           </div>
 
-          <div className="p-8 space-y-8">
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Tam Ad Soyad</Label>
-              <Input 
-                value={editForm.full_name}
-                onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
-              />
+          <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            {/* Avatar Upload Section */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative group cursor-pointer" onClick={() => document.getElementById('avatar-upload')?.click()}>
+                <div className="w-32 h-32 rounded-[32px] overflow-hidden border-2 border-white/10 p-1 bg-[#0a192f] transition-all group-hover:border-[#64ffda]/50">
+                  {avatarPreview ? (
+                    <Image src={avatarPreview} alt="Avatar" fill className="object-cover rounded-[28px]" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-[#64ffda]/10 rounded-[28px]">
+                      <UserIcon className="w-12 h-12 text-[#64ffda]" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[28px]">
+                    <Camera className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+                <input 
+                  type="file" 
+                  id="avatar-upload" 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={handleAvatarChange}
+                />
+              </div>
+              <p className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.2em]">Fotoğrafı Değiştir</p>
             </div>
 
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Kullanıcı Adı</Label>
-              <Input 
-                value={editForm.username}
-                onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Tam Ad Soyad</Label>
+                <Input 
+                  value={editForm.full_name}
+                  onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
+                  className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Kullanıcı Adı</Label>
+                <Input 
+                  value={editForm.username}
+                  onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                  className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
+                />
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Telefon Numarası</Label>
-              <Input 
-                value={editForm.phone}
-                onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
-                className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Telefon Numarası</Label>
+                <Input 
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
+                  className="bg-[#0a192f] border-white/5 rounded-2xl h-16 px-6 focus:ring-2 focus:ring-[#64ffda] text-white font-medium"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Profil Durumu</Label>
+                <div className="flex items-center gap-4 h-16 bg-[#0a192f] border border-white/5 rounded-2xl px-6">
+                   <button
+                    type="button"
+                    onClick={() => setEditForm({...editForm, is_public: !editForm.is_public})}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${editForm.is_public ? 'bg-[#64ffda]/10 text-[#64ffda]' : 'bg-red-500/10 text-red-400'}`}
+                   >
+                     {editForm.is_public ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                     <span className="text-[10px] font-black uppercase tracking-widest">{editForm.is_public ? 'Halka Açık' : 'Gizli Profil'}</span>
+                   </button>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3">

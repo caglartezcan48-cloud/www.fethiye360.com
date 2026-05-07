@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Upload, Loader2, X, Image as ImageIcon } from 'lucide-react'
+import { compressImage } from '@/lib/utils'
 import Link from 'next/link'
 
 interface Category {
@@ -66,13 +67,14 @@ export default function TourForm({ categories, tour }: TourFormProps) {
     setError(null)
 
     try {
+      const compressedFile = await compressImage(file)
       const fileExt = file.name.split('.').pop()
       const fileName = `${type}_${Date.now()}.${fileExt}`
       const filePath = `${type}s/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from('tour-images')
-        .upload(filePath, file)
+        .upload(filePath, compressedFile)
 
       if (uploadError) throw uploadError
 
