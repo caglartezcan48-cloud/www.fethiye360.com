@@ -30,6 +30,7 @@ export default function SocialModerationPage() {
     const { data, error } = await supabase
       .from('user_posts')
       .select('*, user_profiles(username, full_name, avatar_url)')
+      .eq('is_approved', false)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -55,10 +56,12 @@ export default function SocialModerationPage() {
       .eq('id', postId)
 
     if (!error) {
-      toast.success('Paylaşım onaylandı ve yayına alındı!')
-      setPosts(posts.filter(p => p.id !== postId))
+      toast.success('Paylaşım onaylandı!')
+      // Veriyi yerel listeden kaldır
+      setPosts(prev => prev.filter(p => p.id !== postId))
     } else {
-      toast.error('Bir hata oluştu')
+      console.error("Onaylama hatası:", error)
+      toast.error('Onaylama işlemi başarısız: ' + error.message)
     }
     setActionLoading(null)
   }

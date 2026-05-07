@@ -105,14 +105,20 @@ export default async function DiscoveryPage({
 
           {/* Grid View - Instagram Style */}
           {displayedPosts && displayedPosts.length > 0 ? (
-            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-4 lg:gap-6 auto-rows-[150px] md:auto-rows-[250px] lg:auto-rows-[300px]">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 lg:gap-6">
               {displayedPosts.map((post: any, index: number) => {
-                // Instagram tarzı: Bazı öğeler 2x2 yer kaplasın (Her 6. öğe gibi)
-                const isLarge = (index + 1) % 10 === 3 || (index + 1) % 10 === 8
+                // Görsel Plan Ayarı: Bazı öğeler dikey veya yatay olarak daha geniş olsun
+                const isVertical = index % 7 === 1 || index % 7 === 5
+                const isHorizontal = index % 7 === 3
+                
                 return (
                   <div 
                     key={post.id} 
-                    className={`${isLarge ? 'row-span-2 col-span-1 md:col-span-2' : 'col-span-1'}`}
+                    className={`relative rounded-3xl overflow-hidden group ${
+                      isVertical ? 'row-span-2' : ''
+                    } ${
+                      isHorizontal ? 'col-span-2' : ''
+                    }`}
                   >
                     <DiscoveryCard post={post} aspectRatio="h-full" />
                   </div>
