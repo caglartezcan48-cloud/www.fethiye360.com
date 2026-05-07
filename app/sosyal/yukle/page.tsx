@@ -168,7 +168,7 @@ function UploadContent() {
       setShowSuccess(true)
     } catch (err: any) {
       setError(err.message)
-      toast.error('Paylaşım başarısız oldu')
+      toast.error(`Paylaşım başarısız: ${err.message}`)
       setLoading(false)
     }
   }
