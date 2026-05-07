@@ -175,7 +175,8 @@ function UploadContent() {
           .insert([{
             user_id: user.id,
             media_url: publicUrl,
-            media_type: mediaType
+            media_type: mediaType,
+            is_approved: false
           }])
         if (dbError) throw dbError
       }
