@@ -45,7 +45,12 @@ export default function SocialFeedPage() {
         .eq('is_approved', true) // Filtre eklendi
         .order('created_at', { ascending: false })
 
-      if (!error) setPosts(data || [])
+      if (!error) {
+        setPosts(data || [])
+      } else {
+        console.error("Fetch social posts error:", error)
+        toast.error(`Paylaşımlar yüklenirken hata: ${error.message}`)
+      }
       setLoading(false)
     }
     fetchData()

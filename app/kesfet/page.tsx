@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
@@ -41,7 +42,10 @@ export default async function DiscoveryPage({
     query = query.eq('media_type', 'image').order('created_at', { ascending: false })
   }
 
-  const { data: posts } = await query.limit(100)
+  const { data: posts, error } = await query.limit(100)
+  if (error) {
+    console.error("Fetch social posts error:", error)
+  }
 
   // Filtreleme Mantigi (Memory Seviyesi)
   let processedPosts = posts || []
