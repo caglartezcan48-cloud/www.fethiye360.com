@@ -35,17 +35,22 @@ export function Header() {
           .from('businesses')
           .select('id')
           .eq('owner_id', user.id)
-          .single()
+          .maybeSingle()
         setIsOwner(!!business)
 
-        // Okunmamis bildirim sayisini getir
-        const { count } = await supabase
-          .from('notifications')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
-          .eq('is_read', false)
-        
-        setUnreadCount(count || 0)
+        try {
+          const { count, error: notifError } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('is_read', false)
+          
+          if (!notifError) {
+            setUnreadCount(count || 0)
+          }
+        } catch (e) {
+          console.warn("Could not fetch notifications:", e)
+        }
       }
     }
     checkUser()

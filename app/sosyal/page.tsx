@@ -25,7 +25,9 @@ export default async function SocialFeedPage() {
     .from('user_posts')
     .select(`
       *,
-      user_profiles (username, avatar_url)
+      user_profiles (username, avatar_url),
+      post_likes (user_id),
+      post_comments (id)
     `)
     .eq('is_approved', true)
     .eq('media_type', 'image')

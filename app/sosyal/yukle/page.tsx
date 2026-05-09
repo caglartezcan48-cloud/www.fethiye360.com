@@ -129,7 +129,9 @@ function UploadContent() {
 
       setLoading(false)
       setShowSuccess(true)
+      toast.success('Paylaşımınız başarıyla alındı!')
     } catch (err: any) {
+      console.error("Upload error:", err)
       setError(err.message)
       toast.error(`Paylaşım başarısız: ${err.message}`)
       setLoading(false)

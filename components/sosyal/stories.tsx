@@ -46,10 +46,7 @@ export function Stories() {
       
       const { data, error } = await supabase
         .from('user_stories')
-        .select(`
-          *,
-          user_profiles(username, avatar_url)
-        `)
+        .select('*, user_profiles:user_id(username, avatar_url)')
         .gt('created_at', twentyFourHoursAgo)
         .eq('media_type', 'image')
         .order('created_at', { ascending: true })

@@ -24,8 +24,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, currentUserId }: PostCardProps) {
-  const [likes, setLikes] = useState(post.post_likes?.length || 0)
-  const [isLiked, setIsLiked] = useState(post.post_likes?.some((l: any) => l.user_id === currentUserId))
+  const [likesCount, setLikesCount] = useState(post.post_likes?.length || 0)
+  const [isLiked, setIsLiked] = useState(post.post_likes?.some((l: any) => l.user_id === currentUserId) || false)
   const [isDisliked, setIsDisliked] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [comments, setComments] = useState(post.post_comments || [])
@@ -47,10 +47,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
     const prevLikes = likes
     
     setIsLiked(!wasLiked)
-    setLikes(prev => wasLiked 
-      ? prev.filter((l: any) => l.user_id !== currentUserId)
-      : [...prev, { user_id: currentUserId }]
-    )
+    setLikesCount(prev => wasLiked ? Math.max(0, prev - 1) : prev + 1)
 
     try {
       if (wasLiked) {
@@ -65,12 +62,16 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
           .insert([{ post_id: post.id, user_id: currentUserId }])
 
         if (post.user_id !== currentUserId) {
-          await supabase.from('notifications').insert({
-            user_id: post.user_id,
-            actor_id: currentUserId,
-            type: 'like',
-            post_id: post.id
-          })
+          try {
+            await supabase.from('notifications').insert({
+              user_id: post.user_id,
+              actor_id: currentUserId,
+              type: 'like',
+              post_id: post.id
+            })
+          } catch (e) {
+            console.warn("Notification could not be sent:", e)
+          }
         }
       }
     } catch (error) {
@@ -101,7 +102,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
     const { data, error } = await supabase
       .from('post_comments')
       .insert([{ post_id: post.id, user_id: currentUserId, comment: newComment }])
-      .select('*, user_profiles(username, avatar_url)')
+      .select('*, user_profiles:user_id(username, avatar_url)')
       .single()
 
     if (!error) {
@@ -110,12 +111,16 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
 
       // Bildirim Gonder (Eger kendi postu degilse)
       if (post.user_id !== currentUserId) {
-        await supabase.from('notifications').insert({
-          user_id: post.user_id,
-          actor_id: currentUserId,
-          type: 'comment',
-          post_id: post.id
-        })
+        try {
+          await supabase.from('notifications').insert({
+            user_id: post.user_id,
+            actor_id: currentUserId,
+            type: 'comment',
+            post_id: post.id
+          })
+        } catch (e) {
+          console.warn("Notification could not be sent:", e)
+        }
       }
     }
     setLoading(false)
@@ -175,7 +180,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
           <div className="flex items-center gap-4">
             <button onClick={handleLike} className={`flex items-center gap-1.5 group ${isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-500'}`}>
               <Heart className={`w-6 h-6 transition-transform group-active:scale-150 ${isLiked ? 'fill-current' : ''}`} />
-              <span className="font-black text-[10px] uppercase">{likes}</span>
+              <span className="font-black text-[10px] uppercase">{likesCount}</span>
             </button>
             <button onClick={() => router.push(`/sosyal/post/${post.id}`)} className="flex items-center gap-1.5 text-slate-400 hover:text-[#64ffda]">
               <MessageSquare className="w-6 h-6" />
