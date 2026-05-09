@@ -91,18 +91,45 @@ export default function UserProfilePage() {
       })
 
       // 3. Paylasimlari Getir
-      const { data: userPosts } = await supabase
+      const { data: userPosts, error: postError } = await supabase
         .from('user_posts')
-        .select(`
-          *,
-          post_comments (id),
-          post_likes (id)
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .eq('media_type', 'image')
         .order('created_at', { ascending: false })
 
-      setPosts(userPosts || [])
+      if (postError) throw postError
+
+      if (userPosts && userPosts.length > 0) {
+        // Her post için beğeni ve yorum sayılarını ayrı ayrı (veya toplu) alabiliriz
+        // Performans için toplu alalım
+        const postIds = userPosts.map(p => p.id)
+        
+        const [likesRes, commentsRes] = await Promise.all([
+          supabase.from('post_likes').select('post_id').in('post_id', postIds),
+          supabase.from('post_comments').select('post_id').in('post_id', postIds)
+        ])
+
+        const likesMap = (likesRes.data || []).reduce((acc: any, curr: any) => {
+          acc[curr.post_id] = (acc[curr.post_id] || 0) + 1
+          return acc
+        }, {})
+
+        const commentsMap = (commentsRes.data || []).reduce((acc: any, curr: any) => {
+          acc[curr.post_id] = (acc[curr.post_id] || 0) + 1
+          return acc
+        }, {})
+
+        const postsWithCounts = userPosts.map(post => ({
+          ...post,
+          post_likes: { length: likesMap[post.id] || 0 },
+          post_comments: { length: commentsMap[post.id] || 0 }
+        }))
+
+        setPosts(postsWithCounts)
+      } else {
+        setPosts([])
+      }
     } catch (error) {
       console.error(error)
     } finally {

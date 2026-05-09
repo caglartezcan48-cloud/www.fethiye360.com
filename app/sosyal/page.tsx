@@ -21,20 +21,44 @@ export default async function SocialFeedPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Tum gonderileri getir (SADECE ONAYLI OLANLAR)
-  const { data: posts, error } = await supabase
+  const { data: userPosts, error: postError } = await supabase
     .from('user_posts')
     .select(`
       *,
-      user_profiles (username, avatar_url),
-      post_likes (user_id),
-      post_comments (id)
+      user_profiles (username, avatar_url)
     `)
     .eq('is_approved', true)
     .eq('media_type', 'image')
     .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error("Fetch social posts error:", error)
+  let posts = userPosts || []
+
+  if (!postError && userPosts && userPosts.length > 0) {
+    const postIds = userPosts.map(p => p.id)
+    const [likesRes, commentsRes] = await Promise.all([
+      supabase.from('post_likes').select('post_id').in('post_id', postIds),
+      supabase.from('post_comments').select('post_id').in('post_id', postIds)
+    ])
+
+    const likesMap = (likesRes.data || []).reduce((acc: any, curr: any) => {
+      acc[curr.post_id] = (acc[curr.post_id] || 0) + 1
+      return acc
+    }, {})
+
+    const commentsMap = (commentsRes.data || []).reduce((acc: any, curr: any) => {
+      acc[curr.post_id] = (acc[curr.post_id] || 0) + 1
+      return acc
+    }, {})
+
+    posts = userPosts.map(post => ({
+      ...post,
+      post_likes: { length: likesMap[post.id] || 0 },
+      post_comments: { length: commentsMap[post.id] || 0 }
+    }))
+  }
+
+  if (postError) {
+    console.error("Fetch social posts error:", postError)
   }
 
   return (
