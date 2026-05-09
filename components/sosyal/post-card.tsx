@@ -98,15 +98,26 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   const handleComment = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newComment.trim() || !currentUserId) return
-    setLoading(true)
-    const { data, error } = await supabase
+    const { data: commentData, error: commentError } = await supabase
       .from('post_comments')
       .insert([{ post_id: post.id, user_id: currentUserId, comment: newComment }])
-      .select('*, user_profiles:user_id(username, avatar_url)')
+      .select('*')
       .single()
 
-    if (!error) {
-      setComments([data, ...comments])
+    if (!commentError && commentData) {
+      // Profil bilgisini ayrica cek
+      const { data: profileData } = await supabase
+        .from('user_profiles')
+        .select('username, avatar_url')
+        .eq('id', currentUserId)
+        .single()
+      
+      const commentWithProfile = {
+        ...commentData,
+        user_profiles: profileData
+      }
+      
+      setComments([commentWithProfile, ...comments])
       setNewComment('')
 
       // Bildirim Gonder (Eger kendi postu degilse)

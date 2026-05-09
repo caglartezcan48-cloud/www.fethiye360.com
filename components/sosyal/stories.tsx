@@ -44,29 +44,49 @@ export function Stories() {
       // Son 24 saatteki hikayeleri getir
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
       
-      const { data, error } = await supabase
+      const { data: storyData, error: storyError } = await supabase
         .from('user_stories')
-        .select('*, user_profiles:user_id(username, avatar_url)')
+        .select('*')
         .gt('created_at', twentyFourHoursAgo)
         .eq('media_type', 'image')
         .order('created_at', { ascending: true })
 
-      if (error) throw error
+      if (storyError) throw storyError
 
-      // Hikayeleri kullanıcı bazlı grupla
-      const grouped = data.reduce((acc: any, story: any) => {
-        const userId = story.user_id
-        if (!acc[userId]) {
-          acc[userId] = {
-            user: story.user_profiles,
-            stories: []
+      if (storyData && storyData.length > 0) {
+        // Kullanıcı ID'lerini topla
+        const userIds = Array.from(new Set(storyData.map(s => s.user_id)))
+        
+        // Kullanıcı profillerini getir
+        const { data: profileData, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('id, username, avatar_url')
+          .in('id', userIds)
+
+        if (profileError) throw profileError
+
+        // Hikayeleri kullanıcı bazlı grupla
+        const profileMap = new Map(profileData.map(p => [p.id, p]))
+        
+        const grouped = storyData.reduce((acc: any, story: any) => {
+          const userId = story.user_id
+          const userProfile = profileMap.get(userId)
+          
+          if (userProfile) {
+            if (!acc[userId]) {
+              acc[userId] = {
+                user: userProfile,
+                stories: []
+              }
+            }
+            // Her hikaye objesine user_profiles ekle (modal için)
+            acc[userId].stories.push({ ...story, user_profiles: userProfile })
           }
-        }
-        acc[userId].stories.push(story)
-        return acc
-      }, {})
+          return acc
+        }, {})
 
-      setStories(Object.values(grouped))
+        setStories(Object.values(grouped))
+      }
     } catch (error) {
       console.error(error)
     } finally {
