@@ -62,13 +62,15 @@ export default async function SocialFeedPage() {
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto px-4 pt-8 space-y-12">
+      <main className="max-w-7xl mx-auto px-4 pt-8 space-y-12">
         
         {/* Stories System */}
-        <Stories />
+        <div className="max-w-xl mx-auto">
+          <Stories />
+        </div>
 
-        {/* Feed Posts */}
-        <div className="space-y-10">
+        {/* Feed Posts Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {posts?.map((post) => (
             <PostCard 
               key={post.id} 

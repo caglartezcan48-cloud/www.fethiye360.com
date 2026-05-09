@@ -119,38 +119,37 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   }
 
   return (
-    <div className="bg-[#112240] rounded-[48px] border border-white/5 overflow-hidden shadow-2xl transition-all hover:border-white/10">
+    <div className="bg-[#112240] rounded-[32px] border border-white/5 overflow-hidden shadow-2xl transition-all hover:border-white/10 flex flex-col h-full">
       {/* Header */}
-      <div className="p-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href={`/profil/${post.user_profiles?.username}`} className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#64ffda] to-blue-500 p-[2px] hover:scale-105 transition-transform active:scale-95">
-            <div className="w-full h-full bg-[#0a192f] rounded-[14px] overflow-hidden relative">
+      <div className="p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link href={`/profil/${post.user_profiles?.username}`} className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#64ffda] to-blue-500 p-[2px] hover:scale-105 transition-transform active:scale-95 shrink-0">
+            <div className="w-full h-full bg-[#0a192f] rounded-[9px] overflow-hidden relative">
               <Image src={post.user_profiles?.avatar_url || ''} alt="Avatar" fill className="object-cover" />
             </div>
           </Link>
-          <div>
-            <Link href={`/profil/${post.user_profiles?.username}`} className="text-white font-black text-sm uppercase tracking-widest hover:text-[#64ffda] transition-colors">
+          <div className="min-w-0">
+            <Link href={`/profil/${post.user_profiles?.username}`} className="text-white font-black text-[11px] uppercase tracking-widest hover:text-[#64ffda] transition-colors truncate block">
               {post.user_profiles?.username}
             </Link>
-            <div className="flex items-center gap-1 text-[#64ffda] text-[10px] font-bold mt-0.5">
+            <div className="flex items-center gap-1 text-[#64ffda] text-[9px] font-bold mt-0.5 truncate">
               {post.businesses ? (
                 <button 
                   onClick={(e) => { e.stopPropagation(); router.push(`/isletme/${post.businesses.slug}`); }}
-                  className="flex items-center gap-1 hover:underline decoration-2"
+                  className="flex items-center gap-1 hover:underline decoration-2 truncate"
                 >
-                  <Building2 className="w-3 h-3" /> {post.businesses.name}
+                  <Building2 className="w-2.5 h-2.5" /> {post.businesses.name}
                 </button>
               ) : (
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> {post.location || 'Fethiye'}
+                <div className="flex items-center gap-1 truncate">
+                  <MapPin className="w-2.5 h-2.5" /> {post.location || 'Fethiye'}
                 </div>
               )}
             </div>
           </div>
         </div>
-        <button onClick={handleReport} className="p-2 text-slate-600 hover:text-red-500 transition-colors flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5" />
-          <span className="text-[10px] font-black uppercase tracking-widest hidden md:block">Şikayet Et</span>
+        <button onClick={handleReport} className="p-1.5 text-slate-600 hover:text-red-500 transition-colors">
+          <AlertTriangle className="w-4 h-4" />
         </button>
       </div>
 
@@ -167,50 +166,47 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
         />
       </div>
 
-      {/* Actions */}
-      <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <button onClick={handleLike} className={`flex items-center gap-2 group ${isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-500'}`}>
-              <Heart className={`w-7 h-7 transition-transform group-active:scale-150 ${isLiked ? 'fill-current' : ''}`} />
-              <span className="font-black text-xs uppercase">{likes}</span>
+      {/* Actions & Caption */}
+      <div className="p-4 flex flex-col flex-1">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <button onClick={handleLike} className={`flex items-center gap-1.5 group ${isLiked ? 'text-red-500' : 'text-slate-400 hover:text-red-500'}`}>
+              <Heart className={`w-6 h-6 transition-transform group-active:scale-150 ${isLiked ? 'fill-current' : ''}`} />
+              <span className="font-black text-[10px] uppercase">{likes}</span>
             </button>
-            <button onClick={() => setIsDisliked(!isDisliked)} className={`flex items-center gap-2 group ${isDisliked ? 'text-blue-500' : 'text-slate-400 hover:text-blue-500'}`}>
-              <ThumbsDown className={`w-7 h-7 transition-transform group-active:scale-150 ${isDisliked ? 'fill-current' : ''}`} />
-            </button>
-            <button onClick={() => router.push(`/sosyal/post/${post.id}`)} className="flex items-center gap-2 text-slate-400 hover:text-[#64ffda]">
-              <MessageSquare className="w-7 h-7" />
-              <span className="font-black text-xs uppercase">{comments.length}</span>
+            <button onClick={() => router.push(`/sosyal/post/${post.id}`)} className="flex items-center gap-1.5 text-slate-400 hover:text-[#64ffda]">
+              <MessageSquare className="w-6 h-6" />
+              <span className="font-black text-[10px] uppercase">{comments.length}</span>
             </button>
           </div>
-          <div className="flex items-center gap-4">
-            <button onClick={handleShare} className="p-2 text-slate-400 hover:text-white transition-all"><Share2 className="w-6 h-6" /></button>
-            <button onClick={() => setIsSaved(!isSaved)} className={`p-2 transition-all ${isSaved ? 'text-yellow-500' : 'text-slate-400 hover:text-yellow-500'}`}>
-              <Bookmark className={`w-6 h-6 ${isSaved ? 'fill-current' : ''}`} />
+          <div className="flex items-center gap-2">
+            <button onClick={handleShare} className="p-1.5 text-slate-400 hover:text-white transition-all"><Share2 className="w-5 h-5" /></button>
+            <button onClick={() => setIsSaved(!isSaved)} className={`p-1.5 transition-all ${isSaved ? 'text-yellow-500' : 'text-slate-400 hover:text-yellow-500'}`}>
+              <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
             </button>
           </div>
         </div>
 
-        {/* Caption */}
-        <div className="space-y-2">
-          <p className="text-white text-sm leading-relaxed">
-            <Link href={`/profil/${post.user_profiles?.username}`} className="font-black mr-2 uppercase text-[#64ffda] tracking-widest hover:underline decoration-2">
+        {/* Caption - Compact */}
+        <div className="mb-4">
+          <p className="text-white text-[11px] leading-relaxed line-clamp-2">
+            <Link href={`/profil/${post.user_profiles?.username}`} className="font-black mr-1 uppercase text-[#64ffda] tracking-widest hover:underline decoration-1">
               {post.user_profiles?.username}
             </Link>
             {post.caption}
           </p>
         </div>
 
-        {/* Comment Form */}
-        <form onSubmit={handleComment} className="relative mt-4">
+        {/* Comment Form - Ultra Compact */}
+        <form onSubmit={handleComment} className="relative mt-auto">
           <input 
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Yorumunuzu yazın..."
-            className="w-full bg-[#0a192f] border border-white/5 rounded-2xl py-4 px-6 text-white text-sm focus:ring-2 focus:ring-[#64ffda] outline-none"
+            placeholder="Yorum..."
+            className="w-full bg-[#0a192f] border border-white/5 rounded-xl py-2.5 px-4 text-white text-[10px] focus:ring-1 focus:ring-[#64ffda] outline-none"
           />
-          <button type="submit" disabled={loading} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#64ffda] font-black text-xs uppercase">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Paylaş'}
+          <button type="submit" disabled={loading} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64ffda] font-black text-[9px] uppercase">
+            {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Gönder'}
           </button>
         </form>
       </div>
