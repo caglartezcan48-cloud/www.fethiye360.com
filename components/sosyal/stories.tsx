@@ -157,7 +157,7 @@ export function Stories() {
             <div className="w-full h-full bg-[#0a192f] rounded-full p-1">
               <div className="w-full h-full rounded-full overflow-hidden relative">
                 <Image 
-                  src={group.user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${group.user.username}`} 
+                  src={group.stories[0].image_url} 
                   alt={group.user.username} 
                   fill 
                   className="object-cover object-center"
