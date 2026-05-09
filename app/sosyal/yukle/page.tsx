@@ -100,7 +100,27 @@ function UploadContent() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Giriş yapmalısınız')
 
-      // Fotograf ise sikistir
+      // 1. Profil ve Gizlilik Bilgisini Getir
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle()
+      
+      if (!profileData && !profileError) {
+        // Profil kaydı yok, otomatik oluştur
+        const { error: profileCreateError } = await supabase
+          .from('user_profiles')
+          .insert([{
+            id: user.id,
+            username: user.email?.split('@')[0] || `user_${user.id.slice(0, 5)}`,
+            full_name: user.user_metadata?.full_name || 'Yeni Kullanıcı',
+            is_public: true
+          }])
+        if (profileCreateError) throw new Error('Profil kaydı oluşturulamadı: ' + profileCreateError.message)
+      }
+
+      // 2. Fotograf ise sikistir
       const uploadFile = await compressImage(file)
 
       const fileExt = file.name.split('.').pop()

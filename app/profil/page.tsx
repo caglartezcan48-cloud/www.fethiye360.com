@@ -67,16 +67,33 @@ export default function UserProfilePage() {
       setUser(user)
 
       // 1. Profil ve Gizlilik Bilgisini Getir
-      const { data: profileData } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
       
-      setProfile(profileData)
+      if (!profileData && !profileError) {
+        // Profil kaydı yok, otomatik oluştur
+        const { data: newProfile } = await supabase
+          .from('user_profiles')
+          .insert([{
+            id: user.id,
+            username: user.email?.split('@')[0] || `user_${user.id.slice(0, 5)}`,
+            full_name: user.user_metadata?.full_name || 'Yeni Kullanıcı',
+            is_public: true
+          }])
+          .select()
+          .single()
+        
+        setProfile(newProfile)
+      } else {
+        setProfile(profileData)
+      }
+
       setEditForm({
-        full_name: profileData?.full_name || '',
-        bio: profileData?.bio || ''
+        full_name: profileData?.full_name || profile?.full_name || 'Yeni Kullanıcı',
+        bio: profileData?.bio || profile?.bio || ''
       })
 
       // 2. Gerçek Takipçi/Takip Sayılarını Getir
