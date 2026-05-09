@@ -44,7 +44,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
 
     // Optimistic Update: Hemen arayüzü güncelle
     const wasLiked = isLiked
-    const prevLikes = likes
+    const prevCount = likesCount
     
     setIsLiked(!wasLiked)
     setLikesCount(prev => wasLiked ? Math.max(0, prev - 1) : prev + 1)
@@ -61,6 +61,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
           .from('post_likes')
           .insert([{ post_id: post.id, user_id: currentUserId }])
 
+        // Bildirim Gonder (Tablo varsa calisir, yoksa sessizce devam eder)
         if (post.user_id !== currentUserId) {
           try {
             await supabase.from('notifications').insert({
@@ -69,15 +70,13 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
               type: 'like',
               post_id: post.id
             })
-          } catch (e) {
-            console.warn("Notification could not be sent:", e)
-          }
+          } catch (e) {}
         }
       }
     } catch (error) {
       // Hata durumunda eski haline getir
       setIsLiked(wasLiked)
-      setLikes(prevLikes)
+      setLikesCount(prevCount)
       toast.error('İşlem başarısız oldu')
     }
   }
@@ -86,18 +85,36 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
     e.stopPropagation()
     if (!currentUserId) return toast.error('Giriş yapmalısınız')
     toast.success('Şikayetiniz alındı, adminler inceleyecektir.')
-    await supabase.from('post_reports').insert([{ post_id: post.id, user_id: currentUserId, reason: 'Uygunsuz İçerik' }])
+    try {
+      await supabase.from('post_reports').insert([{ post_id: post.id, user_id: currentUserId, reason: 'Uygunsuz İçerik' }])
+    } catch (err) {}
   }
 
-  const handleShare = (e: React.MouseEvent) => {
+  const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    navigator.clipboard.writeText(`${window.location.origin}/sosyal/post/${post.id}`)
-    toast.success('Bağlantı kopyalandı!')
+    const shareUrl = `${window.location.origin}/sosyal/post/${post.id}`
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Fethiye360 Sosyal Paylaşım',
+          text: post.caption,
+          url: shareUrl,
+        })
+      } catch (err) {
+        // Kullanici iptal etmis olabilir
+      }
+    } else {
+      navigator.clipboard.writeText(shareUrl)
+      toast.success('Bağlantı kopyalandı!')
+    }
   }
 
   const handleComment = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newComment.trim() || !currentUserId) return
+    
+    setLoading(true)
     const { data: commentData, error: commentError } = await supabase
       .from('post_comments')
       .insert([{ post_id: post.id, user_id: currentUserId, comment: newComment }])
@@ -120,7 +137,7 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
       setComments([commentWithProfile, ...comments])
       setNewComment('')
 
-      // Bildirim Gonder (Eger kendi postu degilse)
+      // Bildirim Gonder
       if (post.user_id !== currentUserId) {
         try {
           await supabase.from('notifications').insert({
@@ -129,10 +146,10 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
             type: 'comment',
             post_id: post.id
           })
-        } catch (e) {
-          console.warn("Notification could not be sent:", e)
-        }
+        } catch (e) {}
       }
+    } else if (commentError) {
+      toast.error('Yorum gönderilemedi')
     }
     setLoading(false)
   }
