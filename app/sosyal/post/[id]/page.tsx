@@ -37,10 +37,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     .select(`
       *,
       user_profiles (username, avatar_url),
-      post_comments (
-        *,
-        user_profiles (username, avatar_url)
-      ),
+      post_comments (*, user_profiles (username, avatar_url)),
       post_likes (user_id),
       businesses (id, name, slug)
     `)

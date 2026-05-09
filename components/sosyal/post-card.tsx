@@ -35,7 +35,8 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
   const router = useRouter()
   
   const supabase = createClient()
-  const handleLike = async () => {
+  const handleLike = async (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
     if (!currentUserId) {
       toast.error('Beğenmek için giriş yapmalısınız')
       return
@@ -80,13 +81,15 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
     }
   }
 
-  const handleReport = async () => {
+  const handleReport = async (e: React.MouseEvent) => {
+    e.stopPropagation()
     if (!currentUserId) return toast.error('Giriş yapmalısınız')
     toast.success('Şikayetiniz alındı, adminler inceleyecektir.')
     await supabase.from('post_reports').insert([{ post_id: post.id, user_id: currentUserId, reason: 'Uygunsuz İçerik' }])
   }
 
-  const handleShare = () => {
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation()
     navigator.clipboard.writeText(`${window.location.origin}/sosyal/post/${post.id}`)
     toast.success('Bağlantı kopyalandı!')
   }
@@ -197,8 +200,14 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
           </p>
         </div>
 
-        {/* Comment Form - Ultra Compact */}
-        <form onSubmit={handleComment} className="relative mt-auto">
+        <form 
+          onSubmit={(e) => {
+            e.stopPropagation()
+            handleComment(e)
+          }} 
+          className="relative mt-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
           <input 
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
