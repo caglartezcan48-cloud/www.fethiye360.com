@@ -33,15 +33,16 @@ export default async function SocialFeedPage() {
 
   let posts = userPosts || []
 
-  if (!postError && userPosts && userPosts.length > 0) {
+  if (userPosts && userPosts.length > 0) {
     const postIds = userPosts.map(p => p.id)
     const [likesRes, commentsRes] = await Promise.all([
-      supabase.from('post_likes').select('post_id').in('post_id', postIds),
+      supabase.from('post_likes').select('post_id, user_id').in('post_id', postIds),
       supabase.from('post_comments').select('post_id').in('post_id', postIds)
     ])
 
     const likesMap = (likesRes.data || []).reduce((acc: any, curr: any) => {
-      acc[curr.post_id] = (acc[curr.post_id] || 0) + 1
+      if (!acc[curr.post_id]) acc[curr.post_id] = []
+      acc[curr.post_id].push(curr)
       return acc
     }, {})
 
@@ -52,7 +53,7 @@ export default async function SocialFeedPage() {
 
     posts = userPosts.map(post => ({
       ...post,
-      post_likes: { length: likesMap[post.id] || 0 },
+      post_likes: likesMap[post.id] || [],
       post_comments: { length: commentsMap[post.id] || 0 }
     }))
   }

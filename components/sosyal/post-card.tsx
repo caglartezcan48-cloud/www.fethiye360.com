@@ -24,8 +24,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, currentUserId }: PostCardProps) {
-  const [likesCount, setLikesCount] = useState(post.post_likes?.length || 0)
-  const [isLiked, setIsLiked] = useState(post.post_likes?.some((l: any) => l.user_id === currentUserId) || false)
+  const [likesCount, setLikesCount] = useState(Array.isArray(post.post_likes) ? post.post_likes.length : (post.post_likes?.length || 0))
+  const [isLiked, setIsLiked] = useState(Array.isArray(post.post_likes) ? post.post_likes.some((l: any) => l.user_id === currentUserId) : false)
   const [isDisliked, setIsDisliked] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [comments, setComments] = useState(post.post_comments || [])

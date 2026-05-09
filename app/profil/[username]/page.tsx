@@ -85,7 +85,8 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
       ])
 
       const likesMap = (likesRes.data || []).reduce((acc: any, curr: any) => {
-        acc[curr.post_id] = (acc[curr.post_id] || 0) + 1
+        if (!acc[curr.post_id]) acc[curr.post_id] = []
+        acc[curr.post_id].push(curr)
         return acc
       }, {})
 
@@ -96,7 +97,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
 
       posts = userPosts.map(post => ({
         ...post,
-        post_likes: { length: likesMap[post.id] || 0 },
+        post_likes: likesMap[post.id] || [],
         post_comments: { length: commentsMap[post.id] || 0 }
       }))
     }
