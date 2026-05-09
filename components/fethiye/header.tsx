@@ -76,6 +76,7 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
+              prefetch={true}
               className="text-slate-400 hover:text-[#64ffda] transition-all font-bold text-sm uppercase tracking-widest"
             >
               {link.label}
@@ -97,7 +98,7 @@ export function Header() {
                   </span>
                 )}
               </Link>
-              <Link href={isOwner ? "/isletme-paneli" : "/profil"}>
+              <Link href={isOwner ? "/isletme-paneli" : "/profil"} prefetch={true}>
                 <Button className="bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-[10px] px-6 rounded-xl flex items-center gap-2 shadow-lg shadow-[#64ffda]/10">
                   {isOwner ? <Building2 className="w-4 h-4" /> : <User className="w-4 h-4" />}
                   {isOwner ? "Panelim" : "Profilim"}

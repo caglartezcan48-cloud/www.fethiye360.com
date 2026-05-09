@@ -1,215 +1,88 @@
-'use client'
-
-import { useEffect, useState, use } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { 
   Grid, 
-  Loader2, 
   Heart, 
   MessageSquare,
   Sparkles,
   Lock,
-  UserPlus,
-  UserMinus,
   ArrowLeft,
-  Share2
 } from 'lucide-react'
 import Image from 'next/image'
 import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { Header } from '@/components/fethiye/header'
-import { toast } from 'sonner'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import FollowButton from './FollowButton' // Yeni oluşturacağımız client component
+import MessageButton from './MessageButton' // Yeni oluşturacağımız client component
+import ShareButton from './ShareButton' // Yeni oluşturacağımız client component
 
-export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
-  const { username } = use(params)
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [profile, setProfile] = useState<any>(null)
-  const [posts, setPosts] = useState<any[]>([])
-  const [counts, setCounts] = useState({ followers: 0, following: 0 })
-  const [isFollowing, setIsFollowing] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [followLoading, setFollowLoading] = useState(false)
-  const [messageLoading, setMessageLoading] = useState(false)
+export const dynamic = 'force-dynamic'
+
+export default async function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
+  const { username } = await params
+  const supabase = await createClient()
+
+  // 1. Mevcut Oturumu Al
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+
+  // 2. Hedef Profili Getir
+  const { data: profile, error: profileError } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('username', username)
+    .single()
   
-  const supabase = createClient()
-  const router = useRouter()
-
-  useEffect(() => {
-    fetchProfile()
-  }, [username])
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true)
-      
-      // 1. Mevcut Oturumu Al
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      setCurrentUser(authUser)
-
-      // 2. Hedef Profili Getir
-      const { data: profileData, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('username', username)
-        .single()
-      
-      if (profileError || !profileData) {
-        toast.error('Kullanıcı bulunamadı')
-        router.push('/sosyal')
-        return
-      }
-      setProfile(profileData)
-
-      // Kendi profiline bakıyorsa yönlendir
-      if (authUser?.id === profileData.id) {
-        router.push('/profil')
-        return
-      }
-
-      // 3. Takip Durumunu Kontrol Et
-      if (authUser) {
-        const { data: followData } = await supabase
-          .from('user_follows')
-          .select('*')
-          .eq('follower_id', authUser.id)
-          .eq('following_id', profileData.id)
-          .single()
-        
-        setIsFollowing(!!followData)
-      }
-
-      // 4. Takipçi/Takip Sayılarını Getir
-      const [followersCount, followingCount] = await Promise.all([
-        supabase.from('user_follows').select('*', { count: 'exact', head: true }).eq('following_id', profileData.id),
-        supabase.from('user_follows').select('*', { count: 'exact', head: true }).eq('follower_id', profileData.id)
-      ])
-
-      setCounts({
-        followers: followersCount.count || 0,
-        following: followingCount.count || 0
-      })
-
-      // 5. Paylasimlari Getir (Eger gizli degilse veya takip ediyorsa)
-      if (profileData.is_public || (authUser && isFollowing)) {
-        const { data: userPosts } = await supabase
-          .from('user_posts')
-          .select(`
-            *,
-            post_comments (id),
-            post_likes (id)
-          `)
-          .eq('user_id', profileData.id)
-          .eq('media_type', 'image')
-          .order('created_at', { ascending: false })
-
-        setPosts(userPosts || [])
-      }
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
+  if (profileError || !profile) {
+    redirect('/sosyal')
   }
 
-  const handleFollow = async () => {
-    if (!currentUser) {
-      toast.error('Takip etmek için giriş yapmalısınız')
-      router.push('/giris')
-      return
-    }
-
-    try {
-      setFollowLoading(true)
-      if (isFollowing) {
-        // Takibi Bırak
-        await supabase
-          .from('user_follows')
-          .delete()
-          .eq('follower_id', currentUser.id)
-          .eq('following_id', profile.id)
-        
-        setIsFollowing(false)
-        setCounts(prev => ({ ...prev, followers: prev.followers - 1 }))
-        toast.success(`${profile.username} takibi bırakıldı`)
-      } else {
-        // Takip Et
-        await supabase
-          .from('user_follows')
-          .insert({
-            follower_id: currentUser.id,
-            following_id: profile.id
-          })
-        
-        // Bildirim Gonder
-        await supabase.from('notifications').insert({
-          user_id: profile.id,
-          actor_id: currentUser.id,
-          type: 'follow'
-        })
-        
-        setIsFollowing(true)
-        setCounts(prev => ({ ...prev, followers: prev.followers + 1 }))
-        toast.success(`${profile.username} takip ediliyor! ✨`)
-      }
-    } catch (error) {
-      toast.error('İşlem başarısız oldu')
-    } finally {
-      setFollowLoading(false)
-    }
+  // Kendi profiline bakıyorsa yönlendir
+  if (authUser?.id === profile.id) {
+    redirect('/profil')
   }
 
-  const handleMessage = async () => {
-    if (!currentUser) {
-      toast.error('Mesaj göndermek için giriş yapmalısınız')
-      router.push('/giris')
-      return
-    }
-
-    try {
-      setMessageLoading(true)
-      
-      // 1. Mevcut sohbeti kontrol et
-      const { data: existingMember } = await supabase
-        .rpc('get_existing_conversation', { 
-          user1: currentUser.id, 
-          user2: profile.id 
-        })
-
-      if (existingMember && existingMember.length > 0) {
-        router.push(`/mesajlar/${existingMember[0].conversation_id}`)
-        return
-      }
-
-      // 2. Yoksa yeni olustur
-      const { data: newConv, error: convError } = await supabase
-        .from('conversations')
-        .insert({})
-        .select()
-        .single()
-      
-      if (convError) throw convError
-
-      await supabase.from('conversation_members').insert([
-        { conversation_id: newConv.id, user_id: currentUser.id },
-        { conversation_id: newConv.id, user_id: profile.id }
-      ])
-
-      router.push(`/mesajlar/${newConv.id}`)
-    } catch (error) {
-      console.error(error)
-      toast.error('Sohbet başlatılamadı')
-    } finally {
-      setMessageLoading(false)
-    }
+  // 3. Takip Durumunu Kontrol Et
+  let isFollowing = false
+  if (authUser) {
+    const { data: followData } = await supabase
+      .from('user_follows')
+      .select('*')
+      .eq('follower_id', authUser.id)
+      .eq('following_id', profile.id)
+      .single()
+    
+    isFollowing = !!followData
   }
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#0a192f] flex flex-col items-center justify-center gap-4">
-      <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin" />
-    </div>
-  )
+  // 4. Takipçi/Takip Sayılarını Getir
+  const [followersCount, followingCount] = await Promise.all([
+    supabase.from('user_follows').select('*', { count: 'exact', head: true }).eq('following_id', profile.id),
+    supabase.from('user_follows').select('*', { count: 'exact', head: true }).eq('follower_id', profile.id)
+  ])
 
-  const canSeePosts = profile?.is_public || isFollowing
+  const counts = {
+    followers: followersCount.count || 0,
+    following: followingCount.count || 0
+  }
+
+  // 5. Paylasimlari Getir (Eger gizli degilse veya takip ediyorsa)
+  let posts: any[] = []
+  const canSeePosts = profile.is_public || (authUser && isFollowing)
+  
+  if (canSeePosts) {
+    const { data: userPosts } = await supabase
+      .from('user_posts')
+      .select(`
+        *,
+        post_comments (id),
+        post_likes (id)
+      `)
+      .eq('user_id', profile.id)
+      .eq('media_type', 'image')
+      .order('created_at', { ascending: false })
+
+    posts = userPosts || []
+  }
 
   return (
     <div className="min-h-screen bg-[#0a192f] text-white pb-20">
@@ -217,9 +90,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
       <main className="max-w-4xl mx-auto px-6 pt-32 md:pt-40">
         
         {/* Back Button */}
-        <button onClick={() => router.back()} className="mb-10 flex items-center gap-2 text-slate-500 hover:text-[#64ffda] transition-colors group">
+        <Link href="/sosyal" className="mb-10 flex items-center gap-2 text-slate-500 hover:text-[#64ffda] transition-colors group">
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Geri Dön
-        </button>
+        </Link>
 
         {/* Profile Header */}
         <section className="flex flex-col md:flex-row items-center md:items-start gap-10 md:gap-16 mb-16 animate-in fade-in duration-700">
@@ -248,33 +121,17 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                 )}
               </h1>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                <button 
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                  className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-xl ${
-                    isFollowing 
-                      ? 'bg-white/5 text-white border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20' 
-                      : 'bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] shadow-[#64ffda]/10'
-                  }`}
-                >
-                  {followLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : isFollowing ? <><UserMinus className="w-4 h-4" /> Takibi Bırak</> : <><UserPlus className="w-4 h-4" /> Takip Et</>}
-                </button>
-                <button 
-                  onClick={handleMessage}
-                  disabled={messageLoading}
-                  className="px-8 py-3 bg-white/5 text-white border border-white/10 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-2 shadow-xl"
-                >
-                  {messageLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><MessageSquare className="w-4 h-4" /> Mesaj Gönder</>}
-                </button>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href)
-                    toast.success('Profil bağlantısı kopyalandı! 🔗')
-                  }}
-                  className="px-6 py-3 bg-white/5 text-white border border-white/10 rounded-xl hover:bg-[#64ffda]/10 hover:text-[#64ffda] transition-all shadow-xl flex items-center gap-2 font-black text-xs uppercase tracking-widest"
-                >
-                  <Share2 className="w-4 h-4" /> Paylaş
-                </button>
+                <FollowButton 
+                    profileId={profile.id} 
+                    username={profile.username}
+                    initialIsFollowing={isFollowing} 
+                    currentUserId={authUser?.id} 
+                />
+                <MessageButton 
+                    profileId={profile.id} 
+                    currentUserId={authUser?.id} 
+                />
+                <ShareButton username={profile.username} />
               </div>
             </div>
 
@@ -306,9 +163,9 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
               <div className="grid grid-cols-3 gap-1 md:gap-6">
                 {posts.map((post) => (
-                  <div 
+                  <Link 
                     key={post.id} 
-                    onClick={() => router.push(`/sosyal/post/${post.id}`)}
+                    href={`/sosyal/post/${post.id}`}
                     className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer shadow-2xl transition-transform active:scale-95"
                   >
                     <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-all duration-1000" />
@@ -317,7 +174,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
                       <div className="flex flex-col items-center gap-1 text-white font-black"><Heart className="w-7 h-7 fill-[#64ffda] text-[#64ffda]" /> {post.post_likes?.length || 0}</div>
                       <div className="flex flex-col items-center gap-1 text-white font-black"><MessageSquare className="w-7 h-7 fill-white" /> {post.post_comments?.length || 0}</div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
 

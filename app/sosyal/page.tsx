@@ -1,7 +1,4 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import { PostCard } from '@/components/sosyal/post-card'
 import { Stories } from '@/components/sosyal/stories'
 import { 
@@ -11,58 +8,32 @@ import {
   Camera,
   Users
 } from 'lucide-react'
-import { PostSkeleton } from '@/components/sosyal/post-skeleton'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { BottomNav } from '@/components/sosyal/bottom-nav'
+import { Header } from '@/components/fethiye/header'
 
-export default function SocialFeedPage() {
-  const [posts, setPosts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
-  const supabase = createClient()
-  const router = useRouter()
+export const dynamic = 'force-dynamic'
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Kullaniciyi al
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
+export default async function SocialFeedPage() {
+  const supabase = await createClient()
 
-      // Tum gonderileri getir (SADECE ONAYLI OLANLAR)
-      const { data, error } = await supabase
-        .from('user_posts')
-        .select(`
-          *,
-          user_profiles (username, avatar_url)
-        `)
-        .eq('is_approved', true)
-        .eq('media_type', 'image')
-        .order('created_at', { ascending: false })
+  // Kullaniciyi al
+  const { data: { user } } = await supabase.auth.getUser()
 
-      if (!error) {
-        setPosts(data || [])
-      } else {
-        console.error("Fetch social posts error:", error)
-        toast.error(`Paylaşımlar yüklenirken hata: ${error.message}`)
-      }
-      setLoading(false)
-    }
-    fetchData()
-  }, [])
+  // Tum gonderileri getir (SADECE ONAYLI OLANLAR)
+  const { data: posts, error } = await supabase
+    .from('user_posts')
+    .select(`
+      *,
+      user_profiles (username, avatar_url)
+    `)
+    .eq('is_approved', true)
+    .eq('media_type', 'image')
+    .order('created_at', { ascending: false })
 
-  if (loading) return (
-    <div className="min-h-screen bg-[#0a192f] pb-20">
-      <header className="sticky top-0 z-50 bg-[#0a192f]/80 backdrop-blur-2xl border-b border-white/5 px-6 py-4">
-        <div className="max-w-xl mx-auto flex items-center justify-center h-10">
-          <div className="w-32 h-4 bg-white/10 rounded-full animate-pulse" />
-        </div>
-      </header>
-      <main className="max-w-xl mx-auto px-4 pt-8 space-y-10">
-        {[1, 2, 3].map(i => <PostSkeleton key={i} />)}
-      </main>
-    </div>
-  )
+  if (error) {
+    console.error("Fetch social posts error:", error)
+  }
 
   return (
     <div className="min-h-screen bg-[#0a192f] pb-20">
@@ -98,7 +69,7 @@ export default function SocialFeedPage() {
 
         {/* Feed Posts */}
         <div className="space-y-10">
-          {posts.map((post) => (
+          {posts?.map((post) => (
             <PostCard 
               key={post.id} 
               post={post} 
@@ -106,7 +77,7 @@ export default function SocialFeedPage() {
             />
           ))}
 
-          {posts.length === 0 && (
+          {(!posts || posts.length === 0) && (
             <div className="text-center py-32 bg-white/5 rounded-[60px] border border-dashed border-white/10">
               <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ImageIcon className="w-10 h-10 text-slate-700" />
