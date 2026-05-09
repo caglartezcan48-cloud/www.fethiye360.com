@@ -15,8 +15,12 @@ import {
   LayoutGrid,
   Building2,
   Search,
-  Check
+  Check,
+  AlertTriangle,
+  ShieldCheck
 } from 'lucide-react'
+import * as tf from '@tensorflow/tfjs'
+import * as nsfwjs from 'nsfwjs'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { compressImage } from '@/lib/utils'
@@ -48,6 +52,8 @@ function UploadContent() {
   const [selectedBusiness, setSelectedBusiness] = useState<any>(null)
   const [isSearching, setIsSearching] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [nsfwError, setNsfwError] = useState<string | null>(null)
   
   const [isAuthChecking, setIsAuthChecking] = useState(true)
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -68,12 +74,49 @@ function UploadContent() {
     checkAuth()
   }, [])
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
       setFile(selectedFile)
       setPreview(URL.createObjectURL(selectedFile))
       setMediaType('image')
+      setNsfwError(null)
+      
+      // Yapay Zeka Analizi Başlat
+      try {
+        setIsAnalyzing(true)
+        
+        // Modeli yükle
+        const model = await nsfwjs.load()
+        
+        // Resmi bir Image elementine dönüştür
+        const img = new (window.Image as any)()
+        img.src = URL.createObjectURL(selectedFile)
+        
+        await new Promise((resolve) => {
+          img.onload = resolve
+        })
+
+        // Tahmin yap
+        const predictions = await model.classify(img)
+        
+        // Kritik kategorileri kontrol et
+        const nsfwCategories = ['Porn', 'Hentai', 'Sexy']
+        const highRisk = predictions.find(p => nsfwCategories.includes(p.className) && p.probability > 0.6)
+
+        if (highRisk) {
+          setNsfwError(`Uygunsuz içerik tespit edildi. Lütfen topluluk kurallarına uygun bir fotoğraf seçin.`)
+          setFile(null)
+          setPreview(null)
+          toast.error('Görsel güvenlik kontrolünden geçemedi.')
+        } else {
+          toast.success('Görsel güvenlik kontrolünden geçti. ✅')
+        }
+      } catch (err) {
+        console.error('AI Analysis Error:', err)
+      } finally {
+        setIsAnalyzing(false)
+      }
     }
   }
 
@@ -237,16 +280,48 @@ function UploadContent() {
             }`}
           >
             {preview ? (
-              <>
+              <div className="relative w-full h-full">
                 <Image src={preview} alt="Önizleme" fill className="object-cover" />
+                
+                {/* AI Loading State */}
+                {isAnalyzing && (
+                  <div className="absolute inset-0 bg-[#0a192f]/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
+                    <div className="relative mb-4">
+                      <div className="absolute inset-0 bg-[#64ffda] rounded-full blur-xl opacity-20 animate-pulse" />
+                      <Loader2 className="w-12 h-12 text-[#64ffda] animate-spin relative" />
+                    </div>
+                    <h3 className="text-white font-black uppercase tracking-widest text-xs mb-2 italic">AI Güvenlik Taraması</h3>
+                    <p className="text-slate-400 text-[10px] font-medium leading-relaxed">Görsel topluluk kurallarına uygunluk <br />açısından analiz ediliyor...</p>
+                  </div>
+                )}
+
+                {/* AI Error State */}
+                {nsfwError && (
+                  <div className="absolute inset-0 bg-red-500/20 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300">
+                    <div className="w-16 h-16 bg-red-500/20 rounded-3xl flex items-center justify-center mb-4 border border-red-500/30">
+                      <AlertTriangle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <h3 className="text-red-500 font-black uppercase tracking-widest text-xs mb-2 italic">Erişim Engellendi</h3>
+                    <p className="text-red-200/90 text-[10px] font-black leading-relaxed px-4 uppercase">{nsfwError}</p>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      onClick={(e) => { e.stopPropagation(); setNsfwError(null); setFile(null); setPreview(null); }}
+                      className="mt-6 h-10 border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-xl text-[10px] uppercase font-black"
+                    >
+                      Başka Bir Fotoğraf Seç
+                    </Button>
+                  </div>
+                )}
+
                 <button 
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); setPreview(null); setFile(null); }}
+                  onClick={(e) => { e.stopPropagation(); setPreview(null); setFile(null); setNsfwError(null); }}
                   className="absolute top-6 right-6 p-4 bg-red-500 text-white rounded-2xl shadow-xl hover:scale-110 transition-transform z-10"
                 >
                   <X className="w-6 h-6" />
                 </button>
-              </>
+              </div>
             ) : (
               <div className="text-center space-y-4">
                 <div className="w-24 h-24 bg-white/5 rounded-[40px] flex items-center justify-center mx-auto group-hover:scale-110 transition-all group-hover:bg-[#64ffda]/10 border border-white/5 group-hover:border-[#64ffda]/20">

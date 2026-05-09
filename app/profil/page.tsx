@@ -20,6 +20,8 @@ import {
 import { PostGridSkeleton } from '@/components/sosyal/post-skeleton'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import * as tf from '@tensorflow/tfjs'
+import * as nsfwjs from 'nsfwjs'
 import {
   Dialog,
   DialogContent,
@@ -41,6 +43,7 @@ export default function UserProfilePage() {
   const [counts, setCounts] = useState({ followers: 0, following: 0 })
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   
   // Modal State'leri
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -205,6 +208,25 @@ export default function UserProfilePage() {
 
     try {
       setUpdating(true)
+      setIsAnalyzing(true)
+
+      // AI Analizi
+      const model = await nsfwjs.load()
+      const img = new (window.Image as any)()
+      img.src = URL.createObjectURL(file)
+      await new Promise(r => img.onload = r)
+      
+      const predictions = await model.classify(img)
+      const nsfwCategories = ['Porn', 'Hentai', 'Sexy']
+      const highRisk = predictions.find(p => nsfwCategories.includes(p.className) && p.probability > 0.6)
+
+      if (highRisk) {
+        toast.error('Profil fotoğrafı güvenlik kontrolünden geçemedi. Uygunsuz içerik tespit edildi.')
+        setUpdating(false)
+        setIsAnalyzing(false)
+        return
+      }
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${user.id}-${Math.random()}.${fileExt}`
       const filePath = `avatars/${fileName}`
@@ -214,12 +236,13 @@ export default function UserProfilePage() {
 
       await supabase.from('user_profiles').update({ avatar_url: publicUrl }).eq('id', user.id)
 
-      toast.success('Fotoğraf yüklendi')
+      toast.success('Profil fotoğrafı güncellendi! ✅')
       fetchProfile()
     } catch (error) {
-      toast.error('Fotoğraf yüklenemedi')
+      toast.error('İşlem sırasında bir hata oluştu.')
     } finally {
       setUpdating(false)
+      setIsAnalyzing(false)
     }
   }
 
