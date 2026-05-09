@@ -38,6 +38,7 @@ export function Header() {
           .maybeSingle()
         setIsOwner(!!business)
 
+        /* 
         try {
           const { count, error: notifError } = await supabase
             .from('notifications')
@@ -51,6 +52,7 @@ export function Header() {
         } catch (e) {
           console.warn("Could not fetch notifications:", e)
         }
+        */
       }
     }
     checkUser()
@@ -157,26 +159,6 @@ export function Header() {
               <>
                 <Link 
                   href={isOwner ? "/isletme-paneli" : "/profil"}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10"
-              >
-                <div className="w-10 h-10 bg-[#64ffda] rounded-xl flex items-center justify-center text-[#0a192f]">
-                  {isOwner ? <Building2 /> : <User />}
-                </div>
-                <div className="font-black text-white uppercase tracking-widest text-sm">
-                  {isOwner ? "İşletme Panelim" : "Kullanıcı Profilim"}
-                </div>
-              </Link>
-              <button
-                onClick={async () => {
-                  await supabase.auth.signOut()
-                  window.location.href = '/'
-                }}
-                className="flex items-center gap-4 p-4 bg-red-500/5 rounded-2xl border border-red-500/10 text-red-400"
-              >
-                <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center">
-                  <LogOut className="w-5 h-5" />
-                </div>
                 <div className="font-black uppercase tracking-widest text-sm">
                   Çıkış Yap
                 </div>

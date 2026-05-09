@@ -161,6 +161,8 @@ export function Stories() {
                   alt={group.user.username} 
                   fill 
                   className="object-cover"
+                  unoptimized={true}
+                  priority
                 />
               </div>
             </div>
