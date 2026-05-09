@@ -20,7 +20,13 @@ import {
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { compressImage } from '@/lib/utils'
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
 function UploadContent() {
