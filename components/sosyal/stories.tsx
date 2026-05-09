@@ -160,7 +160,7 @@ export function Stories() {
                   src={group.user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${group.user.username}`} 
                   alt={group.user.username} 
                   fill 
-                  className="object-cover"
+                  className="object-cover object-center"
                   unoptimized={true}
                   priority
                 />
