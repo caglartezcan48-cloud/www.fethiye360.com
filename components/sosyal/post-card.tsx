@@ -158,23 +158,12 @@ export function PostCard({ post, currentUserId }: PostCardProps) {
         onDoubleClick={handleLike}
         onClick={() => router.push(`/sosyal/post/${post.id}`)}
       >
-        {post.media_type === 'video' ? (
-          <video 
-            src={post.image_url} 
-            className="w-full h-full object-cover transition-transform duration-[2s] hover:scale-105"
-            autoPlay
-            muted
-            loop
-            playsInline
-          />
-        ) : (
-          <Image 
-            src={post.image_url} 
-            alt="Post" 
-            fill 
-            className="object-cover transition-transform duration-[2s] hover:scale-110" 
-          />
-        )}
+        <Image 
+          src={post.image_url} 
+          alt="Post" 
+          fill 
+          className="object-cover transition-transform duration-[2s] hover:scale-110" 
+        />
       </div>
 
       {/* Actions */}

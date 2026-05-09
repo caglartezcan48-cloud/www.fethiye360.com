@@ -34,15 +34,10 @@ export default function SocialFeedPage() {
         .from('user_posts')
         .select(`
           *,
-          user_profiles (username, avatar_url),
-          post_comments (
-            *,
-            user_profiles (username, avatar_url)
-          ),
-          post_likes (user_id),
-          businesses (id, name, slug)
+          user_profiles (username, avatar_url)
         `)
-        .eq('is_approved', true) // Filtre eklendi
+        .eq('is_approved', true)
+        .eq('media_type', 'image')
         .order('created_at', { ascending: false })
 
       if (!error) {

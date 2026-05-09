@@ -10,8 +10,7 @@ import {
   MoreVertical,
   Image as ImageIcon,
   Smile,
-  Phone,
-  Video
+  Phone
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -158,7 +157,7 @@ export default function ChatPage({ params }: { params: Promise<{ id: string }> }
         </div>
         <div className="flex items-center gap-4">
           <button className="p-2 text-slate-500 hover:text-[#64ffda] transition-all hidden md:block"><Phone className="w-5 h-5" /></button>
-          <button className="p-2 text-slate-500 hover:text-[#64ffda] transition-all hidden md:block"><Video className="w-5 h-5" /></button>
+
           <button className="p-2 text-slate-500 hover:text-white transition-all"><MoreVertical className="w-6 h-6" /></button>
         </div>
       </header>

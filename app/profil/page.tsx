@@ -8,7 +8,6 @@ import {
   Grid, 
   LogOut, 
   Plus, 
-  Video,
   Share2,
   Heart,
   MessageSquare,
@@ -100,6 +99,7 @@ export default function UserProfilePage() {
           post_likes (id)
         `)
         .eq('user_id', user.id)
+        .eq('media_type', 'image')
         .order('created_at', { ascending: false })
 
       setPosts(userPosts || [])
@@ -319,11 +319,7 @@ export default function UserProfilePage() {
                 className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
               >
                 <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
-                {post.media_type === 'video' && (
-                  <div className="absolute top-4 right-4 p-1.5 bg-black/40 backdrop-blur-md rounded-lg border border-white/10 z-10">
-                    <Video className="w-4 h-4 text-white" />
-                  </div>
-                )}
+
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-8">
                   <div className="flex flex-col items-center gap-1 text-white font-black"><Heart className="w-7 h-7 fill-[#64ffda] text-[#64ffda]" /> {post.post_likes?.length || 0}</div>
                   <div className="flex flex-col items-center gap-1 text-white font-black"><MessageSquare className="w-7 h-7 fill-white" /> {post.post_comments?.length || 0}</div>

@@ -5,7 +5,6 @@ import { Footer } from '@/components/fethiye/footer'
 import { 
   Sparkles, 
   Camera, 
-  Video as VideoIcon, 
   Flame, 
   Clock,
   ArrowRight
@@ -27,19 +26,16 @@ export default async function DiscoveryPage({
     .from('user_posts')
     .select(`
       *,
-      user_profiles (username, avatar_url),
-      post_likes (user_id),
-      post_comments (id),
-      businesses (id, name, slug)
+      user_profiles (username, avatar_url)
     `)
     .eq('is_approved', true)
   // Filtreleme Mantigi (DB Seviyesi)
+  query = query.eq('media_type', 'image')
+  
   if (filtre === 'yeni' || filtre === 'populer') {
     query = query.order('created_at', { ascending: false })
-  } else if (filtre === 'videolar') {
-    query = query.eq('media_type', 'video').order('created_at', { ascending: false })
   } else if (filtre === 'fotograflar') {
-    query = query.eq('media_type', 'image').order('created_at', { ascending: false })
+    query = query.order('created_at', { ascending: false })
   }
 
   const { data: posts, error } = await query.limit(100)
@@ -58,7 +54,6 @@ export default async function DiscoveryPage({
   const filterItems = [
     { id: 'yeni', label: 'En Yeni', icon: Clock },
     { id: 'populer', label: 'Trendler', icon: Flame },
-    { id: 'videolar', label: 'Videolar', icon: VideoIcon },
     { id: 'fotograflar', label: 'Fotoğraflar', icon: Camera },
   ]
 
@@ -77,7 +72,7 @@ export default async function DiscoveryPage({
               Sosyal <span className="text-[#64ffda]">Keşif</span>
             </h1>
             <p className="text-slate-400 mt-4 text-lg max-w-2xl font-medium">
-              Fethiye'nin dört bir yanından kullanıcı paylaşımları, anlık kareler ve kısa videolar.
+            Fethiye'nin dört bir yanından kullanıcı paylaşımları ve anlık kareler.
             </p>
           </div>
 

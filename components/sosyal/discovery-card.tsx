@@ -23,12 +23,7 @@ export function DiscoveryCard({ post, aspectRatio = "aspect-square" }: Discovery
         className="object-cover transition-transform duration-700 group-hover:scale-110"
       />
 
-      {/* Video Indicator */}
-      {post.media_type === 'video' && (
-        <div className="absolute top-3 right-3 p-1.5 bg-black/40 backdrop-blur-md rounded-lg border border-white/10 z-10">
-          <Play className="w-3 h-3 text-white fill-white" />
-        </div>
-      )}
+
 
       {/* Overlay on Hover */}
       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-6">

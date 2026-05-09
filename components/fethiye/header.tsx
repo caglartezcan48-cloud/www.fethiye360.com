@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { Menu, X, Compass, User, Building2, Bell, LogIn, MessageCircle, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { CityStats } from "./city-stats"
+import dynamic from 'next/dynamic'
+const CityStats = dynamic(() => import("./city-stats").then(mod => mod.CityStats), { ssr: false })
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 

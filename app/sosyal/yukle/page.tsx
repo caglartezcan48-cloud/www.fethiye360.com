@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { compressImage } from '@/lib/utils'
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
@@ -31,7 +32,7 @@ function UploadContent() {
   const [location, setLocation] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-  const [mediaType, setMediaType] = useState<'image' | 'video'>('image')
+  const [mediaType, setMediaType] = useState<'image'>('image')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -49,68 +50,13 @@ function UploadContent() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      const isVideo = selectedFile.type.startsWith('video')
-      
-      // Video için 10 MB sınırı koyalım (10 * 1024 * 1024 byte)
-      if (isVideo && selectedFile.size > 10 * 1024 * 1024) {
-        toast.error('Video çok büyük! Lütfen sistemin donmaması için maksimum 10 MB (yaklaşık 10-15 saniyelik) bir video seçin.', {
-          duration: 5000,
-        })
-        e.target.value = '' // Input'u temizle
-        return
-      }
-
       setFile(selectedFile)
       setPreview(URL.createObjectURL(selectedFile))
-      setMediaType(isVideo ? 'video' : 'image')
+      setMediaType('image')
     }
   }
 
-  const compressImage = (file: File): Promise<Blob | File> => {
-    if (!file.type.toLowerCase().startsWith('image/')) return Promise.resolve(file)
-    
-    return new Promise((resolve) => {
-      try {
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onload = (event) => {
-          const img = new window.Image()
-          img.src = event.target?.result as string
-          img.onload = () => {
-            const canvas = document.createElement('canvas')
-            const MAX_WIDTH = 1200
-            const MAX_HEIGHT = 1200
-            let width = img.width
-            let height = img.height
 
-            if (width > height) {
-              if (width > MAX_WIDTH) {
-                height *= MAX_WIDTH / width
-                width = MAX_WIDTH
-              }
-            } else {
-              if (height > MAX_HEIGHT) {
-                width *= MAX_HEIGHT / height
-                height = MAX_HEIGHT
-              }
-            }
-            canvas.width = width
-            canvas.height = height
-            const ctx = canvas.getContext('2d')
-            ctx?.drawImage(img, 0, 0, width, height)
-            canvas.toBlob((blob) => {
-              if (blob) resolve(blob)
-              else resolve(file) // Fallback to original if blob fails
-            }, 'image/jpeg', 0.8)
-          }
-          img.onerror = () => resolve(file) // Fallback on image load error
-        }
-        reader.onerror = () => resolve(file) // Fallback on reader error
-      } catch (err) {
-        resolve(file) // Fallback if anything crashes
-      }
-    })
-  }
 
   const searchBusinesses = async (query: string) => {
     setSearchQuery(query)
@@ -140,7 +86,7 @@ function UploadContent() {
       if (!user) throw new Error('Giriş yapmalısınız')
 
       // Fotograf ise sikistir
-      const uploadFile = mediaType === 'image' ? await compressImage(file) : file
+      const uploadFile = await compressImage(file)
 
       const fileExt = file.name.split('.').pop()
       const fileName = `${shareType}_${user.id}_${Date.now()}.${fileExt}`
@@ -239,11 +185,7 @@ function UploadContent() {
           >
             {preview ? (
               <>
-                {mediaType === 'video' ? (
-                  <video src={preview} className="w-full h-full object-cover" autoPlay muted loop />
-                ) : (
-                  <Image src={preview} alt="Önizleme" fill className="object-cover" />
-                )}
+                <Image src={preview} alt="Önizleme" fill className="object-cover" />
                 <button 
                   type="button"
                   onClick={(e) => { e.stopPropagation(); setPreview(null); setFile(null); }}
@@ -263,7 +205,7 @@ function UploadContent() {
                 </div>
               </div>
             )}
-            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*,video/*" />
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
           </div>
 
           {shareType === 'post' && (

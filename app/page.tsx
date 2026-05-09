@@ -1,7 +1,8 @@
 import { Header } from "@/components/fethiye/header"
 import { Hero } from "@/components/fethiye/hero"
 import { ToursSection } from "@/components/fethiye/tours-section"
-import { MapSection } from "@/components/fethiye/map-section"
+import dynamic from 'next/dynamic'
+const MapSection = dynamic(() => import("@/components/fethiye/map-section").then(mod => mod.MapSection))
 import { AboutSection } from "@/components/fethiye/about-section"
 import { Footer } from "@/components/fethiye/footer"
 import { SocialSection } from "@/components/fethiye/social-section"

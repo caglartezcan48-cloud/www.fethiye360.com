@@ -51,6 +51,7 @@ export function Stories() {
           user_profiles(username, avatar_url)
         `)
         .gt('created_at', twentyFourHoursAgo)
+        .eq('media_type', 'image')
         .order('created_at', { ascending: true })
 
       if (error) throw error
@@ -194,22 +195,12 @@ export function Stories() {
 
               {/* Media Content */}
               <div className="relative w-full h-full">
-                {selectedUserStories[currentStoryIndex].media_type === 'video' ? (
-                  <video 
-                    src={selectedUserStories[currentStoryIndex].media_url} 
-                    className="w-full h-full object-cover"
-                    autoPlay
-                    muted
-                    playsInline
-                  />
-                ) : (
-                  <Image 
-                    src={selectedUserStories[currentStoryIndex].media_url} 
-                    alt="Story" 
-                    fill 
-                    className="object-cover"
-                  />
-                )}
+                <Image 
+                  src={selectedUserStories[currentStoryIndex].media_url} 
+                  alt="Story" 
+                  fill 
+                  className="object-cover"
+                />
               </div>
             </div>
           )}
