@@ -43,9 +43,24 @@ function UploadContent() {
   const [isSearching, setIsSearching] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   
+  const [isAuthChecking, setIsAuthChecking] = useState(true)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const supabase = createClient()
   const router = useRouter()
+
+  const checkAuth = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setShowAuthModal(true)
+    }
+    setIsAuthChecking(false)
+  }
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
@@ -140,6 +155,11 @@ function UploadContent() {
 
   return (
     <div className="min-h-screen bg-[#0a192f] p-6 relative overflow-hidden selection:bg-[#64ffda]/30">
+      {isAuthChecking && (
+        <div className="fixed inset-0 z-[200] bg-[#0a192f] flex items-center justify-center">
+          <Loader2 className="w-10 h-10 text-[#64ffda] animate-spin" />
+        </div>
+      )}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#64ffda]/5 rounded-full blur-[120px] -z-10" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] -z-10" />
 
@@ -324,6 +344,48 @@ function UploadContent() {
               >
                 Anladım
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Auth Required Modal */}
+        <Dialog open={showAuthModal} onOpenChange={() => {}}>
+          <DialogContent className="bg-[#0a192f] border-white/5 rounded-[48px] p-8 md:p-12 text-center overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
+            <div className="absolute top-0 left-0 w-48 h-48 bg-[#64ffda]/5 rounded-full blur-[60px] -ml-24 -mt-24" />
+            
+            <div className="relative z-10 space-y-8">
+              <div className="w-24 h-24 bg-[#64ffda]/10 rounded-[40px] flex items-center justify-center mx-auto border border-[#64ffda]/20 ring-4 ring-[#64ffda]/5">
+                <Sparkles className="w-12 h-12 text-[#64ffda]" />
+              </div>
+              
+              <div className="space-y-4">
+                <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">Fethiye'yi Paylaş!</h2>
+                <p className="text-slate-400 font-medium leading-relaxed text-sm">
+                  Fethiye'nin güzelliklerini herkesle paylaşabilmek için önce <span className="text-white font-bold">kayıt olmanızı</span> veya giriş yapmanızı rica ederiz.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                <Button 
+                  onClick={() => router.push('/kayit')}
+                  className="w-full h-16 bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl shadow-[#64ffda]/20 transition-all hover:scale-[1.02]"
+                >
+                  Şimdi Kayıt Ol
+                </Button>
+                <Button 
+                  onClick={() => router.push('/giris')}
+                  variant="outline"
+                  className="w-full h-16 bg-white/5 border-white/10 text-white hover:bg-white/10 font-black uppercase tracking-widest text-xs rounded-2xl"
+                >
+                  Zaten Hesabım Var
+                </Button>
+                <button 
+                  onClick={() => router.back()}
+                  className="text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors"
+                >
+                  Geri Dön
+                </button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
