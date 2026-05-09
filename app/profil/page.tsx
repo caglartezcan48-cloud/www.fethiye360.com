@@ -377,7 +377,10 @@ export default function UserProfilePage() {
         {/* Edit Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
           <DialogContent className="bg-[#112240] border-white/10 text-white rounded-[40px] max-w-md shadow-2xl">
-            <DialogHeader><DialogTitle className="text-2xl font-black uppercase flex items-center gap-3">Profili Düzenle</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black uppercase flex items-center gap-3">Profili Düzenle</DialogTitle>
+              <DialogDescription className="text-slate-400 text-xs font-medium">Profil bilgilerinizi buradan güncelleyebilirsiniz.</DialogDescription>
+            </DialogHeader>
             <div className="space-y-6 py-6">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ad Soyad</Label>

@@ -344,6 +344,10 @@ function UploadContent() {
         {/* Success Modal */}
         <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
           <DialogContent className="bg-[#112240] border-white/5 rounded-[48px] p-8 md:p-12 text-center overflow-hidden">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Paylaşım Başarılı</DialogTitle>
+              <DialogDescription>Fotoğrafınız başarıyla yüklendi ve onay bekliyor.</DialogDescription>
+            </DialogHeader>
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/10 rounded-full blur-[50px] -mr-16 -mt-16" />
             
             <div className="relative z-10 space-y-6">
@@ -376,6 +380,10 @@ function UploadContent() {
         {/* Auth Required Modal */}
         <Dialog open={showAuthModal} onOpenChange={() => {}}>
           <DialogContent className="bg-[#0a192f] border-white/5 rounded-[48px] p-8 md:p-12 text-center overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
+            <DialogHeader className="sr-only">
+              <DialogTitle>Giriş Gerekli</DialogTitle>
+              <DialogDescription>Paylaşım yapmak için lütfen giriş yapın veya kayıt olun.</DialogDescription>
+            </DialogHeader>
             <div className="absolute top-0 left-0 w-48 h-48 bg-[#64ffda]/5 rounded-full blur-[60px] -ml-24 -mt-24" />
             
             <div className="relative z-10 space-y-8">

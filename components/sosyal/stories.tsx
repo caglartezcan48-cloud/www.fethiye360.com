@@ -171,6 +171,10 @@ export function Stories() {
       {/* Story Viewer Modal */}
       <Dialog open={!!selectedUserStories} onOpenChange={() => setSelectedUserStories(null)}>
         <DialogContent className="max-w-[100vw] h-screen p-0 border-none bg-black/95 backdrop-blur-3xl overflow-hidden flex flex-col items-center justify-center">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Hikaye İzleyici</DialogTitle>
+            <DialogDescription>Paylaşılan güncel hikayeleri izleyin.</DialogDescription>
+          </DialogHeader>
           {selectedUserStories && (
             <div className="relative w-full max-w-lg aspect-[9/16] bg-[#0a192f] rounded-none md:rounded-[40px] overflow-hidden shadow-2xl">
               {/* Progress Bars */}
