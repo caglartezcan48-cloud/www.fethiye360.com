@@ -1,3 +1,7 @@
+/**
+ * Fethiye360 - Elite Destination Portal
+ * Version: 1.1.2 - Service Hub & Activity Planner Update
+ */
 import { Header } from "@/components/fethiye/header"
 import { Hero } from "@/components/fethiye/hero"
 import { ToursSection } from "@/components/fethiye/tours-section"
