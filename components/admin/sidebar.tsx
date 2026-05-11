@@ -33,6 +33,7 @@ const menuItems = [
   { href: '/admin/kullanicilar', label: 'Kullanıcılar', icon: Users },
   { href: '/admin/yorumlar', label: 'Yorumlar', icon: MessageSquare },
   { href: '/admin/sosyal-onay', label: 'Sosyal Onay', icon: Camera },
+  { href: '/admin/destinasyonlar', label: 'Destinasyonlar', icon: MapPin },
   { href: '/admin/istatistikler', label: 'Istatistikler', icon: BarChart3 },
   { href: '/admin/sistem-hatalari', label: 'Hata Uyarı Sistemi', icon: ShieldAlert },
   { href: '/admin/ayarlar', label: 'Ayarlar', icon: Settings },
