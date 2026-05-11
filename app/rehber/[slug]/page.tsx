@@ -50,8 +50,8 @@ export default async function DestinationDetailPage({ params }: Props) {
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
       
-      {/* CLEAN HERO - No Text Overlay */}
-      <section className="relative h-[60vh] w-full overflow-hidden">
+      {/* CLEAN HERO - No Gap with Header */}
+      <section className="relative h-[65vh] w-full overflow-hidden -mt-20">
         <Image src={dest.main_image} alt={dest.title} fill className="object-cover scale-100" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60" />
         
