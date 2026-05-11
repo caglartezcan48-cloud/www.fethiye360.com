@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   Navigation,
   MapPin,
-  Star
+  Star,
+  CheckCircle2
 } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -33,35 +34,36 @@ const SERVICE_HUBS = [
   { 
     id: 'food', 
     title: 'ACIKTIN MI?', 
-    subtitle: 'Restoran, Kafe & Lezzet', 
+    subtitle: 'Yemek, Restoran, Kafe & Tüm Lezzetler', 
     icon: Utensils, 
     color: 'from-orange-500/40 to-red-600/40',
     borderColor: 'border-orange-500/50',
     hoverBg: 'hover:bg-orange-500/10',
-    categories: ['Restoran', 'Kafe', 'Pastane', 'Fast Food', 'Kahvaltı']
+    categories: ['Yemek', 'Restoran', 'Kafe', 'Pastane', 'Fast Food', 'Kahvaltı', 'Pide', 'Kebap', 'Pizza', 'Döner', 'Meyhane', 'Izgara']
   },
   { 
     id: 'stay', 
     title: 'KONAKLAMA', 
-    subtitle: 'Otel, Villa & Pansiyon', 
+    subtitle: 'Otel, Motel, Pansiyon, Villa & Apart', 
     icon: Hotel, 
     color: 'from-blue-500/40 to-cyan-600/40',
     borderColor: 'border-blue-500/50',
     hoverBg: 'hover:bg-blue-500/10',
-    categories: ['Otel', 'Villa', 'Pansiyon', 'Apart']
+    categories: ['Otel', 'Motel', 'Pansiyon', 'Villa', 'Apart', 'Konaklama', 'Tatil Evleri']
   },
   { 
     id: 'masters', 
     title: 'USTA BUL', 
-    subtitle: 'Ev & Araba Tamiri', 
+    subtitle: 'Ev & Araba İçin Tüm Ustalar', 
     icon: Hammer, 
     color: 'from-amber-400/40 to-orange-600/40',
     borderColor: 'border-amber-400/50',
     hoverBg: 'hover:bg-amber-400/10',
     subHubs: [
-      { id: 'home_masters', title: 'EV USTALARI', icon: Home, categories: ['Elektrikçi', 'Tesisatçı', 'Boyacı', 'Mobilyacı', 'Anahtarcı'] },
-      { id: 'car_masters', title: 'ARABA TAMİR', icon: Car, categories: ['Oto Tamir', 'Lastikçi', 'Oto Elektrik', 'Kaportacı'] }
-    ]
+      { id: 'home_masters', title: 'EV USTALARI', icon: Home, color: 'bg-blue-500', categories: ['Elektrikçi', 'Tesisatçı', 'Boyacı', 'Mobilyacı', 'Anahtarcı', 'Klimacı', 'Panjur', 'Demirci', 'Marangoz'] },
+      { id: 'car_masters', title: 'ARABA TAMİR', icon: Car, color: 'bg-orange-500', categories: ['Oto Tamir', 'Lastikçi', 'Oto Elektrik', 'Kaportacı', 'Rot Balans', 'Egzoz', 'Yıkama'] }
+    ],
+    categories: ['Usta', 'Tamir', 'Tesisat', 'Elektrik', 'Boya', 'Mobilya', 'Anahtar', 'Lastik', 'Kaporta', 'Servis']
   },
   { 
     id: 'emergency', 
@@ -71,17 +73,17 @@ const SERVICE_HUBS = [
     color: 'from-red-600/40 to-rose-800/40',
     borderColor: 'border-red-600/50',
     hoverBg: 'hover:bg-red-600/10',
-    categories: ['Yol Yardım', 'Çekici', 'Eczane', 'Hastane', 'Veteriner']
+    categories: ['Yol Yardım', 'Çekici', 'Eczane', 'Hastane', 'Veteriner', 'Doktor', 'Klinik']
   },
   { 
     id: 'sea', 
     title: 'MAVİ DÜNYA', 
-    subtitle: 'Tekne Turu & Marina', 
+    subtitle: 'Tekne Turu, Marina & Yat Servis', 
     icon: Waves, 
     color: 'from-cyan-400/40 to-blue-600/40',
     borderColor: 'border-cyan-400/50',
     hoverBg: 'hover:bg-cyan-400/10',
-    categories: ['Tekne Turu', 'Marina', 'Yat Servis', 'Dalış Okulu']
+    categories: ['Tekne', 'Marina', 'Yat', 'Dalış', 'Su Sporları', 'Kaptan', 'Balık Avı']
   },
   { 
     id: 'activity', 
@@ -91,27 +93,27 @@ const SERVICE_HUBS = [
     color: 'from-emerald-400/40 to-teal-600/40',
     borderColor: 'border-emerald-400/50',
     hoverBg: 'hover:bg-emerald-400/10',
-    categories: ['Tur Şirketi', 'Yamaç Paraşütü', 'Safari', 'At Binme']
+    categories: ['Tur', 'Paraşüt', 'Safari', 'At Binme', 'Rafting', 'Kanyon', 'Gezi']
   },
   { 
     id: 'gift', 
     title: 'HEDİYE & ÇİÇEK', 
-    subtitle: 'Özel Gün & Anılar', 
+    subtitle: 'Çiçekçiler & Hediyelik Eşyalar', 
     icon: Gift, 
     color: 'from-pink-500/40 to-fuchsia-600/40',
     borderColor: 'border-pink-500/50',
     hoverBg: 'hover:bg-pink-500/10',
-    categories: ['Çiçekçi', 'Hediyelik Eşya', 'Kuyumcu', 'Butik']
+    categories: ['Çiçek', 'Hediye', 'Kuyumcu', 'Butik', 'Takı', 'Gümüş', 'Antika']
   },
   { 
     id: 'night', 
     title: 'GECE HAYATI', 
-    subtitle: 'Bar, Club & Canlı Müzik', 
+    subtitle: 'Tüm Barlar & Gece Mekanları', 
     icon: Music, 
     color: 'from-violet-600/40 to-purple-800/40',
     borderColor: 'border-violet-600/50',
     hoverBg: 'hover:bg-violet-600/10',
-    categories: ['Bar', 'Gece Kulübü', 'Beach Club', 'Canlı Müzik']
+    categories: ['Bar', 'Club', 'Gece', 'Eğlence', 'Canlı Müzik', 'Pub', 'Beach Club', 'Disco']
   },
   { 
     id: 'pro', 
@@ -121,7 +123,7 @@ const SERVICE_HUBS = [
     color: 'from-slate-400/40 to-slate-600/40',
     borderColor: 'border-slate-400/50',
     hoverBg: 'hover:bg-slate-400/10',
-    categories: ['Emlak', 'Avukat', 'Tercüman', 'Muhasebe']
+    categories: ['Emlak', 'Avukat', 'Tercüman', 'Muhasebe', 'Sigorta', 'Mühendis', 'Mimarlık']
   }
 ]
 
@@ -291,22 +293,40 @@ function BusinessesContent() {
                   </div>
                 </div>
 
-                {/* SubHubs for "Usta Bul" */}
-                {activeHub?.subHubs && (
-                  <div className="flex items-center gap-3">
-                    {activeHub.subHubs.map(sub => (
+                {/* Usta Bul - Renkli Dashboard */}
+                {activeHub?.id === 'masters' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mx-auto py-8">
+                    {activeHub.subHubs?.map(sub => (
                       <button
                         key={sub.id}
                         onClick={() => selectSubHub(sub.id)}
-                        className={`px-6 py-3 rounded-full border transition-all text-[10px] font-black tracking-widest uppercase flex items-center gap-2 ${
+                        className={`group relative p-8 rounded-[40px] border-2 transition-all flex flex-col items-center justify-center gap-4 shadow-xl ${
                           currentSubHubId === sub.id 
-                            ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' 
-                            : 'bg-white/5 border-white/10 text-slate-400 hover:border-white/20'
+                            ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f] scale-105' 
+                            : `bg-white/5 border-white/10 text-white hover:border-white/30 ${sub.id === 'home_masters' ? 'hover:bg-blue-500/20' : 'hover:bg-orange-500/20'}`
                         }`}
                       >
-                        <sub.icon className="w-4 h-4" /> {sub.title}
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${currentSubHubId === sub.id ? 'bg-white/20' : sub.color + ' shadow-lg'}`}>
+                          <sub.icon className="w-8 h-8" />
+                        </div>
+                        <span className="text-xl font-black uppercase italic tracking-tighter">{sub.title}</span>
+                        
+                        {currentSubHubId === sub.id && (
+                          <div className="absolute -top-2 -right-2 bg-white text-[#0a192f] p-1.5 rounded-full shadow-lg">
+                            <CheckCircle2 className="w-4 h-4" />
+                          </div>
+                        )}
                       </button>
                     ))}
+                    
+                    {currentSubHubId && (
+                      <button 
+                        onClick={() => selectSubHub('')}
+                        className="md:col-span-2 text-center text-[#64ffda] text-[10px] font-black uppercase tracking-widest hover:underline"
+                      >
+                        TÜM USTALARI GÖSTER
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
