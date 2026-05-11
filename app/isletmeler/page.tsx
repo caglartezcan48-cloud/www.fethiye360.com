@@ -146,38 +146,46 @@ function BusinessesContent() {
 
   const fetchBusinesses = async () => {
     setLoading(true)
-    let query = supabase.from('businesses').select(`*, business_categories(name)`)
+    // Tum isletmeleri ve kategorilerini cek
+    let { data: allData, error } = await supabase
+      .from('businesses')
+      .select(`*, business_categories(name)`)
+      .order('is_featured', { ascending: false })
 
-    // Hub filtresi
-    if (currentHubId) {
-      const hub = SERVICE_HUBS.find(h => h.id === currentHubId)
-      if (hub) {
-        let targetCategories = hub.categories || []
-        
-        if (currentSubHubId && hub.subHubs) {
-          const sub = hub.subHubs.find(s => s.id === currentSubHubId)
-          if (sub) targetCategories = sub.categories
-        }
+    if (allData) {
+      let filtered = allData
 
-        if (targetCategories.length > 0) {
-          // Kategorileri isimlerine gore (buyuk/kucuk harf duyarsiz) bul
-          const orFilter = targetCategories.map(cat => `name.ilike.%${cat}%`).join(',')
-          const { data: cats } = await supabase.from('business_categories').select('id').or(orFilter)
+      // Hub filtresi (Frontend tarafında daha esnek filtreleme)
+      if (currentHubId) {
+        const hub = SERVICE_HUBS.find(h => h.id === currentHubId)
+        if (hub) {
+          let targetKeywords = (hub.categories || []).map(k => k.toLowerCase())
           
-          if (cats && cats.length > 0) {
-            query = query.in('category_id', cats.map(c => c.id))
+          if (currentSubHubId && hub.subHubs) {
+            const sub = hub.subHubs.find(s => s.id === currentSubHubId)
+            if (sub) targetKeywords = sub.categories.map(k => k.toLowerCase())
           }
+
+          filtered = allData.filter(biz => {
+            const bizCat = biz.business_categories?.name?.toLowerCase() || ''
+            const bizName = biz.name?.toLowerCase() || ''
+            // Kategori ismi veya isletme ismi anahtar kelimelerden birini iceriyor mu?
+            return targetKeywords.some(key => bizCat.includes(key) || bizName.includes(key))
+          })
         }
       }
-    }
 
-    // Arama filtresi
-    if (searchQuery) {
-      query = query.ilike('name', `%${searchQuery}%`)
-    }
+      // Arama sorgusu filtresi
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase()
+        filtered = filtered.filter(biz => 
+          biz.name?.toLowerCase().includes(q) || 
+          biz.business_categories?.name?.toLowerCase().includes(q)
+        )
+      }
 
-    const { data } = await query.order('is_featured', { ascending: false })
-    setBusinesses(data || [])
+      setBusinesses(filtered)
+    }
     setLoading(false)
   }
 
