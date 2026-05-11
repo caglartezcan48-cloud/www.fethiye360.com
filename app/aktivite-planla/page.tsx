@@ -13,28 +13,27 @@ import {
   Share2, 
   Clock,
   Heart,
-  Save,
   Plus,
   Trash2,
   Calendar,
-  X,
-  Compass,
   Zap,
   Coffee,
-  Gem
+  Gem,
+  Waves,
+  History,
+  Navigation
 } from 'lucide-react'
 import Image from 'next/image'
-import { ALL_ACTIVITIES, REGIONS, ActivityItem } from '@/lib/planner-data'
+import { ALL_ACTIVITIES, REGIONS } from '@/lib/planner-data'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
 export default function ActivityPlannerPage() {
   const [step, setStep] = useState(1)
+  const [activeTab, setActiveTab] = useState('all')
   const [selectedActivities, setSelectedActivities] = useState<string[]>([])
   const [selectedRegion, setSelectedRegion] = useState('merkez')
   const [groupType, setGroupType] = useState('couple')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
   const [finalPlan, setFinalPlan] = useState<any[]>([])
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -45,6 +44,19 @@ export default function ActivityPlannerPage() {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
   }, [])
 
+  const categories = [
+    { id: 'all', label: 'HEPSİ', icon: Sparkles },
+    { id: 'doga', label: 'DOĞA & MANZARA', icon: Waves },
+    { id: 'tarih', label: 'TARİH & ANTİK', icon: History },
+    { id: 'deneyim', label: 'AKTİVİTE & DENEYİM', icon: Zap },
+    { id: 'sosyal', label: 'MERKEZ & SOSYAL', icon: Coffee },
+    { id: 'yakin', label: 'YAKIN YERLER', icon: Navigation },
+  ]
+
+  const filteredActivities = activeTab === 'all' 
+    ? ALL_ACTIVITIES 
+    : ALL_ACTIVITIES.filter(a => a.category === activeTab)
+
   const toggleActivity = (id: string) => {
     setSelectedActivities(prev => 
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
@@ -53,12 +65,11 @@ export default function ActivityPlannerPage() {
 
   const generatePlan = () => {
     if (selectedActivities.length === 0) {
-      toast.error('Lütfen en az bir aktivite seçin.')
+      toast.error('Lütfen en az bir yer seçin.')
       return
     }
     setLoading(true)
     
-    // Smart grouping logic
     const selectedData = ALL_ACTIVITIES.filter(a => selectedActivities.includes(a.id))
     const days = []
     const itemsPerDay = 3
@@ -78,16 +89,6 @@ export default function ActivityPlannerPage() {
     }, 1200)
   }
 
-  const getCategoryIcon = (cat: string) => {
-    switch(cat) {
-      case 'adrenalin': return <Zap className="w-4 h-4" />
-      case 'lezzet': return <Coffee className="w-4 h-4" />
-      case 'kultur': return <Gem className="w-4 h-4" />
-      case 'huzur': return <Compass className="w-4 h-4" />
-      default: return <Sparkles className="w-4 h-4" />
-    }
-  }
-
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
@@ -99,26 +100,26 @@ export default function ActivityPlannerPage() {
       </div>
 
       <section className="relative pt-40 pb-32 px-6">
-        <div className="max-w-6xl mx-auto space-y-16">
+        <div className="max-w-7xl mx-auto space-y-16">
           
           {/* Header */}
           <div className="text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl">
               <Sparkles className="w-4 h-4 text-[#64ffda]" />
-              <span className="text-white text-xs font-black uppercase tracking-[0.3em]">Bana Özel Fethiye</span>
+              <span className="text-white text-xs font-black uppercase tracking-[0.3em]">Smart Travel Designer</span>
             </div>
             <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">
-              Tatilini <span className="text-[#64ffda]">Tasarla</span>
+              Tatilini <span className="text-[#64ffda]">Tasla</span>
             </h1>
           </div>
 
-          {/* STEP 1: ACTIVITY SELECTION */}
+          {/* STEP 1: COMPREHENSIVE SELECTION */}
           {step === 1 && (
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-8">
-                <div>
-                  <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">1. Deneyimlerini Seç</h2>
-                  <p className="text-slate-500 mt-2 font-medium">Fethiye'de yapmak istediklerini işaretle, senin için planlayalım.</p>
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">1. Görmek İstediğin Yerleri Seç</h2>
+                  <p className="text-slate-500 font-medium">Fethiye'nin tüm hazineleri burada. Gitmek istediklerini işaretle.</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="px-6 py-3 bg-white/5 rounded-full border border-white/10 text-[#64ffda] font-black text-xs tracking-widest uppercase">
@@ -129,25 +130,44 @@ export default function ActivityPlannerPage() {
                     disabled={selectedActivities.length === 0}
                     className="px-10 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-xl shadow-[#64ffda]/20 disabled:opacity-50 disabled:scale-100"
                   >
-                    Devam Et <ChevronRight className="inline-block ml-2 w-4 h-4" />
+                    Bölge Seçimine Geç <ChevronRight className="inline-block ml-2 w-4 h-4" />
                   </button>
                 </div>
               </div>
 
+              {/* Category Filter Tabs */}
+              <div className="flex items-center gap-3 overflow-x-auto pb-4 no-scrollbar">
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveTab(cat.id)}
+                    className={`flex items-center gap-3 px-6 py-3 rounded-full border whitespace-nowrap transition-all text-[10px] font-black tracking-widest uppercase ${
+                      activeTab === cat.id 
+                        ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' 
+                        : 'bg-white/5 border-white/5 text-slate-400 hover:border-white/20'
+                    }`}
+                  >
+                    <cat.icon className="w-4 h-4" /> {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Activities Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {ALL_ACTIVITIES.map((activity) => (
+                {filteredActivities.map((activity) => (
                   <div 
                     key={activity.id}
                     onClick={() => toggleActivity(activity.id)}
-                    className={`group relative h-[350px] rounded-[40px] overflow-hidden border transition-all cursor-pointer ${
+                    className={`group relative h-[320px] rounded-[40px] overflow-hidden border transition-all cursor-pointer ${
                       selectedActivities.includes(activity.id) 
-                        ? 'border-[#64ffda] ring-4 ring-[#64ffda]/20' 
+                        ? 'border-[#64ffda] ring-4 ring-[#64ffda]/20 scale-95' 
                         : 'border-white/10 hover:border-white/30'
                     }`}
                   >
                     <Image src={activity.image} alt={activity.title} fill className={`object-cover transition-transform duration-700 group-hover:scale-110 ${selectedActivities.includes(activity.id) ? 'brightness-100' : 'brightness-50 group-hover:brightness-75'}`} />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-80" />
                     
+                    {/* Multi-select checkmark */}
                     <div className="absolute top-4 left-4">
                       <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
                         selectedActivities.includes(activity.id) 
@@ -158,12 +178,19 @@ export default function ActivityPlannerPage() {
                       </div>
                     </div>
 
-                    <div className="absolute bottom-6 left-6 right-6 space-y-2">
-                      <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
-                        {getCategoryIcon(activity.category)} {activity.category}
+                    {/* Popular Badge */}
+                    {activity.isPopular && (
+                      <div className="absolute top-4 right-4 px-3 py-1 bg-amber-500 rounded-full text-[8px] font-black text-[#0a192f] uppercase tracking-widest shadow-lg">
+                        POPÜLER
                       </div>
-                      <h3 className="text-xl font-black text-white uppercase italic leading-tight">{activity.title}</h3>
-                      <p className="text-slate-400 text-xs line-clamp-1">{activity.description}</p>
+                    )}
+
+                    <div className="absolute bottom-6 left-6 right-6 space-y-1">
+                      <div className="flex items-center gap-2 text-[#64ffda] text-[8px] font-black uppercase tracking-[0.2em]">
+                        <MapPin className="w-3 h-3" /> {activity.location}
+                      </div>
+                      <h3 className="text-xl font-black text-white uppercase italic leading-tight tracking-tighter">{activity.title}</h3>
+                      <p className="text-slate-400 text-[10px] line-clamp-1 font-medium italic">"{activity.description}"</p>
                     </div>
                   </div>
                 ))}
@@ -175,15 +202,15 @@ export default function ActivityPlannerPage() {
           {step === 2 && (
             <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
               <div className="text-center">
-                <button onClick={() => setStep(1)} className="text-[#64ffda] text-[10px] font-black uppercase tracking-widest mb-4 hover:underline">← Seçime Geri Dön</button>
-                <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">2. Son Dokunuşlar</h2>
-                <p className="text-slate-500">Konaklama ve grup detaylarını belirle.</p>
+                <button onClick={() => setStep(1)} className="text-[#64ffda] text-[10px] font-black uppercase tracking-widest mb-4 hover:underline">← Yer Seçimine Geri Dön</button>
+                <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">2. Tatil Detayların</h2>
+                <p className="text-slate-500">Nerede konaklayacaksın ve kiminle geliyorsun?</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white/5 border border-white/10 p-12 rounded-[60px] backdrop-blur-xl">
                 <div className="space-y-8">
                   <div className="space-y-4">
-                    <label className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest ml-2">Nerede Kalıyorsunuz?</label>
+                    <label className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest ml-2">Konaklama Bölgesi</label>
                     <div className="grid grid-cols-2 gap-3">
                       {REGIONS.map(r => (
                         <button 
@@ -242,8 +269,8 @@ export default function ActivityPlannerPage() {
             <div className="space-y-16 animate-in fade-in duration-1000">
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-12">
                 <div className="text-left space-y-2">
-                  <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">İşte Senin <span className="text-[#64ffda]">Fethiye Planın</span></h2>
-                  <p className="text-slate-500 font-medium italic">Seçtiğin deneyimlere göre optimize edilmiş rota.</p>
+                  <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">Senin <span className="text-[#64ffda]">Fethiye Rotan</span></h2>
+                  <p className="text-slate-500 font-medium italic">Seçtiğin {selectedActivities.length} özel nokta için en ideal sıralama.</p>
                 </div>
                 <button onClick={() => setStep(1)} className="px-8 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10">Yeni Plan Yap</button>
               </div>
@@ -255,18 +282,21 @@ export default function ActivityPlannerPage() {
                       <div className="px-8 py-2 bg-[#64ffda] text-[#0a192f] rounded-full font-black uppercase tracking-widest text-[10px]">GÜN {day.day}</div>
                       <div className="h-px flex-1 bg-white/5" />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       {day.activities.map((act: any, i: number) => (
-                        <div key={i} className="group bg-white/5 border border-white/5 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all">
-                          <div className="relative h-48 w-full">
+                        <div key={i} className="group bg-white/5 border border-white/5 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all border-b-4 border-b-[#64ffda]/20">
+                          <div className="relative h-56 w-full">
                             <Image src={act.image} alt={act.title} fill className="object-cover" />
+                            <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[8px] text-white font-black uppercase tracking-widest">
+                              {act.category}
+                            </div>
                           </div>
                           <div className="p-8 space-y-4">
                             <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
                               <MapPin className="w-3 h-3" /> {act.location}
                             </div>
-                            <h4 className="text-xl font-black text-white uppercase italic leading-tight">{act.title}</h4>
-                            <p className="text-slate-400 text-sm leading-relaxed">{act.description}</p>
+                            <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
+                            <p className="text-slate-400 text-sm leading-relaxed font-medium">"{act.description}"</p>
                           </div>
                         </div>
                       ))}
