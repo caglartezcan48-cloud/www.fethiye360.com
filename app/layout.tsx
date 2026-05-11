@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SystemHealthProvider } from '@/components/providers/system-health-provider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -78,7 +79,9 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+        <SystemHealthProvider>
+          {children}
+        </SystemHealthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

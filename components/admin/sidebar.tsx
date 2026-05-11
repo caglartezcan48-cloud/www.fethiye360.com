@@ -15,6 +15,7 @@ import {
   Users,
   MessageSquare,
   Camera,
+  ShieldAlert,
 } from 'lucide-react'
 
 interface AdminUser {
@@ -33,6 +34,7 @@ const menuItems = [
   { href: '/admin/yorumlar', label: 'Yorumlar', icon: MessageSquare },
   { href: '/admin/sosyal-onay', label: 'Sosyal Onay', icon: Camera },
   { href: '/admin/istatistikler', label: 'Istatistikler', icon: BarChart3 },
+  { href: '/admin/sistem-hatalari', label: 'Hata Uyarı Sistemi', icon: ShieldAlert },
   { href: '/admin/ayarlar', label: 'Ayarlar', icon: Settings },
 ]
 
