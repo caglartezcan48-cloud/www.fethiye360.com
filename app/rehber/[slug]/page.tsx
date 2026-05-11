@@ -118,7 +118,7 @@ export default async function DestinationDetailPage({ params }: Props) {
             <h3 className="text-xs font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">KONUM</h3>
             <div className="h-px w-full bg-white/5" />
           </div>
-          <div className="w-full h-[400px] rounded-[40px] overflow-hidden border border-white/5 shadow-2xl relative grayscale hover:grayscale-0 transition-all duration-700">
+          <div className="w-full h-[250px] rounded-[32px] overflow-hidden border border-white/5 shadow-2xl relative grayscale hover:grayscale-0 transition-all duration-700">
             <iframe
               width="100%"
               height="100%"
