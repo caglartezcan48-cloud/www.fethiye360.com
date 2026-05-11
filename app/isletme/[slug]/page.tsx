@@ -109,7 +109,7 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
           </a>
           <button className="flex-1 min-w-[150px] flex items-center justify-center gap-3 py-4 bg-white/5 text-white border border-white/10 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
             <Navigation className="w-4 h-4 text-blue-400" /> Yol Tarifi
-          </a>
+          </button>
           <div className="flex gap-2">
             <button className="p-4 bg-white/5 text-white border border-white/10 rounded-2xl hover:bg-white/10 transition-all">
               <Heart className="w-5 h-5" />
