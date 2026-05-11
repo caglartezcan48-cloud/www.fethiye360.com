@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/client'
+// import { createClient } from '@/lib/supabase/client'
 
 export type LogType = 'ERROR' | 'SECURITY' | 'WARNING' | 'INFO'
 
@@ -12,29 +12,35 @@ interface LogData {
 
 export const logger = {
   async log({ type, message, details, path, userId }: LogData) {
-    const supabase = createClient()
-    
-    // Tarayici ve IP bilgisini detaylara ekle
-    const extendedDetails = {
-      ...details,
-      userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'Server',
-      timestamp: new Date().toISOString(),
-    }
-
     try {
-      const { error } = await supabase
+      // Ortama gore dogru client'i sec
+      let supabase;
+      if (typeof window === 'undefined') {
+        const { createClient: createServerClient } = await import('@/lib/supabase/server')
+        supabase = await createServerClient()
+      } else {
+        const { createClient: createBrowserClient } = await import('@/lib/supabase/client')
+        supabase = createBrowserClient()
+      }
+      
+      const extendedDetails = {
+        ...details,
+        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'Server-Side',
+        environment: typeof window !== 'undefined' ? 'Client' : 'Server',
+        timestamp: new Date().toISOString(),
+      }
+
+      await supabase
         .from('system_logs')
         .insert([{
           type,
           message,
           details: extendedDetails,
-          path: path || (typeof window !== 'undefined' ? window.location.pathname : null),
+          path: path || (typeof window !== 'undefined' ? window.location.pathname : 'Server-Side Route'),
           user_id: userId || null
         }])
-
-      if (error) console.error('Logging failed:', error)
     } catch (err) {
-      console.error('Critical logger failure:', err)
+      console.error('Logger failed:', err)
     }
   },
 
