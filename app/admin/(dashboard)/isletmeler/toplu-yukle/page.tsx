@@ -7,14 +7,15 @@ import { Upload, CheckCircle2, AlertCircle, Database, Plus, FileText, Download, 
 // Turkce Basliklar -> Veritabani Sutunlari Eslesmesi
 const columnMap: { [key: string]: string } = {
   'İşletme Adı': 'name',
+  'Şirket Ünvanı': 'company_title',
+  'Kategori': 'category_name', // Akilli eslestirme icin
   'URL Uzantısı': 'slug',
   'Adres': 'address',
   'Telefon': 'phone',
   'Web Sitesi': 'website',
   'Açıklama': 'description',
   'Kapak Resmi URL': 'main_image',
-  'Puan': 'rating',
-  'Kategori ID': 'category_id'
+  'Puan': 'rating'
 }
 
 export default function BulkUploadPage() {
@@ -32,7 +33,6 @@ export default function BulkUploadPage() {
       const text = event.target?.result as string
       const lines = text.split('\n').filter(line => line.trim())
       
-      // Ayiriciyi otomatik bul (Virgul veya Noktali Virgul)
       const delimiter = lines[0].includes(';') ? ';' : ','
       const headers = lines[0].split(delimiter).map(h => h.trim().replace(/[\uFEFF]/g, ''))
       
@@ -48,7 +48,7 @@ export default function BulkUploadPage() {
 
       setData(JSON.stringify(result, null, 2))
       setStatus('idle')
-      setMessage('Dosya başarıyla okundu. Türkçe başlıklar veritabanına uyarlandı.')
+      setMessage('Dosya başarıyla okundu. Kategoriler otomatik eşleştirilecek.')
     }
     reader.readAsText(file)
   }
@@ -56,12 +56,12 @@ export default function BulkUploadPage() {
   const downloadCSVTemplate = () => {
     const BOM = '\uFEFF'
     const headers = Object.keys(columnMap).join(';') + '\n'
-    const sampleData = "Örnek Restoran;ornek-restoran;Fethiye Kordon;0252 614 00 00;https://isletme.com;Harika bir yer...;https://resim.jpg;5;KATEGORI_ID"
+    const sampleData = "Örnek Lezzet Durağı;Lezzet Gıda Turizm San. Tic. Ltd. Şti.;Restoran;ornek-lezzet;Fethiye Kordon;0252 614 00 00;https://lezzet.com;Harika bir yer...;https://resim.jpg;5"
     const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'fethiye360_isletme_kayit_sablonu.csv'
+    a.download = 'fethiye360_isletme_sablonu.csv'
     a.click()
   }
 
@@ -69,12 +69,56 @@ export default function BulkUploadPage() {
     try {
       setStatus('loading')
       const jsonData = JSON.parse(data)
-      const { error } = await supabase.from('businesses').insert(jsonData)
+      
+      // 1. Benzersiz kategori isimlerini topla
+      const categoryNames = Array.from(new Set(jsonData.map((item: any) => item.category_name).filter(Boolean))) as string[]
+      
+      // 2. Mevcut kategorileri cek veya yenilerini olustur
+      const categoryMap: { [key: string]: string } = {}
+      
+      for (const catName of categoryNames) {
+        // Ara
+        let { data: existingCat } = await supabase
+          .from('business_categories')
+          .select('id')
+          .ilike('name', catName)
+          .single()
+        
+        if (existingCat) {
+          categoryMap[catName.toLowerCase()] = existingCat.id
+        } else {
+          // Olustur
+          const { data: newCat, error: catError } = await supabase
+            .from('business_categories')
+            .insert({ name: catName, slug: catName.toLowerCase().replace(/\s+/g, '-') })
+            .select('id')
+            .single()
+          
+          if (!catError && newCat) {
+            categoryMap[catName.toLowerCase()] = newCat.id
+          }
+        }
+      }
+
+      // 3. Verileri veritabani formatina donustur
+      const businessesToInsert = jsonData.map((item: any) => {
+        const { category_name, ...rest } = item
+        return {
+          ...rest,
+          category_id: categoryMap[category_name?.toLowerCase()] || null,
+          slug: item.slug || item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+          updated_at: new Date().toISOString()
+        }
+      })
+
+      const { error } = await supabase.from('businesses').insert(businessesToInsert)
       if (error) throw error
+
       setStatus('success')
-      setMessage(`${jsonData.length} işletme başarıyla sisteme kaydedildi!`)
+      setMessage(`${businessesToInsert.length} işletme ve kategorileri başarıyla kaydedildi!`)
       setData('')
     } catch (err: any) {
+      console.error(err)
       setStatus('error')
       setMessage(err.message || 'Yükleme sırasında hata oluştu.')
     }
