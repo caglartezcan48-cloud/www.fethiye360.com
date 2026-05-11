@@ -68,22 +68,22 @@ export default async function DestinationDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-6 py-32 space-y-32">
+      <section className="max-w-4xl mx-auto px-6 py-20 space-y-24">
         {/* Description Section */}
-        <div className="max-w-3xl mx-auto text-center space-y-8">
-          <div className="w-20 h-1 bg-[#64ffda] mx-auto rounded-full" />
-          <p className="text-2xl md:text-3xl text-slate-300 font-medium leading-relaxed italic">"{dest.description}"</p>
+        <div className="max-w-2xl mx-auto text-center space-y-8">
+          <div className="w-16 h-1 bg-[#64ffda] mx-auto rounded-full" />
+          <p className="text-xl md:text-2xl text-slate-300 font-medium leading-relaxed italic">"{dest.description}"</p>
         </div>
 
         {/* Dynamic History Section */}
-        <div className="max-w-4xl mx-auto group bg-white/5 border border-white/5 p-16 rounded-[80px] hover:bg-white/10 transition-all duration-700">
-          <div className="flex flex-col md:flex-row gap-12 items-start">
-            <div className="w-20 h-20 bg-[#64ffda]/10 rounded-[32px] flex items-center justify-center shrink-0">
-              <History className="w-10 h-10 text-[#64ffda]" />
+        <div className="group bg-white/5 border border-white/5 p-10 md:p-16 rounded-[60px] md:rounded-[80px] hover:bg-white/10 transition-all duration-700">
+          <div className="flex flex-col gap-8">
+            <div className="w-16 h-16 bg-[#64ffda]/10 rounded-2xl flex items-center justify-center shrink-0">
+              <History className="w-8 h-8 text-[#64ffda]" />
             </div>
             <div className="space-y-6">
-              <h3 className="text-4xl font-black text-white uppercase italic tracking-tighter">{dest.title} <span className="text-[#64ffda]">Tarihi</span></h3>
-              <p className="text-slate-400 leading-relaxed text-xl font-medium">{dest.history}</p>
+              <h3 className="text-3xl md:text-4xl font-black text-white uppercase italic tracking-tighter">{dest.title} <span className="text-[#64ffda]">Tarihi</span></h3>
+              <p className="text-slate-400 leading-relaxed text-lg md:text-xl font-medium">{dest.history}</p>
             </div>
           </div>
         </div>
