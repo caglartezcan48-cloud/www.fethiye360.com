@@ -91,12 +91,6 @@ export default async function DestinationDetailPage({ params }: Props) {
         {/* HD PHOTO WALL */}
         <DestinationGallery title={dest.title} gallery={dest.gallery} />
 
-        {/* Transportation Modal Trigger */}
-        <div className="flex flex-col items-center gap-6 py-10">
-          <div className="w-px h-20 bg-gradient-to-b from-[#64ffda] to-transparent" />
-          <TransportationModal transportation={dest.transportation} />
-        </div>
-
         {/* Comments */}
         <DestinationComments destinationId={dest.id} title={dest.title} initialComments={comments || []} user={user} />
       </section>
