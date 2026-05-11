@@ -150,15 +150,21 @@ export default function BusinessesPage() {
     if (currentHubId) {
       const hub = SERVICE_HUBS.find(h => h.id === currentHubId)
       if (hub) {
+        let targetCategories = hub.categories || []
+        
         if (currentSubHubId && hub.subHubs) {
           const sub = hub.subHubs.find(s => s.id === currentSubHubId)
-          if (sub) {
-            const { data: cats } = await supabase.from('business_categories').select('id').in('name', sub.categories)
-            if (cats) query = query.in('category_id', cats.map(c => c.id))
+          if (sub) targetCategories = sub.categories
+        }
+
+        if (targetCategories.length > 0) {
+          // Kategorileri isimlerine gore (buyuk/kucuk harf duyarsiz) bul
+          const orFilter = targetCategories.map(cat => `name.ilike.%${cat}%`).join(',')
+          const { data: cats } = await supabase.from('business_categories').select('id').or(orFilter)
+          
+          if (cats && cats.length > 0) {
+            query = query.in('category_id', cats.map(c => c.id))
           }
-        } else if (hub.categories) {
-          const { data: cats } = await supabase.from('business_categories').select('id').in('name', hub.categories)
-          if (cats) query = query.in('category_id', cats.map(c => c.id))
         }
       }
     }
