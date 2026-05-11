@@ -35,7 +35,9 @@ const SERVICE_HUBS = [
     title: 'ACIKTIN MI?', 
     subtitle: 'Restoran, Kafe & Lezzet', 
     icon: Utensils, 
-    color: 'from-orange-500/20 to-red-500/20',
+    color: 'from-orange-500/40 to-red-600/40',
+    borderColor: 'border-orange-500/50',
+    hoverBg: 'hover:bg-orange-500/10',
     categories: ['Restoran', 'Kafe', 'Pastane', 'Fast Food', 'Kahvaltı']
   },
   { 
@@ -43,7 +45,9 @@ const SERVICE_HUBS = [
     title: 'KONAKLAMA', 
     subtitle: 'Otel, Villa & Pansiyon', 
     icon: Hotel, 
-    color: 'from-blue-500/20 to-indigo-500/20',
+    color: 'from-blue-500/40 to-cyan-600/40',
+    borderColor: 'border-blue-500/50',
+    hoverBg: 'hover:bg-blue-500/10',
     categories: ['Otel', 'Villa', 'Pansiyon', 'Apart']
   },
   { 
@@ -51,7 +55,9 @@ const SERVICE_HUBS = [
     title: 'USTA BUL', 
     subtitle: 'Ev & Araba Tamiri', 
     icon: Hammer, 
-    color: 'from-amber-500/20 to-yellow-500/20',
+    color: 'from-amber-400/40 to-orange-600/40',
+    borderColor: 'border-amber-400/50',
+    hoverBg: 'hover:bg-amber-400/10',
     subHubs: [
       { id: 'home_masters', title: 'EV USTALARI', icon: Home, categories: ['Elektrikçi', 'Tesisatçı', 'Boyacı', 'Mobilyacı', 'Anahtarcı'] },
       { id: 'car_masters', title: 'ARABA TAMİR', icon: Car, categories: ['Oto Tamir', 'Lastikçi', 'Oto Elektrik', 'Kaportacı'] }
@@ -62,7 +68,9 @@ const SERVICE_HUBS = [
     title: 'ACİL DURUM', 
     subtitle: 'Yol Yardım & Sağlık', 
     icon: PhoneCall, 
-    color: 'from-red-500/20 to-rose-700/20',
+    color: 'from-red-600/40 to-rose-800/40',
+    borderColor: 'border-red-600/50',
+    hoverBg: 'hover:bg-red-600/10',
     categories: ['Yol Yardım', 'Çekici', 'Eczane', 'Hastane', 'Veteriner']
   },
   { 
@@ -70,7 +78,9 @@ const SERVICE_HUBS = [
     title: 'MAVİ DÜNYA', 
     subtitle: 'Tekne Turu & Marina', 
     icon: Waves, 
-    color: 'from-cyan-500/20 to-blue-600/20',
+    color: 'from-cyan-400/40 to-blue-600/40',
+    borderColor: 'border-cyan-400/50',
+    hoverBg: 'hover:bg-cyan-400/10',
     categories: ['Tekne Turu', 'Marina', 'Yat Servis', 'Dalış Okulu']
   },
   { 
@@ -78,7 +88,9 @@ const SERVICE_HUBS = [
     title: 'AKTİVİTE & TUR', 
     subtitle: 'Macera & Deneyim', 
     icon: Compass, 
-    color: 'from-emerald-500/20 to-teal-600/20',
+    color: 'from-emerald-400/40 to-teal-600/40',
+    borderColor: 'border-emerald-400/50',
+    hoverBg: 'hover:bg-emerald-400/10',
     categories: ['Tur Şirketi', 'Yamaç Paraşütü', 'Safari', 'At Binme']
   },
   { 
@@ -86,7 +98,9 @@ const SERVICE_HUBS = [
     title: 'HEDİYE & ÇİÇEK', 
     subtitle: 'Özel Gün & Anılar', 
     icon: Gift, 
-    color: 'from-pink-500/20 to-purple-600/20',
+    color: 'from-pink-500/40 to-fuchsia-600/40',
+    borderColor: 'border-pink-500/50',
+    hoverBg: 'hover:bg-pink-500/10',
     categories: ['Çiçekçi', 'Hediyelik Eşya', 'Kuyumcu', 'Butik']
   },
   { 
@@ -94,7 +108,9 @@ const SERVICE_HUBS = [
     title: 'GECE HAYATI', 
     subtitle: 'Bar, Club & Canlı Müzik', 
     icon: Music, 
-    color: 'from-purple-500/20 to-fuchsia-600/20',
+    color: 'from-violet-600/40 to-purple-800/40',
+    borderColor: 'border-violet-600/50',
+    hoverBg: 'hover:bg-violet-600/10',
     categories: ['Bar', 'Gece Kulübü', 'Beach Club', 'Canlı Müzik']
   },
   { 
@@ -102,7 +118,9 @@ const SERVICE_HUBS = [
     title: 'PROFESYONEL', 
     subtitle: 'Emlak, Avukat & Danışman', 
     icon: Briefcase, 
-    color: 'from-slate-500/20 to-slate-700/20',
+    color: 'from-slate-400/40 to-slate-600/40',
+    borderColor: 'border-slate-400/50',
+    hoverBg: 'hover:bg-slate-400/10',
     categories: ['Emlak', 'Avukat', 'Tercüman', 'Muhasebe']
   }
 ]
@@ -218,18 +236,21 @@ export default function BusinessesPage() {
                 <button
                   key={hub.id}
                   onClick={() => selectHub(hub.id)}
-                  className={`group relative p-8 rounded-[48px] border border-white/5 bg-gradient-to-br ${hub.color} hover:border-[#64ffda]/40 transition-all text-left overflow-hidden shadow-2xl`}
+                  className={`group relative p-8 rounded-[48px] border-2 bg-gradient-to-br ${hub.color} ${hub.borderColor} ${hub.hoverBg} transition-all text-left overflow-hidden shadow-2xl backdrop-blur-md`}
                 >
                   <div className="relative z-10 space-y-4">
-                    <div className="w-16 h-16 bg-white/10 rounded-[24px] flex items-center justify-center text-[#64ffda] group-hover:scale-110 transition-transform">
+                    <div className="w-16 h-16 bg-white/20 rounded-[24px] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-inner">
                       <hub.icon className="w-8 h-8" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">{hub.title}</h3>
-                      <p className="text-slate-400 text-sm font-medium">{hub.subtitle}</p>
+                      <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-md">{hub.title}</h3>
+                      <p className="text-white/70 text-sm font-medium">{hub.subtitle}</p>
                     </div>
                   </div>
-                  <ChevronRight className="absolute right-8 bottom-8 w-6 h-6 text-white/20 group-hover:text-[#64ffda] group-hover:translate-x-2 transition-all" />
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <hub.icon className="w-32 h-32 -mr-8 -mt-8 rotate-12" />
+                  </div>
+                  <ChevronRight className="absolute right-8 bottom-8 w-6 h-6 text-white/40 group-hover:text-white group-hover:translate-x-2 transition-all" />
                 </button>
               ))}
             </div>
