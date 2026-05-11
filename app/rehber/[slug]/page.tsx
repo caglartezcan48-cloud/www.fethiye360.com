@@ -129,6 +129,33 @@ export default async function DestinationDetailPage({ params }: Props) {
               </p>
             </div>
 
+            {/* Gallery Section - HD Grid */}
+            {dest.gallery && dest.gallery.length > 0 && (
+              <div className="space-y-6 pt-10">
+                <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter flex items-center gap-4">
+                  <ImageIcon className="w-8 h-8 text-[#64ffda]" /> Fotoğraf <span className="text-[#64ffda]">Galerisi</span>
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {dest.gallery.map((img: string, i: number) => (
+                    <div 
+                      key={i} 
+                      className={`relative overflow-hidden rounded-[32px] border border-white/5 group transition-all duration-500 hover:border-[#64ffda]/50 ${
+                        i === 0 ? 'md:col-span-2 md:row-span-2 h-96' : 'h-48'
+                      }`}
+                    >
+                      <Image 
+                        src={img} 
+                        alt={`${dest.title} - ${i + 1}`} 
+                        fill 
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Comments Section */}
             <div className="pt-20 space-y-10 border-t border-white/5">
               <div className="flex items-center justify-between">
