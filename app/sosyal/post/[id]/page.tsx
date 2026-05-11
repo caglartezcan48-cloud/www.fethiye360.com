@@ -32,19 +32,14 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: post, error } = await supabase
+  // 1. Adım: Ana gönderiyi çek
+  const { data: rawPost, error: postError } = await supabase
     .from('user_posts')
-    .select(`
-      *,
-      user_profiles (username, avatar_url),
-      post_comments (*, user_profiles (username, avatar_url)),
-      post_likes (user_id),
-      businesses (id, name, slug)
-    `)
+    .select('*')
     .eq('id', id)
     .single()
 
-  if (error || !post) {
+  if (postError || !rawPost) {
     return (
       <div className="min-h-screen bg-[#0a192f] flex flex-col items-center justify-center gap-4 text-center p-6">
         <h1 className="text-2xl font-bold text-white">Gönderi Bulunamadı</h1>
@@ -54,6 +49,23 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </Link>
       </div>
     )
+  }
+
+  // 2. Adım: İlişkili verileri ayrı ayrı çek
+  const [profileRes, commentsRes, likesRes, businessRes] = await Promise.all([
+    supabase.from('user_profiles').select('username, avatar_url').eq('id', rawPost.user_id).single(),
+    supabase.from('post_comments').select('*, user_profiles(username, avatar_url)').eq('post_id', id).order('created_at', { ascending: false }),
+    supabase.from('post_likes').select('user_id').eq('post_id', id),
+    rawPost.business_id ? supabase.from('businesses').select('id, name, slug').eq('id', rawPost.business_id).single() : Promise.resolve({ data: null })
+  ])
+
+  // Verileri birleştir
+  const post = {
+    ...rawPost,
+    user_profiles: profileRes.data,
+    post_comments: commentsRes.data || [],
+    post_likes: likesRes.data || [],
+    businesses: businessRes.data
   }
 
   return (

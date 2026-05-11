@@ -19,14 +19,14 @@ const tours = [
     title: "Kayaköy Hayalet Şehir",
     location: "Kayaköy, Fethiye",
     category: "Tarihi Yer",
-    image: "https://images.unsplash.com/photo-1599423423923-4c5deb70679e?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800&q=80",
   },
   {
     id: 3,
     title: "Saklıkent Kanyonu",
     location: "Saklıkent, Fethiye",
     category: "Doğa",
-    image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
   },
   {
     id: 4,
