@@ -5,7 +5,6 @@ import Image from "next/image"
 import { 
   MapPin, 
   History, 
-  Navigation, 
   Sparkles,
   ChevronDown
 } from "lucide-react"
@@ -13,7 +12,6 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { DestinationGallery } from '@/components/rehber/destination-gallery'
 import { DestinationComments } from '@/components/rehber/destination-comments'
-import { TransportationModal } from '@/components/rehber/transportation-modal'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -52,47 +50,76 @@ export default async function DestinationDetailPage({ params }: Props) {
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
       
-      {/* Cinematic Hero */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-        <Image src={dest.main_image} alt={dest.title} fill className="object-cover scale-105 animate-slow-zoom" priority />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a192f]/40 to-[#0a192f]" />
-        <div className="relative z-10 text-center space-y-6 px-4">
-          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20">
-            <Sparkles className="w-4 h-4 text-[#64ffda]" />
-            <span className="text-white text-xs font-black uppercase tracking-[0.3em]">{dest.category}</span>
+      {/* ELITE HERO - Magazine Style */}
+      <section className="relative h-[70vh] w-full flex flex-col items-center justify-center overflow-hidden">
+        <Image src={dest.main_image} alt={dest.title} fill className="object-cover scale-100 brightness-75" priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
+        
+        <div className="relative z-10 text-center space-y-8 px-4 max-w-4xl mx-auto">
+          <div className="flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <span className="h-px w-8 bg-[#64ffda]/50" />
+            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.5em]">{dest.category}</span>
+            <span className="h-px w-8 bg-[#64ffda]/50" />
           </div>
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white tracking-tighter uppercase italic leading-none">{dest.title}</h1>
+          
+          <h1 className="text-5xl md:text-7xl font-light text-white tracking-[0.1em] uppercase leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            {dest.title}
+          </h1>
+
+          <div className="flex items-center justify-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] animate-in fade-in slide-in-from-bottom-12 duration-1000">
+            <MapPin className="w-3 h-3" /> FETHİYE / MUĞLA
+          </div>
         </div>
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-          <ChevronDown className="w-8 h-8 text-white/30" />
+
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-20">
+          <ChevronDown className="w-6 h-6 text-white" />
         </div>
       </section>
 
-      <section className="max-w-4xl mx-auto px-6 py-20 space-y-24">
-        {/* Description Section */}
-        <div className="max-w-2xl mx-auto text-center space-y-8">
-          <div className="w-16 h-1 bg-[#64ffda] mx-auto rounded-full" />
-          <p className="text-xl md:text-2xl text-slate-300 font-medium leading-relaxed italic">"{dest.description}"</p>
+      <section className="max-w-3xl mx-auto px-6 py-24 space-y-24">
+        {/* Elite Description */}
+        <div className="space-y-12">
+          <div className="flex justify-center">
+            <Sparkles className="w-6 h-6 text-[#64ffda]/20" />
+          </div>
+          <p className="text-xl md:text-2xl text-slate-300 font-light leading-relaxed text-center italic opacity-80">
+            "{dest.description}"
+          </p>
         </div>
 
-        {/* Dynamic History Section */}
-        <div className="group bg-white/5 border border-white/5 p-10 md:p-16 rounded-[60px] md:rounded-[80px] hover:bg-white/10 transition-all duration-700">
-          <div className="flex flex-col gap-8">
-            <div className="w-16 h-16 bg-[#64ffda]/10 rounded-2xl flex items-center justify-center shrink-0">
-              <History className="w-8 h-8 text-[#64ffda]" />
-            </div>
-            <div className="space-y-6">
-              <h3 className="text-3xl md:text-4xl font-black text-white uppercase italic tracking-tighter">{dest.title} <span className="text-[#64ffda]">Tarihi</span></h3>
-              <p className="text-slate-400 leading-relaxed text-lg md:text-xl font-medium">{dest.history}</p>
-            </div>
+        {/* Minimal History Section */}
+        <div className="space-y-12">
+          <div className="flex items-center gap-6">
+            <h3 className="text-xs font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">HİKAYESİ</h3>
+            <div className="h-px w-full bg-white/5" />
+          </div>
+          <div className="space-y-8">
+            <h2 className="text-3xl md:text-4xl font-light text-white tracking-wide uppercase italic">
+              Zamanın Ötesinde <span className="text-[#64ffda]/60">{dest.title}</span>
+            </h2>
+            <p className="text-slate-400 leading-relaxed text-lg font-light first-letter:text-5xl first-letter:font-black first-letter:text-[#64ffda] first-letter:mr-3 first-letter:float-left">
+              {dest.history}
+            </p>
           </div>
         </div>
 
-        {/* HD PHOTO WALL */}
-        <DestinationGallery title={dest.title} gallery={dest.gallery} />
+        {/* PHOTO WALL */}
+        <div className="space-y-12">
+          <div className="flex items-center gap-6">
+            <h3 className="text-xs font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">GALERİ</h3>
+            <div className="h-px w-full bg-white/5" />
+          </div>
+          <DestinationGallery title={dest.title} gallery={dest.gallery} />
+        </div>
 
-        {/* Comments */}
-        <DestinationComments destinationId={dest.id} title={dest.title} initialComments={comments || []} user={user} />
+        {/* Elite Comments Area */}
+        <div className="space-y-12 pt-12">
+          <div className="flex items-center gap-6">
+            <h3 className="text-xs font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">DENEYİMLER</h3>
+            <div className="h-px w-full bg-white/5" />
+          </div>
+          <DestinationComments destinationId={dest.id} title={dest.title} initialComments={comments || []} user={user} />
+        </div>
       </section>
 
       <Footer />
