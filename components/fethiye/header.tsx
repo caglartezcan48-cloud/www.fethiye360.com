@@ -79,7 +79,7 @@ export function Header() {
               <Link href="/isletmeler" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">İŞLETMELER</Link>
               <Link href="/rehber" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">REHBER</Link>
               <Link href="/sosyal" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">SOSYAL</Link>
-              <Link href="/turlar" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">TURLAR</Link>
+              <Link href="/aktivite-planla" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">AKTİVİTE PLANLA</Link>
               <Link href="/harita" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">HARİTA</Link>
             </div>
 
