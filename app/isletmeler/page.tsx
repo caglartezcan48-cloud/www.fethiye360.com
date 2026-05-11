@@ -337,43 +337,64 @@ function BusinessesContent() {
                   {[1,2,3,4,5,6].map(i => <div key={i} className="h-40 bg-white/5 rounded-[32px] animate-pulse" />)}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {businesses.map((business) => (
                     <Link 
                       key={business.id}
                       href={`/isletme/${business.slug}`}
-                      className="group flex items-center gap-6 bg-white/5 p-6 rounded-[40px] border border-white/5 hover:border-[#64ffda]/40 hover:bg-white/10 transition-all relative overflow-hidden"
+                      className="group relative bg-white/5 rounded-[48px] overflow-hidden border border-white/10 hover:border-[#64ffda]/50 transition-all shadow-2xl flex flex-col"
                     >
-                      {business.is_featured && (
-                        <div className="absolute top-0 right-0 px-4 py-1 bg-[#64ffda] text-[#0a192f] text-[8px] font-black uppercase tracking-widest rounded-bl-2xl">
-                          Öne Çıkan
-                        </div>
-                      )}
-                      
-                      <div className="w-24 h-24 rounded-[28px] overflow-hidden shrink-0 border border-white/10 relative">
-                        <img 
-                          src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400"} 
+                      {/* Cover Image */}
+                      <div className="relative h-64 w-full overflow-hidden">
+                        <Image 
+                          src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"} 
                           alt={business.name} 
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                          fill 
+                          className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-90" 
                         />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
+                        
+                        {/* Logo Overlay */}
+                        <div className="absolute -bottom-6 left-8 w-20 h-20 bg-[#0a192f] rounded-[24px] p-1 border-2 border-white/10 shadow-2xl group-hover:scale-110 transition-transform overflow-hidden">
+                          <div className="w-full h-full rounded-[20px] overflow-hidden bg-white/5 flex items-center justify-center">
+                            {business.logo ? (
+                              <img src={business.logo} alt="Logo" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="text-[#64ffda] font-black text-2xl italic">{business.name[0]}</div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                       
-                      <div className="flex-1 space-y-2 overflow-hidden">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[9px] font-black text-[#64ffda] uppercase tracking-widest px-2 py-0.5 bg-[#64ffda]/10 rounded-full border border-[#64ffda]/20">
+                      {/* Business Info */}
+                      <div className="p-10 pt-12 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-black text-[#64ffda] uppercase tracking-[0.2em] px-3 py-1 bg-[#64ffda]/10 rounded-full border border-[#64ffda]/20">
                             {business.business_categories?.name}
                           </span>
+                          <div className="flex items-center gap-1 text-amber-400">
+                            <Star className="w-3 h-3 fill-current" />
+                            <span className="text-[10px] font-black">4.9</span>
+                          </div>
                         </div>
-                        <h4 className="text-xl font-black text-white truncate uppercase italic tracking-tighter group-hover:text-[#64ffda] transition-colors">
-                          {business.name}
-                        </h4>
-                        <div className="flex items-center gap-1.5 text-slate-500 text-[10px] font-medium">
-                          <MapPin className="w-3 h-3 text-[#64ffda]/50" />
-                          <span className="truncate">{business.address || 'Fethiye'}</span>
+                        
+                        <div>
+                          <h4 className="text-2xl font-black text-white uppercase italic tracking-tighter group-hover:text-[#64ffda] transition-colors leading-tight">
+                            {business.name}
+                          </h4>
+                          <div className="flex items-center gap-2 text-slate-500 text-xs font-medium mt-1 italic">
+                            <MapPin className="w-3 h-3 text-[#64ffda]" />
+                            {business.address || 'Fethiye'}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1 text-[#64ffda]">
-                          <Star className="w-3 h-3 fill-current" />
-                          <span className="text-[10px] font-bold">4.9 (24 Yorum)</span>
+
+                        <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-[10px] font-black text-white/50 uppercase tracking-widest">
+                            <Clock className="w-3 h-3 text-[#64ffda]" /> ŞU AN AÇIK
+                          </div>
+                          <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
+                            <ChevronRight className="w-4 h-4" />
+                          </div>
                         </div>
                       </div>
                     </Link>
