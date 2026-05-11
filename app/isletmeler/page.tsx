@@ -347,11 +347,10 @@ function BusinessesContent() {
                     >
                       {/* Cover Image */}
                       <div className="relative h-64 w-full overflow-hidden">
-                        <Image 
+                        <img 
                           src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"} 
-                          alt={business.name} 
-                          fill 
-                          className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-90" 
+                          alt={business.name || 'İşletme'} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-90" 
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
                         

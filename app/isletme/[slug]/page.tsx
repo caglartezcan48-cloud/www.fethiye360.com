@@ -56,12 +56,10 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
 
       {/* Hero Section */}
       <section className="relative h-[70vh] w-full overflow-hidden">
-        <Image 
+        <img 
           src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=90"} 
-          alt={business.name} 
-          fill 
-          className="object-cover"
-          priority
+          alt={business.name || 'İşletme'} 
+          className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-[#0a192f]/40 to-transparent" />
         
@@ -144,11 +142,10 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[1,2,3,4,5,6].map(i => (
                   <div key={i} className="relative aspect-square rounded-[32px] overflow-hidden group border border-white/5">
-                    <Image 
+                    <img 
                       src={`https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&i=${i}`} 
                       alt="Gallery" 
-                      fill 
-                      className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-60 group-hover:opacity-100" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60 group-hover:opacity-100" 
                     />
                   </div>
                 ))}
