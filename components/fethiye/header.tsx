@@ -15,7 +15,8 @@ import {
   Bell,
   Navigation,
   Sparkles,
-  Camera
+  Camera,
+  PhoneCall
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { CityStats } from './city-stats'
