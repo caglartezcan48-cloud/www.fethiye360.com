@@ -1,5 +1,3 @@
-// import { createClient } from '@/lib/supabase/client'
-
 export type LogType = 'ERROR' | 'SECURITY' | 'WARNING' | 'INFO'
 
 interface LogData {
@@ -10,19 +8,15 @@ interface LogData {
   userId?: string
 }
 
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseKey)
+
 export const logger = {
   async log({ type, message, details, path, userId }: LogData) {
     try {
-      // Ortama gore dogru client'i sec
-      let supabase;
-      if (typeof window === 'undefined') {
-        const { createClient: createServerClient } = await import('@/lib/supabase/server')
-        supabase = await createServerClient()
-      } else {
-        const { createClient: createBrowserClient } = await import('@/lib/supabase/client')
-        supabase = createBrowserClient()
-      }
-      
       const extendedDetails = {
         ...details,
         userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'Server-Side',
