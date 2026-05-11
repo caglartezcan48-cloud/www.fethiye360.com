@@ -50,35 +50,35 @@ export default async function DestinationDetailPage({ params }: Props) {
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
       
-      {/* ELITE HERO - Magazine Style */}
-      <section className="relative h-[70vh] w-full flex flex-col items-center justify-center overflow-hidden">
-        <Image src={dest.main_image} alt={dest.title} fill className="object-cover scale-100 brightness-75" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
+      {/* CLEAN HERO - No Text Overlay */}
+      <section className="relative h-[60vh] w-full overflow-hidden">
+        <Image src={dest.main_image} alt={dest.title} fill className="object-cover scale-100" priority />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60" />
         
-        <div className="relative z-10 text-center space-y-8 px-4 max-w-4xl mx-auto">
-          <div className="flex items-center justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <span className="h-px w-8 bg-[#64ffda]/50" />
-            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.5em]">{dest.category}</span>
-            <span className="h-px w-8 bg-[#64ffda]/50" />
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-light text-white tracking-[0.1em] uppercase leading-tight animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            {dest.title}
-          </h1>
-
-          <div className="flex items-center justify-center gap-2 text-white/40 text-[10px] font-bold uppercase tracking-[0.3em] animate-in fade-in slide-in-from-bottom-12 duration-1000">
-            <MapPin className="w-3 h-3" /> FETHİYE / MUĞLA
-          </div>
-        </div>
-
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-20">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-20 animate-bounce">
           <ChevronDown className="w-6 h-6 text-white" />
         </div>
       </section>
 
-      <section className="max-w-3xl mx-auto px-6 py-24 space-y-24">
+      <section className="max-w-3xl mx-auto px-6 py-20 space-y-24">
+        
+        {/* Title & Category - Inside Content */}
+        <div className="space-y-6 text-center">
+          <div className="flex items-center justify-center gap-4">
+            <span className="h-px w-8 bg-[#64ffda]/30" />
+            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.5em]">{dest.category}</span>
+            <span className="h-px w-8 bg-[#64ffda]/30" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-light text-white tracking-[0.1em] uppercase">
+            {dest.title}
+          </h1>
+          <div className="flex items-center justify-center gap-2 text-white/40 text-[9px] font-bold uppercase tracking-[0.3em]">
+            <MapPin className="w-3 h-3 text-[#64ffda]" /> FETHİYE / MUĞLA
+          </div>
+        </div>
+
         {/* Elite Description */}
-        <div className="space-y-12">
+        <div className="space-y-8">
           <div className="flex justify-center">
             <Sparkles className="w-6 h-6 text-[#64ffda]/20" />
           </div>
@@ -110,6 +110,25 @@ export default async function DestinationDetailPage({ params }: Props) {
             <div className="h-px w-full bg-white/5" />
           </div>
           <DestinationGallery title={dest.title} gallery={dest.gallery} />
+        </div>
+
+        {/* MAP SECTION */}
+        <div className="space-y-12">
+          <div className="flex items-center gap-6">
+            <h3 className="text-xs font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">KONUM</h3>
+            <div className="h-px w-full bg-white/5" />
+          </div>
+          <div className="w-full h-[400px] rounded-[40px] overflow-hidden border border-white/5 shadow-2xl relative grayscale hover:grayscale-0 transition-all duration-700">
+            <iframe
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ''}&q=${encodeURIComponent(dest.title + ' Fethiye')}`}
+            />
+          </div>
         </div>
 
         {/* Elite Comments Area */}
