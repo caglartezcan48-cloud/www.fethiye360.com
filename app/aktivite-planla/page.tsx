@@ -8,6 +8,7 @@ import {
   MapPin, 
   Calendar as CalendarIcon, 
   Users, 
+  User,
   ChevronRight, 
   CheckCircle2, 
   Share2, 

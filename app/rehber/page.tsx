@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
-import { MapPin, Sparkles, ChevronRight, Camera } from 'lucide-react'
+import { MapPin, Sparkles, ChevronRight, Camera, Star } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -17,73 +17,79 @@ export default async function GuidePage() {
     .order('created_at', { ascending: false })
 
   return (
-    <main className="min-h-screen bg-[#0a192f]">
+    <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
       
       {/* Hero Section */}
-      <section className="relative pt-40 pb-20 px-4 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-full pointer-events-none">
-          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-[#64ffda]/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px]" />
-        </div>
-
-        <div className="max-w-7xl mx-auto relative z-10 text-center space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl">
+      <section className="relative h-[60vh] w-full flex items-center justify-center overflow-hidden">
+        <Image 
+          src="https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=1920&q=90" 
+          alt="Fethiye Rehber" 
+          fill 
+          className="object-cover scale-105"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a192f]/60 via-transparent to-[#0a192f]" />
+        
+        <div className="relative z-10 text-center space-y-6 px-4">
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20">
             <Sparkles className="w-4 h-4 text-[#64ffda]" />
-            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-widest">Fethiye Gezi Rehberi</span>
+            <span className="text-white text-xs font-black uppercase tracking-[0.3em]">GEZİ REHBERİ</span>
           </div>
-          <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">
-            Keşfedilmeyi <span className="text-[#64ffda]">Bekleyen</span> Dünyalar
+          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">
+            EŞSİZ <span className="text-[#64ffda]">DENEYİMLER</span>
           </h1>
-          <p className="text-slate-400 max-w-2xl mx-auto text-lg font-medium italic">
-            Fethiye'nin saklı cennetlerinden antik kentlerine kadar her köşesini HD görseller ve derinlemesine hikayelerle keşfedin.
-          </p>
+          <p className="text-white/60 text-lg font-medium italic tracking-wide">Fethiye'nin saklı cennetlerini keşfe çıkın</p>
         </div>
       </section>
 
-      {/* Destinations Grid */}
-      <section className="max-w-7xl mx-auto px-6 pb-32">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+      {/* Main Grid - Home Page Style */}
+      <section className="max-w-7xl mx-auto px-6 py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {destinations?.map((dest) => (
             <Link 
               key={dest.id}
               href={`/rehber/${dest.slug}`}
-              className="group relative flex flex-col space-y-6 animate-in fade-in duration-700"
+              className="group relative h-[500px] w-full rounded-[40px] overflow-hidden border border-white/10 bg-slate-900 shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-[#64ffda]/10"
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[40px] border border-white/5 bg-white/5 shadow-2xl">
-                <Image 
-                  src={dest.main_image} 
-                  alt={dest.title} 
-                  fill 
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-90 group-hover:brightness-110"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60" />
-                
-                <div className="absolute top-6 left-6 px-4 py-1.5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 text-white text-[9px] font-black uppercase tracking-widest">
-                  {dest.category}
-                </div>
-              </div>
-
-              <div className="space-y-3 px-2">
+              <Image 
+                src={dest.main_image} 
+                alt={dest.title} 
+                fill 
+                className="object-cover transition-transform duration-1000 group-hover:scale-110 brightness-90 group-hover:brightness-100"
+              />
+              
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
+              
+              {/* Content Overlay */}
+              <div className="absolute inset-0 p-8 flex flex-col justify-end space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter group-hover:text-[#64ffda] transition-colors">
-                    {dest.title}
-                  </h3>
-                  <div className="p-2 rounded-full bg-white/5 text-white opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                    <ChevronRight className="w-5 h-5" />
+                  <span className="px-4 py-1 rounded-full bg-[#64ffda] text-[#0a192f] text-[9px] font-black uppercase tracking-widest">
+                    {dest.category}
+                  </span>
+                  <div className="flex items-center gap-1 text-[#64ffda]">
+                    <Star className="w-3 h-3 fill-current" />
+                    <span className="text-[10px] font-bold">4.9</span>
                   </div>
                 </div>
-                <p className="text-slate-500 text-sm line-clamp-2 italic font-medium">
+                
+                <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter transform group-hover:translate-x-2 transition-transform duration-500">
+                  {dest.title}
+                </h3>
+                
+                <p className="text-slate-300 text-sm line-clamp-2 italic font-medium opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100">
                   {dest.description}
                 </p>
-                <div className="flex items-center gap-4 pt-2">
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <MapPin className="w-3 h-3 text-[#64ffda]" /> Fethiye
+
+                <div className="flex items-center justify-between pt-4 border-t border-white/10 transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-200">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1 text-white/40 text-[9px] font-black uppercase tracking-widest">
+                      <MapPin className="w-3 h-3 text-[#64ffda]" /> Fethiye
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <Camera className="w-3 h-3 text-[#64ffda]" /> HD Galeri
+                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
+                    <ChevronRight className="w-5 h-5" />
                   </div>
                 </div>
               </div>
