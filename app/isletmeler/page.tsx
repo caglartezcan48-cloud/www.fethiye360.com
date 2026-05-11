@@ -20,12 +20,13 @@ import {
   PhoneCall, 
   Zap, 
   ShieldCheck,
-  Navigation,
   MapPin,
   Star,
-  CheckCircle2
+  CheckCircle2,
+  Image as ImageIcon
 } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -360,7 +361,9 @@ function BusinessesContent() {
                             {business.logo ? (
                               <img src={business.logo} alt="Logo" className="w-full h-full object-cover" />
                             ) : (
-                              <div className="text-[#64ffda] font-black text-2xl italic">{business.name[0]}</div>
+                              <div className="text-[#64ffda] font-black text-2xl italic">
+                                {business.name ? business.name[0] : 'F'}
+                              </div>
                             )}
                           </div>
                         </div>
