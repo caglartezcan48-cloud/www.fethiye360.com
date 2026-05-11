@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Camera,
   ShieldAlert,
+  MapPin,
 } from 'lucide-react'
 
 interface AdminUser {
