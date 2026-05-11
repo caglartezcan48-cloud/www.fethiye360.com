@@ -50,12 +50,14 @@ export default async function GuidePage() {
               href={`/rehber/${dest.slug}`}
               className="group relative flex flex-col space-y-6 animate-in fade-in duration-700"
             >
-              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[40px] border border-white/5 bg-white/5">
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[40px] border border-white/5 bg-white/5 shadow-2xl">
                 <Image 
                   src={dest.main_image} 
                   alt={dest.title} 
                   fill 
-                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-90 group-hover:brightness-110"
+                  priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60" />
                 
