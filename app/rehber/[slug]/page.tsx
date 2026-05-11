@@ -126,7 +126,7 @@ export default async function DestinationDetailPage({ params }: Props) {
               loading="lazy"
               allowFullScreen
               referrerPolicy="no-referrer-when-downgrade"
-              src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || ''}&q=${encodeURIComponent(dest.title + ' Fethiye')}`}
+              src={`https://www.google.com/maps?q=${encodeURIComponent(dest.title + ' Fethiye')}&output=embed`}
             />
           </div>
         </div>
