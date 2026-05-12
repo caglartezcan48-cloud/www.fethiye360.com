@@ -218,7 +218,12 @@ export default function SharedPlanPage() {
               </div>
               <p className="text-slate-300 text-sm leading-relaxed">
                 Bu rota üzerindeki duraklarda acıktığınızda yerel balık pazarlarını veya sahil restoranlarını deneyebilirsiniz. 
-                Fethiye360 işletmeler rehberine göz           {/* Itinerary Steps */}
+                Fethiye360 işletmeler rehberine göz atmayı unutmayın!
+              </p>
+            </div>
+          </div>
+
+          {/* Itinerary Steps */}
           <div className="space-y-12">
             {!plan.activities[0]?.activities ? (
               // Düz Liste Görünümü
