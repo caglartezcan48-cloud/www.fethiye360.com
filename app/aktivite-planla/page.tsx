@@ -74,7 +74,7 @@ export default function ActivityPlannerPage() {
     }
     setLoading(true)
     
-    // Coğrafi Kümelendirme Haritası
+    // Coğrafi Kümelendirme Haritası (Kara Yolu)
     const clusterMap: { [key: string]: number } = {
       'Merkez': 1, 'Merkez Liman': 1, 'Fethiye': 1, 'Çalış': 1,
       'Ölüdeniz': 2, 'Babadağ': 2,
@@ -85,23 +85,43 @@ export default function ActivityPlannerPage() {
       'Antalya': 7, 'Kaş': 7, 'Kalkan': 7
     }
 
-    // Akıllı Gruplama: Kümelere göre sırala ki yakın yerler aynı güne denk gelsin
-    const selectedData = ALL_ACTIVITIES
-      .filter(a => selectedActivities.includes(a.id))
-      .sort((a, b) => {
+    const selectedData = ALL_ACTIVITIES.filter(a => selectedActivities.includes(a.id))
+    
+    // Gruplandırma: Deniz (Tekne) ve Kara olarak ayır
+    const boatActivities = selectedData.filter(a => a.transport === 'boat')
+    const landActivities = selectedData.filter(a => a.transport === 'land')
+
+    const days = []
+    let currentDay = 1
+
+    // 1. TEKNE GÜNLERİ: Tekneyle ulaşılan yerleri ayrı bir güne (veya günlere) topla
+    if (boatActivities.length > 0) {
+      const itemsPerBoatDay = 3
+      for (let i = 0; i < boatActivities.length; i += itemsPerBoatDay) {
+        days.push({
+          day: currentDay++,
+          type: 'boat',
+          activities: boatActivities.slice(i, i + itemsPerBoatDay)
+        })
+      }
+    }
+
+    // 2. KARA GÜNLERİ: Lokasyon bazlı kümele
+    if (landActivities.length > 0) {
+      const sortedLand = [...landActivities].sort((a, b) => {
         const clusterA = clusterMap[a.location] || 99
         const clusterB = clusterMap[b.location] || 99
         return clusterA - clusterB
       })
 
-    const days = []
-    const itemsPerDay = 3
-    
-    for (let i = 0; i < selectedData.length; i += itemsPerDay) {
-      days.push({
-        day: (i / itemsPerDay) + 1,
-        activities: selectedData.slice(i, i + itemsPerDay)
-      })
+      const itemsPerLandDay = 3
+      for (let i = 0; i < sortedLand.length; i += itemsPerLandDay) {
+        days.push({
+          day: currentDay++,
+          type: 'land',
+          activities: sortedLand.slice(i, i + itemsPerLandDay)
+        })
+      }
     }
 
     setTimeout(() => {
@@ -109,7 +129,7 @@ export default function ActivityPlannerPage() {
       setStep(2)
       setLoading(false)
       window.scrollTo({ top: 0, behavior: 'smooth' })
-    }, 800)
+    }, 1000)
   }
 
   const getTransportTip = () => {
@@ -304,10 +324,14 @@ export default function ActivityPlannerPage() {
               </div>
 
               <div className="space-y-24">
-                {finalPlan.map((day) => (
+                {finalPlan.map((day: any) => (
                   <div key={day.day} className="space-y-10">
                     <div className="flex items-center gap-4">
-                      <div className="px-8 py-2 bg-[#64ffda] text-[#0a192f] rounded-full font-black uppercase tracking-widest text-[10px]">GÜN {day.day}</div>
+                      <div className={`px-8 py-2 rounded-full font-black uppercase tracking-widest text-[10px] ${
+                        day.type === 'boat' ? 'bg-blue-500 text-white' : 'bg-[#64ffda] text-[#0a192f]'
+                      }`}>
+                        GÜN {day.day} — {day.type === 'boat' ? 'TEKNE TURU' : 'KARA ROTASI'}
+                      </div>
                       <div className="h-px flex-1 bg-white/5" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
