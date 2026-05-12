@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Send } from "lucide-react"
+import { Send, Star } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
 import Image from "next/image"
 import Link from 'next/link'
@@ -82,10 +82,17 @@ export function DestinationComments({ destinationId, title, initialComments, use
               <Image src={c.user_profiles?.avatar_url || "/default-avatar.png"} alt="Avatar" fill className="object-cover" />
             </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <span className="text-white font-black uppercase tracking-widest text-xs">{c.user_profiles?.username}</span>
-                <div className="h-1 w-1 bg-slate-700 rounded-full" />
-                <span className="text-[10px] text-slate-500 font-bold uppercase">{new Date(c.created_at).toLocaleDateString('tr-TR')}</span>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-4">
+                  <span className="text-white font-black uppercase tracking-widest text-xs">{c.user_profiles?.username}</span>
+                  <div className="h-1 w-1 bg-slate-700 rounded-full" />
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">{new Date(c.created_at).toLocaleDateString('tr-TR')}</span>
+                </div>
+                {c.rating && (
+                  <div className="flex items-center gap-1.5 bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20 text-yellow-500 font-black text-xs">
+                    <Star className="w-3.5 h-3.5 fill-yellow-500" /> {c.rating}.0
+                  </div>
+                )}
               </div>
               <p className="text-slate-300 text-lg leading-relaxed italic">"{c.comment}"</p>
             </div>
