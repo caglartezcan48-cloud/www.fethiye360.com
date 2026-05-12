@@ -158,14 +158,14 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
         </div>
 
         {/* Footer - HER ZAMAN GORUNUR SABIT BUTON */}
-        <div className="p-5 bg-[#1a2c4e] border-t border-[#64ffda]/20 shrink-0 relative z-10 shadow-[0_-10px_30px_rgba(0,0,0,0.3)]">
+        <div className="p-6 bg-[#1a2c4e] border-t border-[#64ffda]/30 shrink-0 relative z-20 shadow-[0_-15px_30px_rgba(0,0,0,0.4)]">
             <button
               form="review-form"
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4.5 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-white transition-all shadow-xl shadow-[#64ffda]/20 active:scale-95 disabled:opacity-50"
+              className="w-full h-14 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-white transition-all shadow-2xl shadow-[#64ffda]/20 active:scale-95 disabled:opacity-50 border-2 border-white/10"
             >
-              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CheckCircle className="w-4 h-4" /> DENEYİMİ KAYDET</>}
+              {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <><CheckCircle className="w-5 h-5" /> DENEYİMİ KAYDET</>}
             </button>
         </div>
       </div>
