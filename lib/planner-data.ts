@@ -75,22 +75,6 @@ export const ALL_ACTIVITIES: ActivityItem[] = [
   { id: 'kaputas', title: 'Kaputaş Plajı', description: 'Kanyon ağzında yer alan, turkuaz rengiyle büyüleyen, dik merdivenleri ile meşhur Türkiye\'nin en fotojenik plajı.', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', category: 'yakin', location: 'Kaş', transport: 'land' },
 ];
 
-  // Merkez & Sosyal
-  { id: 'marina', title: 'Fethiye Marina', description: 'Lüks yatlar ve yürüyüş yolu.', image: 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800', category: 'sosyal', location: 'Merkez', transport: 'land' },
-  { id: 'ece_marina', title: 'Ece Marina', description: 'Sosyal yaşamın merkezi.', image: 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800', category: 'sosyal', location: 'Merkez', transport: 'land' },
-  { id: 'paspatur', title: 'Paspatur Çarşısı', description: 'Tarihi butikler ve kafeler.', image: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=800', category: 'sosyal', location: 'Merkez', transport: 'land', isPopular: true },
-  { id: 'balik_pazari', title: 'Balık Pazarı', description: 'Taze balığın lezzetle buluştuğu yer.', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800', category: 'sosyal', location: 'Merkez', transport: 'land' },
-  { id: 'beskaza', title: 'Beşkaza Meydanı', description: 'Şehrin ana meydanı ve etkinlikler.', image: 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800', category: 'sosyal', location: 'Merkez', transport: 'land' },
-  { id: 'fethi_bey_parki', title: 'Şehit Fethi Bey Parkı', description: 'Devasa rekreasyon alanı.', image: 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800', category: 'sosyal', location: 'Merkez', transport: 'land' },
-
-  // Yakın Yerler
-  { id: 'gocek_merkez', title: 'Göcek', description: 'Yatçılığın kalbi.', image: 'https://images.unsplash.com/photo-1596395817188-466d6a2f3234?w=800', category: 'yakin', location: 'Göcek', transport: 'land' },
-  { id: 'kas', title: 'Kaş', description: 'Masmavi denizi ile komşu ilçe.', image: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=800', category: 'yakin', location: 'Antalya', transport: 'land' },
-  { id: 'kalkan', title: 'Kalkan', description: 'Yamaçlarda saklı bir kasaba.', image: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=800', category: 'yakin', location: 'Antalya', transport: 'land' },
-  { id: 'patara', title: 'Patara Plajı', description: 'Dünyanın en uzun kumsallarından.', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', category: 'yakin', location: 'Kaş', transport: 'land' },
-  { id: 'kaputas', title: 'Kaputaş Plajı', description: 'Turkuaz rengiyle büyüleyen sahil.', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', category: 'yakin', location: 'Kaş', transport: 'land' },
-];
-
 export const REGIONS = [
   { id: 'merkez', name: 'Fethiye Merkez', image: 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800' },
   { id: 'oludeniz', name: 'Ölüdeniz', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800' },
