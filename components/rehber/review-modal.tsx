@@ -98,10 +98,10 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
   }
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 pb-20 md:pb-4">
+    <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 pt-16 md:pt-24">
       <div className="absolute inset-0 bg-[#0a192f]/98 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-lg bg-[#112240] border border-white/10 rounded-[40px] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col h-[75vh] md:h-auto md:max-h-[85vh]">
+      <div className="relative w-full max-w-lg bg-[#112240] border border-white/10 rounded-[40px] shadow-2xl animate-in slide-in-from-top-10 duration-500 overflow-hidden flex flex-col h-[60vh] md:h-auto md:max-h-[75vh]">
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 blur-3xl -mr-16 -mt-16" />
         
         {/* Header - Sabit */}
@@ -125,7 +125,7 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
                     className="transition-all hover:scale-125 p-1 active:scale-90"
                   >
                     <Star 
-                      className={`w-9 h-9 ${star <= rating ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]' : 'text-white/10'}`} 
+                      className={`w-8 h-8 ${star <= rating ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]' : 'text-white/10'}`} 
                     />
                   </button>
                 ))}
@@ -140,7 +140,7 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
                 onChange={(e) => setComment(e.target.value)}
                 required
                 placeholder="Neler yaşadın? Tavsiyelerin neler?"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[100px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-600 font-medium"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[80px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-600 font-medium"
               />
             </div>
 
@@ -158,14 +158,14 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
         </div>
 
         {/* Footer - HER ZAMAN GORUNUR SABIT BUTON */}
-        <div className="p-6 bg-[#1a2c4e] border-t border-[#64ffda]/30 shrink-0 relative z-20 shadow-[0_-15px_30px_rgba(0,0,0,0.4)]">
+        <div className="p-5 bg-[#1a2c4e] border-t border-[#64ffda]/20 shrink-0 relative z-10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
             <button
               form="review-form"
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-14 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-white transition-all shadow-2xl shadow-[#64ffda]/20 active:scale-95 disabled:opacity-50 border-2 border-white/10"
+              className="w-full h-12 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-white transition-all shadow-xl shadow-[#64ffda]/20 active:scale-95 disabled:opacity-50 border-2 border-white/10"
             >
-              {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <><CheckCircle className="w-5 h-5" /> DENEYİMİ KAYDET</>}
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CheckCircle className="w-4 h-4" /> DENEYİMİ KAYDET</>}
             </button>
         </div>
       </div>
