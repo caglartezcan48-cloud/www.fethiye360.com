@@ -282,7 +282,7 @@ export default function ActivityPlannerPage() {
                         </Link>
                       </div>
                       <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                        <MapPin className="w-3 h-3 text-[#64ffda]" /> {activity.location}
+                        <MapPin className="w-3 h-3 text-[#64ffda]" /> {activity?.location || 'Fethiye'}
                       </div>
                       <p className="text-slate-500 text-[10px] line-clamp-1 italic">"{activity.description}"</p>
                     </div>
@@ -362,7 +362,7 @@ export default function ActivityPlannerPage() {
                     <div className="p-8 space-y-6">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
-                          <MapPin className="w-3 h-3" /> {act.location}
+                          <MapPin className="w-3 h-3" /> {act?.location || 'Fethiye'}
                         </div>
                         <h4 className={`text-2xl font-black uppercase italic leading-tight tracking-tighter transition-all ${
                           completedActivities.includes(act.id) ? 'text-slate-500 line-through' : 'text-white'
