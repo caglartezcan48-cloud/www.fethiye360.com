@@ -282,10 +282,6 @@ export default function SharedPlanPage() {
               ))
             )}
           </div>
-                </div>
-              </div>
-            ))}
-          </div>
 
         </div>
       </section>
