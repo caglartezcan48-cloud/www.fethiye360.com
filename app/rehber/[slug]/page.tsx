@@ -92,53 +92,49 @@ export default async function DestinationDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="max-w-3xl mx-auto px-6 py-20 space-y-24">
+      <section className="max-w-4xl mx-auto px-6 py-12 space-y-16">
         
-        {/* Title & Category - Inside Content */}
-        <div className="space-y-6 text-center">
-          <div className="flex items-center justify-center gap-4">
-            <span className="h-px w-8 bg-[#64ffda]/30" />
-            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.5em]">{dest.category}</span>
-            <span className="h-px w-8 bg-[#64ffda]/30" />
+        {/* Title & Category */}
+        <div className="space-y-4 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <span className="h-px w-6 bg-[#64ffda]/30" />
+            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.4em]">{dest.category}</span>
+            <span className="h-px w-6 bg-[#64ffda]/30" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-light text-white tracking-[0.1em] uppercase">
+          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase italic leading-tight">
             {dest.title}
           </h1>
-          <div className="flex items-center justify-center gap-2 text-white/40 text-[9px] font-bold uppercase tracking-[0.3em]">
+          <div className="flex items-center justify-center gap-2 text-white/40 text-[9px] font-bold uppercase tracking-[0.2em]">
             <MapPin className="w-3 h-3 text-[#64ffda]" /> FETHİYE / MUĞLA
           </div>
         </div>
 
-        {/* Elite Description */}
-        <div className="space-y-8">
-          <div className="flex justify-center">
-            <Sparkles className="w-6 h-6 text-[#64ffda]/20" />
-          </div>
-          <p className="text-xl md:text-2xl text-slate-300 font-light leading-relaxed text-center italic opacity-80">
-            "{displayDescription}"
+        {/* Spot Description - Only first sentence */}
+        <div className="max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-slate-300 font-medium leading-relaxed text-center italic opacity-90 border-l-2 border-[#64ffda]/20 pl-4">
+            {displayDescription.split('.')[0]}.
           </p>
         </div>
 
-        {/* Minimal History Section */}
-        <div className="space-y-12">
-          <div className="flex items-center gap-6">
-            <h3 className="text-xs font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">HİKAYESİ</h3>
-            <div className="h-px w-full bg-white/5" />
-          </div>
-          <div className="space-y-8">
-            <h2 className="text-3xl md:text-4xl font-light text-white tracking-wide uppercase italic">
-              Zamanın Ötesinde <span className="text-[#64ffda]/60">{dest.title}</span>
-            </h2>
-            <p className="text-slate-400 leading-relaxed text-lg font-light first-letter:text-5xl first-letter:font-black first-letter:text-[#64ffda] first-letter:mr-3 first-letter:float-left">
-              {displayHistory}
-            </p>
+        {/* Detailed Content Section */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pt-8">
+          <div className="md:col-span-12 space-y-8">
+            <div className="flex items-center gap-4">
+              <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">BÖLGE HAKKINDA</h3>
+              <div className="h-px w-full bg-white/5" />
+            </div>
+            <div className="prose prose-invert max-w-none">
+              <p className="text-slate-400 leading-relaxed text-lg font-light first-letter:text-5xl first-letter:font-black first-letter:text-[#64ffda] first-letter:mr-3 first-letter:float-left">
+                {displayHistory}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* PHOTO WALL */}
-        <div className="space-y-12">
-          <div className="flex items-center gap-6">
-            <h3 className="text-xs font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">GALERİ</h3>
+        <div className="space-y-8">
+          <div className="flex items-center gap-4">
+            <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">GALERİ</h3>
             <div className="h-px w-full bg-white/5" />
           </div>
           <DestinationGallery title={dest.title} gallery={dest.gallery} />
