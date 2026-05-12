@@ -62,10 +62,8 @@ export default function UnifiedLoginPage() {
       }
 
       const { data: business } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_id', data.user.id)
-        .single()
+        .rpc('get_business_by_owner', { p_owner_id: data.user.id })
+        .maybeSingle()
 
       if (business) {
         router.push('/isletme-paneli')
