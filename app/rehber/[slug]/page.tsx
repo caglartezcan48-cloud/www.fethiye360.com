@@ -6,10 +6,14 @@ import {
   MapPin, 
   History, 
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  ArrowLeft,
+  Share2,
+  Bookmark
 } from "lucide-react"
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { DestinationGallery } from '@/components/rehber/destination-gallery'
 import { DestinationComments } from '@/components/rehber/destination-comments'
 import { ALL_ACTIVITIES } from '@/lib/planner-data'
@@ -29,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const enrichedData = ALL_ACTIVITIES.find(a => 
     a.id === slug || 
     a.id.replace(/-/g, '') === slug.replace(/-/g, '') ||
-    a.title.toLowerCase() === dest.title.toLowerCase()
+    (dest && a.title.toLowerCase() === dest.title.toLowerCase())
   )
 
   return {
