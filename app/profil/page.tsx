@@ -325,8 +325,9 @@ export default function UserProfilePage() {
             <div className="relative w-40 h-40 md:w-44 md:h-44 rounded-[56px] overflow-hidden border-4 border-white/5 p-1.5 bg-[#112240]">
               <div className="relative w-full h-full rounded-[44px] overflow-hidden">
                 <Image 
-                  src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username}`} 
+                  src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || user?.id}`} 
                   alt="Avatar" fill className="object-cover"
+                  unoptimized={true}
                 />
               </div>
               <div className="absolute bottom-2 right-2 p-3 bg-[#64ffda] text-[#0a192f] rounded-2xl shadow-2xl scale-0 group-hover:scale-100 transition-all duration-300">

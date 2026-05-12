@@ -122,6 +122,7 @@ export default async function PublicProfilePage({ params }: { params: Promise<{ 
                 <Image 
                   src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username}`} 
                   alt="Avatar" fill className="object-cover"
+                  unoptimized={true}
                 />
               </div>
             </div>
