@@ -24,6 +24,7 @@ export default function SharedPlanPage() {
   const { id } = useParams()
   const router = useRouter()
   const [plan, setPlan] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -33,17 +34,28 @@ export default function SharedPlanPage() {
 
   const fetchPlan = async () => {
     try {
-      const { data, error } = await supabase
+      // 1. Plani getir
+      const { data: planData, error: planError } = await supabase
         .from('user_itineraries')
-        .select(`
-          *,
-          user_profiles:user_id (username, avatar_url)
-        `)
+        .select('*')
         .eq('id', id)
         .single()
 
-      if (error) throw error
-      setPlan(data)
+      if (planError) throw planError
+      setPlan(planData)
+
+      // 2. Olusturan kisinin profilini getir
+      if (planData?.user_id) {
+        const { data: profileData } = await supabase
+          .from('user_profiles')
+          .select('username, avatar_url')
+          .eq('id', planData.user_id)
+          .single()
+        
+        if (profileData) {
+            setUserProfile(profileData)
+        }
+      }
     } catch (error) {
       console.error('Plan getirilemedi:', error)
       toast.error('Plan bulunamadı.')
@@ -121,11 +133,11 @@ export default function SharedPlanPage() {
                   <div className="flex items-center gap-3">
                     <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/10">
                       <Image 
-                        src={plan.user_profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${plan.user_profiles?.username}`} 
+                        src={userProfile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userProfile?.username}`} 
                         alt="Avatar" fill className="object-cover"
                       />
                     </div>
-                    <span className="text-white text-xs font-black uppercase tracking-widest">{plan.user_profiles?.username} tarafından</span>
+                    <span className="text-white text-xs font-black uppercase tracking-widest">{userProfile?.username || 'Gezgin'} tarafından</span>
                   </div>
                   <div className="h-4 w-px bg-white/10" />
                   <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
