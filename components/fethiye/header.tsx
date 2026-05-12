@@ -21,12 +21,13 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import { CityStats } from './city-stats'
 
+const supabase = createClient()
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
   const pathname = usePathname()
-  const supabase = createClient()
 
   useEffect(() => {
     const handleScroll = () => {

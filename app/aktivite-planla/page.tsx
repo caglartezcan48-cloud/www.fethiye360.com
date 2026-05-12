@@ -26,6 +26,8 @@ import { ALL_ACTIVITIES, REGIONS } from '@/lib/planner-data'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
+const supabase = createClient()
+
 export default function ActivityPlannerPage() {
   const [step, setStep] = useState(1)
   const [activeTab, setActiveTab] = useState('all')
@@ -40,7 +42,6 @@ export default function ActivityPlannerPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [destinations, setDestinations] = useState<any[]>([])
-  const supabase = createClient()
 
   useEffect(() => {
     const fetchData = async () => {

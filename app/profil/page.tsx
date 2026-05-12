@@ -41,6 +41,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { Header } from '@/components/fethiye/header'
 
+const supabase = createClient()
+
 export default function UserProfilePage() {
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<any>(null)
@@ -59,7 +61,6 @@ export default function UserProfilePage() {
     bio: ''
   })
   
-  const supabase = createClient()
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
