@@ -55,14 +55,14 @@ export default async function DestinationDetailPage({ params }: Props) {
   // Ne DB'de ne de Planner'da yoksa 404
   if (!dbDest && !enrichedData) notFound()
 
-  // Veri önceliği: Enriched > DB
+  // Veri önceliği: Veritabanı (Admin Paneli) > Enriched (Statik Dosya)
   const dest = {
     id: dbDest?.id || enrichedData?.id || 'temp-id',
-    title: enrichedData?.title || dbDest?.title || 'İsimsiz Konum',
-    description: enrichedData?.description || dbDest?.description || '',
-    history: enrichedData?.description && enrichedData.description.length > 100 ? enrichedData.description : (dbDest?.history || ''),
-    main_image: enrichedData?.image || dbDest?.main_image || 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800',
-    category: enrichedData?.category || dbDest?.category || 'Genel',
+    title: dbDest?.title || enrichedData?.title || 'İsimsiz Konum',
+    description: dbDest?.description && dbDest.description.length > 50 ? dbDest.description : (enrichedData?.description || ''),
+    history: dbDest?.history && dbDest.history.length > 100 ? dbDest.history : (enrichedData?.description || ''),
+    main_image: dbDest?.main_image || enrichedData?.image || 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800',
+    category: dbDest?.category || enrichedData?.category || 'Genel',
     gallery: dbDest?.gallery || [],
   }
 
