@@ -75,22 +75,23 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[#0a192f]/95 backdrop-blur-md" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0a192f]/98 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-lg bg-[#112240] border border-white/10 rounded-[40px] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-lg bg-[#112240] border border-white/10 rounded-[40px] shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden flex flex-col h-auto max-h-[90vh]">
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 blur-3xl -mr-16 -mt-16" />
         
         {/* Header - Sabit */}
-        <header className="p-6 border-b border-white/5 relative z-10 text-center bg-[#112240]">
+        <header className="p-5 border-b border-white/5 relative z-10 text-center shrink-0">
             <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">ANINI ÖLÜMSÜZLEŞTİR</h3>
             <p className="text-[#64ffda] text-[9px] font-black uppercase tracking-[0.2em]">{destinationTitle}</p>
         </header>
 
-        {/* Form - Kaydirilabilir */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 no-scrollbar">
+        {/* Form - Kaydirilabilir Orta Alan */}
+        <div className="flex-1 overflow-y-auto min-h-0 p-6 space-y-8 no-scrollbar">
+          <form id="review-form" onSubmit={handleSubmit} className="space-y-8">
             {/* Rating */}
-            <div className="space-y-2 text-center">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">BU YERİ NASIL BULDUN?</label>
+            <div className="space-y-3 text-center">
+              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest block">BU YERİ NASIL BULDUN?</label>
               <div className="flex items-center justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -100,7 +101,7 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
                     className="transition-all hover:scale-125 p-1"
                   >
                     <Star 
-                      className={`w-7 h-7 ${star <= rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-700'}`} 
+                      className={`w-8 h-8 ${star <= rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-800'}`} 
                     />
                   </button>
                 ))}
@@ -115,31 +116,32 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
                 onChange={(e) => setComment(e.target.value)}
                 required
                 placeholder="Neler yaşadın? Tavsiyelerin neler?"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[80px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-800 font-medium"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[100px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-800 font-medium"
               />
             </div>
 
             {/* Personal Note */}
-            <div className="space-y-2">
+            <div className="space-y-2 pb-4">
                 <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">ZAMANA NOT DÜŞ (KİŞİSEL)</label>
                 <textarea
                     value={visitNote}
                     onChange={(e) => setVisitNote(e.target.value)}
-                    placeholder="O an ne hissettin? Yanında kim vardı? (Sadece sen göreceksin)"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[80px] focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-800 font-medium italic border-dashed"
+                    placeholder="O an ne hissettin? Yanında kim vardı?"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[100px] focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-800 font-medium italic border-dashed"
                 />
             </div>
-        </form>
+          </form>
+        </div>
 
-        {/* Footer - Sabit Buton */}
-        <div className="p-6 bg-[#112240] border-t border-white/5 relative z-10">
+        {/* Footer - HER ZAMAN GORUNUR SABIT BUTON */}
+        <div className="p-6 bg-[#112240] border-t border-white/10 shrink-0 relative z-10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
             <button
+              form="review-form"
               type="submit"
-              onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-white transition-all shadow-xl shadow-[#64ffda]/10 active:scale-95 disabled:opacity-50"
+              className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-white transition-all shadow-xl shadow-[#64ffda]/20 active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CheckCircle className="w-4 h-4" /> KAYDET VE İŞARETLE</>}
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CheckCircle className="w-4 h-4" /> DENEYİMİ KAYDET</>}
             </button>
         </div>
       </div>
