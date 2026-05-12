@@ -1,117 +1,121 @@
-import { createClient } from '@/lib/supabase/server'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { ALL_ACTIVITIES } from '@/lib/planner-data'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
-import { MapPin, Sparkles, ChevronRight, Camera, Star } from 'lucide-react'
-import Link from 'next/link'
-import Image from 'next/image'
+import { Compass, Loader2 } from 'lucide-react'
+import { TourCard } from '@/components/fethiye/tour-card'
+import { useRouter } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
+export default function GuidePage() {
+  const [activeCategory, setActiveCategory] = useState("Tümü")
+  const [destinations, setDestinations] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
+  const router = useRouter()
 
-export default async function GuidePage() {
-  const supabase = await createClient()
-  
-  // Veritabanındaki aktif yerleri de kontrol edelim (Yorumlar vb. için ID eşleşmesi gerekebilir)
-  const { data: dbDestinations } = await supabase
-    .from('destinations')
-    .select('id, slug, title')
-    .eq('is_active', true)
+  const categories = ["Tümü", "Plaj", "Tarihi Yer", "Doğa", "Kültürel"]
 
-  const destinations = ALL_ACTIVITIES.map(activity => {
-    const dbMatch = dbDestinations?.find(d => d.slug === activity.id || d.title.toLowerCase() === activity.title.toLowerCase())
-    return {
-      ...activity,
-      id: dbMatch?.id || activity.id,
-      slug: activity.id, // Planner ID'lerini slug olarak kullanıyoruz
-      main_image: activity.image,
-    }
-  })
+  useEffect(() => {
+    fetchDestinations()
+  }, [])
+
+  const fetchDestinations = async () => {
+    setLoading(true)
+    const { data: dbData } = await supabase.from('destinations').select('*').eq('is_active', true)
+    
+    const merged = ALL_ACTIVITIES.map(activity => {
+      const dbMatch = dbData?.find(d => d.slug === activity.id || d.title.toLowerCase() === activity.title.toLowerCase())
+      
+      let uiCategory = "Doğa"
+      if (activity.category === 'tarih') uiCategory = "Tarihi Yer"
+      if (activity.category === 'sosyal') uiCategory = "Kültürel"
+      if (activity.id.includes('plaj') || activity.id.includes('koyu') || activity.id === 'oludeniz' || activity.id === 'belcekiz' || activity.id === 'kumburnu') uiCategory = "Plaj"
+
+      return {
+        id: dbMatch?.id || activity.id,
+        slug: activity.id,
+        title: activity.title,
+        category: uiCategory,
+        main_image: dbMatch?.main_image || activity.image,
+      }
+    })
+
+    setDestinations(merged)
+    setLoading(false)
+  }
+
+  const filteredTours = activeCategory === "Tümü" 
+    ? destinations 
+    : destinations.filter(dest => dest.category === activeCategory)
 
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative h-[60vh] w-full flex items-center justify-center overflow-hidden">
-        <Image 
-          src="https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=1920&q=90" 
-          alt="Fethiye Rehber" 
-          fill 
-          className="object-cover scale-105"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a192f]/60 via-transparent to-[#0a192f]" />
+      {/* Hero Section - Matching Home Style */}
+      <section className="relative pt-40 pb-20 px-6 overflow-hidden">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#64ffda]/5 rounded-full blur-[120px] -z-10" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] -z-10" />
         
-        <div className="relative z-10 text-center space-y-6 px-4">
-          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20">
-            <Sparkles className="w-4 h-4 text-[#64ffda]" />
-            <span className="text-white text-xs font-black uppercase tracking-[0.3em]">GEZİ REHBERİ</span>
+        <div className="max-w-7xl mx-auto text-center space-y-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/5 border border-white/10 rounded-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <Compass className="w-4 h-4 text-[#64ffda]" />
+            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.3em]">GEZİ REHBERİ</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">
-            EŞSİZ <span className="text-[#64ffda]">DENEYİMLER</span>
+          <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+            FETHİYE'Yİ <span className="text-[#64ffda]">KEŞFET</span>
           </h1>
-          <p className="text-white/60 text-lg font-medium italic tracking-wide">Fethiye'nin saklı cennetlerini keşfe çıkın</p>
+          <p className="text-slate-400 max-w-2xl mx-auto font-medium italic animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+            Tarihi mekanlardan turkuaz koylara kadar Fethiye'nin görülmesi gereken tüm noktalarını keşfedin.
+          </p>
+
+          {/* Category Filters - Same as Home */}
+          <div className="flex flex-wrap justify-center gap-3 pt-8 animate-in fade-in duration-1000 delay-300">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeCategory === category 
+                  ? 'bg-[#64ffda] text-[#0a192f] shadow-lg shadow-[#64ffda]/20' 
+                  : 'bg-white/5 text-slate-400 hover:text-white border border-white/5'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Main Grid - Home Page Style */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {destinations?.map((dest) => (
-            <Link 
-              key={dest.id}
-              href={`/rehber/${dest.slug}`}
-              className="group relative h-[500px] w-full rounded-[40px] overflow-hidden border border-white/10 bg-slate-900 shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-[#64ffda]/10"
-            >
-              <Image 
-                src={dest.main_image} 
-                alt={dest.title} 
-                fill 
-                className="object-cover transition-transform duration-1000 group-hover:scale-110 brightness-90 group-hover:brightness-100"
+      {/* Main Grid */}
+      <section className="max-w-7xl mx-auto px-6 pb-32">
+        {loading ? (
+          <div className="py-32 flex flex-col items-center justify-center gap-4">
+            <Loader2 className="w-10 h-10 text-[#64ffda] animate-spin" />
+            <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">İçerik Hazırlanıyor...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in duration-1000">
+            {filteredTours.map((dest) => (
+              <TourCard
+                key={dest.id}
+                title={dest.title}
+                location="Fethiye / Muğla"
+                category={dest.category}
+                image={dest.main_image}
+                onStartTour={() => router.push(`/rehber/${dest.slug}`)}
               />
-              
-              {/* Overlay Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
-              
-              {/* Content Overlay */}
-              <div className="absolute inset-0 p-8 flex flex-col justify-end space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="px-4 py-1 rounded-full bg-[#64ffda] text-[#0a192f] text-[9px] font-black uppercase tracking-widest">
-                    {dest.category}
-                  </span>
-                  <div className="flex items-center gap-1 text-[#64ffda]">
-                    <Star className="w-3 h-3 fill-current" />
-                    <span className="text-[10px] font-bold">4.9</span>
-                  </div>
-                </div>
-                
-                <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter transform group-hover:translate-x-2 transition-transform duration-500">
-                  {dest.title}
-                </h3>
-                
-                <p className="text-slate-300 text-sm line-clamp-2 italic font-medium opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100">
-                  {dest.description}
-                </p>
+            ))}
+          </div>
+        )}
 
-                <div className="flex items-center justify-between pt-4 border-t border-white/10 transform translate-y-8 group-hover:translate-y-0 transition-all duration-500 delay-200">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1 text-white/40 text-[9px] font-black uppercase tracking-widest">
-                      <MapPin className="w-3 h-3 text-[#64ffda]" /> Fethiye
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
-                    <ChevronRight className="w-5 h-5" />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {(!destinations || destinations.length === 0) && (
-          <div className="text-center py-32 bg-white/5 rounded-[60px] border border-dashed border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-2 uppercase italic">Henüz Rehber Eklenmedi</h2>
-            <p className="text-slate-500">Admin panelinden ilk gezi noktanızı ekleyebilirsiniz.</p>
+        {!loading && filteredTours.length === 0 && (
+          <div className="text-center py-20 bg-white/5 rounded-[40px] border border-dashed border-white/10">
+            <p className="text-slate-500 font-bold italic text-sm">Bu kategoride henüz bir yer bulunamadı.</p>
           </div>
         )}
       </section>
