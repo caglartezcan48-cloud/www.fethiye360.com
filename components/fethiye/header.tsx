@@ -130,7 +130,7 @@ export function Header() {
             <Link href="/isletmeler" className="text-3xl font-black text-white italic tracking-tighter">İŞLETMELER</Link>
             <Link href="/rehber" className="text-3xl font-black text-white italic tracking-tighter">REHBER</Link>
             <Link href="/sosyal" className="text-3xl font-black text-white italic tracking-tighter">SOSYAL</Link>
-            <Link href="/turlar" className="text-3xl font-black text-white italic tracking-tighter">TURLAR</Link>
+            <Link href="/aktivite-planla" className="text-3xl font-black text-white italic tracking-tighter">AKTİVİTE PLANLA</Link>
             <Link href="/harita" className="text-3xl font-black text-white italic tracking-tighter">HARİTA</Link>
           </div>
         </div>

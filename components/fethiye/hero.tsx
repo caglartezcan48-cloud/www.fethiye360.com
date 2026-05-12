@@ -16,6 +16,7 @@ export function Hero() {
           alt="Fethiye Ölüdeniz Plajı"
           fill
           priority
+          unoptimized={true}
           className="object-cover opacity-40 scale-105 animate-slow-zoom"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a192f] via-[#0a192f]/60 to-[#0a192f]" />
@@ -60,7 +61,7 @@ export function Hero() {
                 Hemen Keşfet
               </Button>
             </Link>
-            <Link href="#turlar">
+            <Link href="#rehber">
               <Button variant="outline" className="border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-widest text-xs px-10 h-14 rounded-2xl">
                 Sanal Turlar
               </Button>

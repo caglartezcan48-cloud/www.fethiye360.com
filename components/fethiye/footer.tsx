@@ -28,8 +28,8 @@ export function Footer() {
             <h4 className="font-semibold text-foreground mb-4">Hızlı Bağlantılar</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#turlar" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Turlar
+                <a href="#rehber" className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  Gezi Rehberi
                 </a>
               </li>
               <li>

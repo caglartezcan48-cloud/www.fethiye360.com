@@ -61,7 +61,7 @@ export function ToursSection() {
   )
 
   return (
-    <section id="turlar" className="py-32 bg-background relative overflow-hidden">
+    <section id="rehber" className="py-32 bg-background relative overflow-hidden">
       {/* Background Decorative */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#64ffda]/5 rounded-full blur-[100px] -z-10" />
       
