@@ -93,39 +93,34 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
       console.error('Yakalanamayan hata:', error)
       toast.error(`Hata: ${error.message || 'Kayıt sırasında bir sorun oluştu.'}`)
     } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 pt-16 md:pt-24">
+      setIsSubmitting(fa  return (
+    <div className="fixed inset-0 z-[200] flex items-start justify-center p-2 pt-12 md:pt-20">
       <div className="absolute inset-0 bg-[#0a192f]/98 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-lg bg-[#112240] border border-white/10 rounded-[40px] shadow-2xl animate-in slide-in-from-top-10 duration-500 overflow-hidden flex flex-col h-[60vh] md:h-auto md:max-h-[75vh]">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 blur-3xl -mr-16 -mt-16" />
+      <div className="relative w-full max-w-sm bg-[#112240] border border-white/10 rounded-[32px] shadow-2xl animate-in slide-in-from-top-10 duration-500 overflow-hidden flex flex-col h-[50vh] min-h-[380px]">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-[#64ffda]/5 blur-3xl -mr-12 -mt-12" />
         
-        {/* Header - Sabit */}
-        <header className="p-4 border-b border-white/5 relative z-10 text-center shrink-0">
-            <h3 className="text-lg font-black text-white uppercase italic tracking-tighter">ANINI ÖLÜMSÜZLEŞTİR</h3>
-            <p className="text-[#64ffda] text-[8px] font-black uppercase tracking-[0.2em]">{destinationTitle}</p>
+        {/* Header - Mikro */}
+        <header className="p-3 border-b border-white/5 relative z-10 text-center shrink-0">
+            <h3 className="text-sm font-black text-white uppercase italic tracking-tighter">ANINI ÖLÜMSÜZLEŞTİR</h3>
+            <p className="text-[#64ffda] text-[7px] font-black uppercase tracking-[0.2em]">{destinationTitle}</p>
         </header>
 
-        {/* Form - Kaydirilabilir Orta Alan */}
-        <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-6 no-scrollbar">
-          <form id="review-form" onSubmit={handleSubmit} className="space-y-6">
+        {/* Form - Mikro Kaydirilabilir */}
+        <div className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4 no-scrollbar">
+          <form id="review-form" onSubmit={handleSubmit} className="space-y-4">
             {/* Rating */}
-            <div className="space-y-3 text-center">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">BU YERİ NASIL BULDUN?</label>
-              <div className="flex items-center justify-center gap-1.5">
+            <div className="space-y-2 text-center">
+              <div className="flex items-center justify-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
                     key={star}
                     type="button"
                     onClick={() => setRating(star)}
-                    className="transition-all hover:scale-125 p-1 active:scale-90"
+                    className="transition-all hover:scale-110 p-0.5 active:scale-90"
                   >
                     <Star 
-                      className={`w-8 h-8 ${star <= rating ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]' : 'text-white/10'}`} 
+                      className={`w-7 h-7 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-white/10'}`} 
                     />
                   </button>
                 ))}
@@ -133,40 +128,44 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
             </div>
 
             {/* Public Review */}
-            <div className="space-y-2">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">DENEYİMİN (HERKESE AÇIK)</label>
+            <div className="space-y-1">
+              <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">DENEYİMİN</label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 required
-                placeholder="Neler yaşadın? Tavsiyelerin neler?"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[80px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-600 font-medium"
+                placeholder="Neler yaşadın?"
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-xs min-h-[60px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-600 font-medium"
               />
             </div>
 
             {/* Personal Note */}
-            <div className="space-y-2 pb-2">
-                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">ZAMANA NOT DÜŞ (KİŞİSEL)</label>
+            <div className="space-y-1 pb-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">KİŞİSEL NOT</label>
                 <textarea
                     value={visitNote}
                     onChange={(e) => setVisitNote(e.target.value)}
-                    placeholder="O an ne hissettin? Yanında kim vardı?"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[80px] focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600 font-medium italic border-dashed"
+                    placeholder="O an ne hissettin?"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-xs min-h-[60px] focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600 font-medium italic border-dashed"
                 />
             </div>
           </form>
         </div>
 
-        {/* Footer - HER ZAMAN GORUNUR SABIT BUTON */}
-        <div className="p-5 bg-[#1a2c4e] border-t border-[#64ffda]/20 shrink-0 relative z-10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        {/* Footer - Mikro Sabit Buton */}
+        <div className="p-4 bg-[#1a2c4e] border-t border-[#64ffda]/20 shrink-0 relative z-10">
             <button
               form="review-form"
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-12 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:bg-white transition-all shadow-xl shadow-[#64ffda]/20 active:scale-95 disabled:opacity-50 border-2 border-white/10"
+              className="w-full h-11 bg-[#64ffda] text-[#0a192f] rounded-xl font-black uppercase tracking-widest text-[9px] flex items-center justify-center gap-2 hover:bg-white transition-all active:scale-95 disabled:opacity-50"
             >
-              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CheckCircle className="w-4 h-4" /> DENEYİMİ KAYDET</>}
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-3 h-3" /> KAYDET</>}
             </button>
+        </div>
+      </div>
+    </div>
+           </button>
         </div>
       </div>
     </div>
