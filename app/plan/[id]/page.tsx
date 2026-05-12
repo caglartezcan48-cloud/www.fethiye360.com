@@ -70,9 +70,14 @@ export default function SharedPlanPage() {
   }
 
   const getTransportTip = () => {
-    if (!plan) return ""
-    const allActivities = plan.activities.flatMap((d: any) => d.activities)
-    const locations = allActivities.map((a: any) => a.location)
+    if (!plan || !plan.activities) return ""
+    
+    // Veri yapisina gore aktiviteleri duzlestir
+    const allActivities = plan.activities[0]?.activities 
+      ? plan.activities.flatMap((d: any) => d.activities || [])
+      : plan.activities
+
+    const locations = allActivities.map((a: any) => a?.location).filter(Boolean)
     const hasFarPlaces = locations.some(l => ['Faralya', 'Seydikemer', 'Antalya', 'Yaka'].includes(l))
     
     if (hasFarPlaces) return "Seçtiğiniz bazı noktalar merkeze uzak (Faralya, Seydikemer vb.). Bu rota için araç kiralamanızı veya şahsi aracınızı kullanmanızı öneririz."
@@ -238,9 +243,9 @@ export default function SharedPlanPage() {
                     </div>
                     <div className="p-8 space-y-6">
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
-                          <MapPin className="w-3 h-3" /> {act.location}
-                        </div>
+                          <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
+                            <MapPin className="w-3 h-3" /> {act?.location || 'Fethiye'}
+                          </div>
                         <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
                       </div>
                       <a 
@@ -275,7 +280,7 @@ export default function SharedPlanPage() {
                         <div className="p-8 space-y-6">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
-                              <MapPin className="w-3 h-3" /> {act.location}
+                              <MapPin className="w-3 h-3" /> {act?.location || 'Fethiye'}
                             </div>
                             <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
                           </div>
