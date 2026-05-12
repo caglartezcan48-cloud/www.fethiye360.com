@@ -64,7 +64,20 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
     }
   }
 
-  const toggleComplete = async (activityId: string, activityTitle: string, dbId: string) => {
+  const toggleComplete = async (activityId: string, activityTitle: string, dbId?: string) => {
+    let targetDbId = dbId
+
+    // Eger dbId eksikse (eski planlar), veritabanindan bulalim
+    if (!targetDbId) {
+      const { data: destData } = await supabase
+        .from('destinations')
+        .select('id')
+        .or(`slug.eq.${activityId},title.ilike.${activityTitle}`)
+        .single()
+      
+      targetDbId = destData?.id
+    }
+
     if (completedIds.includes(activityId)) {
       // Zaten gezilmisse, listeden cikar (Notu siler)
       if (!confirm('Bu yerin gezi notlarını ve işaretini kaldırmak istediğine emin misin?')) return
@@ -83,7 +96,11 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
       }
     } else {
       // Gezilmemisse, yorum modalini ac (Zorunlu)
-      setReviewTarget({ id: dbId || activityId, title: activityTitle })
+      if (!targetDbId) {
+        toast.error('Bu yer veritabanında bulunamadı, yorum yapılamaz.')
+        return
+      }
+      setReviewTarget({ id: targetDbId, title: activityTitle })
     }
   }
 
