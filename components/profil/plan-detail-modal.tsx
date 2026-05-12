@@ -131,9 +131,9 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
                                     {completedIds.includes(act.id) ? 'GEZDİM!' : 'GEZDİM Mİ?'}
                                 </button>
 
-                                {completedIds.includes(act.id) && (
+                                {completedIds.includes(act.id) && act.dbId && (
                                     <button 
-                                        onClick={() => setReviewTarget({ id: act.id, title: act.title })}
+                                        onClick={() => setReviewTarget({ id: act.dbId, title: act.title })}
                                         className="flex items-center gap-2 text-[#64ffda] hover:scale-105 transition-all text-[10px] font-black uppercase tracking-widest"
                                     >
                                         <Sparkles className="w-4 h-4" /> Yorum Yap

@@ -56,6 +56,7 @@ export default function ActivityPlannerPage() {
         const dbMatch = dbData?.find(d => d.slug === activity.id || d.title.toLowerCase() === activity.title.toLowerCase())
         return {
           ...activity,
+          dbId: dbMatch?.id, // Gercek UUID burada
           image: dbMatch?.main_image || activity.image
         }
       })
@@ -358,9 +359,9 @@ export default function ActivityPlannerPage() {
                           {completedActivities.includes(act.id) ? <><CheckCircle className="w-3 h-3" /> GEZDİM!</> : 'GEZDİM Mİ?'}
                         </button>
                         
-                        {completedActivities.includes(act.id) && (
+                        {completedActivities.includes(act.id) && act.dbId && (
                           <button 
-                            onClick={() => setReviewTarget({ id: act.id, title: act.title })}
+                            onClick={() => setReviewTarget({ id: act.dbId, title: act.title })}
                             className="flex items-center gap-2 px-4 py-2 bg-[#64ffda]/10 text-[#64ffda] border border-[#64ffda]/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#64ffda] hover:text-[#0a192f] transition-all"
                           >
                             <Sparkles className="w-3 h-3" /> Yorum Yap
