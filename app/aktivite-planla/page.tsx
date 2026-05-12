@@ -84,10 +84,34 @@ export default function ActivityPlannerPage() {
     )
   }
 
-  const toggleComplete = (id: string) => {
-    setCompletedActivities(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    )
+  const handleCheckInSuccess = async (data: { rating: number, comment: string, visitNote: string }) => {
+    if (!reviewTarget) return
+
+    const newActivityId = reviewTarget.id
+    // Planlayici sayfasinda completedActivities sadece id (slug) listesi tutuyor
+    // Ama biz dbId'ye gore islem yapmaliyiz
+    // Simdilik sadece id'yi ekleyelim, kaydedince dbId zaten JSON icinde gidecek
+    
+    // Not: Planlayicida henuz veritabani kaydi olmadigi icin notu simdilik state'te tutmuyoruz
+    // Sadece yorumu db'ye gonderiyoruz (ReviewModal zaten bunu yapiyor)
+    if (!completedActivities.includes((reviewTarget as any).originalId)) {
+        setCompletedActivities([...completedActivities, (reviewTarget as any).originalId])
+    }
+    setReviewTarget(null)
+  }
+
+  const toggleComplete = (activityId: string, activityTitle: string, dbId?: string) => {
+    if (completedActivities.includes(activityId)) {
+      setCompletedActivities(completedActivities.filter(id => id !== activityId))
+    } else {
+      if (!dbId) {
+          // Eger dbId yoksa (veritabaninda kayitli olmayan bir yerse)
+          // Sadece tik atariz, yorum yaptirmayiz
+          setCompletedActivities([...completedActivities, activityId])
+      } else {
+          setReviewTarget({ id: dbId, title: activityTitle, originalId: activityId } as any)
+      }
+    }
   }
 
   const selectAll = () => {
@@ -349,7 +373,7 @@ export default function ActivityPlannerPage() {
                       
                       <div className="flex items-center justify-between border-t border-white/5 pt-6">
                         <button 
-                          onClick={() => toggleComplete(act.id)}
+                          onClick={() => toggleComplete(act.id, act.title, act.dbId)}
                           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                             completedActivities.includes(act.id)
                               ? 'bg-emerald-500 text-white'
@@ -361,10 +385,10 @@ export default function ActivityPlannerPage() {
                         
                         {completedActivities.includes(act.id) && act.dbId && (
                           <button 
-                            onClick={() => setReviewTarget({ id: act.dbId, title: act.title })}
+                            onClick={() => setReviewTarget({ id: act.dbId, title: act.title, originalId: act.id } as any)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#64ffda]/10 text-[#64ffda] border border-[#64ffda]/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#64ffda] hover:text-[#0a192f] transition-all"
                           >
-                            <Sparkles className="w-3 h-3" /> Yorum Yap
+                            <Sparkles className="w-3 h-3" /> Yorumu Düzenle
                           </button>
                         )}
 
@@ -389,6 +413,7 @@ export default function ActivityPlannerPage() {
               destinationId={reviewTarget.id}
               destinationTitle={reviewTarget.title}
               userId={user.id}
+              onSuccess={handleCheckInSuccess}
             />
           )}
 
