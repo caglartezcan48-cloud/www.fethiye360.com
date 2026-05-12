@@ -491,16 +491,29 @@ export default function UserProfilePage() {
                       </div>
 
                       <div className="flex gap-2 overflow-hidden">
-                        {plan.activities?.[0]?.activities?.slice(0, 3).map((act: any, idx: number) => (
-                          <div key={idx} className="relative w-16 h-16 rounded-2xl overflow-hidden border border-white/10">
+                        {/* Yeni Bucket List Formati Icin Onizleme */}
+                        {plan.activities && Array.isArray(plan.activities) && plan.activities.slice(0, 4).map((act: any, idx: number) => (
+                          <div key={idx} className="relative w-16 h-16 rounded-2xl overflow-hidden border border-white/10 shrink-0">
                             <Image src={act.image} alt={act.title} fill className="object-cover" />
                           </div>
                         ))}
-                        {plan.activities?.length > 1 && (
-                          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-slate-500">
-                            +{plan.activities.length - 1} GÜN
+                        {plan.activities?.length > 4 && (
+                          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-slate-500 shrink-0">
+                            +{plan.activities.length - 4}
                           </div>
                         )}
+                      </div>
+
+                      <div className="pt-4 flex items-center justify-between">
+                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                          {plan.activities?.length || 0} AKTİVİTE SEÇİLDİ
+                        </div>
+                        <Link 
+                          href="/aktivite-planla" 
+                          className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
+                        >
+                          Görüntüle
+                        </Link>
                       </div>
 
                       <div className="flex items-center justify-between pt-4 border-t border-white/5">
