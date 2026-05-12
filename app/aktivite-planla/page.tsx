@@ -94,16 +94,27 @@ export default function ActivityPlannerPage() {
     const days = []
     let currentDay = 1
 
-    // 1. TEKNE GÜNLERİ: Tekneyle ulaşılan yerleri ayrı bir güne (veya günlere) topla
+    // 1. TEKNE GÜNLERİ: Rotalara göre ayır (12 Adalar ve Ölüdeniz/Kelebekler)
     if (boatActivities.length > 0) {
-      const itemsPerBoatDay = 3
-      for (let i = 0; i < boatActivities.length; i += itemsPerBoatDay) {
-        days.push({
-          day: currentDay++,
-          type: 'boat',
-          activities: boatActivities.slice(i, i + itemsPerBoatDay)
-        })
+      const routes = {
+        '12adalar': boatActivities.filter(a => a.boatRoute === '12adalar'),
+        'oludeniz_boat': boatActivities.filter(a => a.boatRoute === 'oludeniz_boat'),
+        'other': boatActivities.filter(a => !a.boatRoute)
       }
+
+      Object.entries(routes).forEach(([key, items]) => {
+        if (items.length > 0) {
+          const itemsPerDay = 3
+          for (let i = 0; i < items.length; i += itemsPerDay) {
+            days.push({
+              day: currentDay++,
+              type: 'boat',
+              routeName: key === '12adalar' ? '12 Adalar Tekne Turu (Merkez)' : key === 'oludeniz_boat' ? 'Ölüdeniz & Kelebekler Vadisi Turu' : 'Tekne Turu',
+              activities: items.slice(i, i + itemsPerDay)
+            })
+          }
+        }
+      })
     }
 
     // 2. KARA GÜNLERİ: Lokasyon bazlı kümele
@@ -330,7 +341,7 @@ export default function ActivityPlannerPage() {
                       <div className={`px-8 py-2 rounded-full font-black uppercase tracking-widest text-[10px] ${
                         day.type === 'boat' ? 'bg-blue-500 text-white' : 'bg-[#64ffda] text-[#0a192f]'
                       }`}>
-                        GÜN {day.day} — {day.type === 'boat' ? 'TEKNE TURU' : 'KARA ROTASI'}
+                        GÜN {day.day} — {day.type === 'boat' ? (day.routeName || 'TEKNE TURU') : 'KARA ROTASI'}
                       </div>
                       <div className="h-px flex-1 bg-white/5" />
                     </div>
