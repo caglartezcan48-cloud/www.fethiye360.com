@@ -14,6 +14,8 @@ import { DestinationGallery } from '@/components/rehber/destination-gallery'
 import { DestinationComments } from '@/components/rehber/destination-comments'
 import { ALL_ACTIVITIES } from '@/lib/planner-data'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ slug: string }>
 }
@@ -23,9 +25,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient()
   const { data: dest } = await supabase.from('destinations').select('*').eq('slug', slug).single()
   if (!dest) return {}
+
+  const enrichedData = ALL_ACTIVITIES.find(a => 
+    a.id === slug || 
+    a.id.replace(/-/g, '') === slug.replace(/-/g, '') ||
+    a.title.toLowerCase() === dest.title.toLowerCase()
+  )
+
   return {
     title: `${dest.title} | Fethiye360 Rehber`,
-    description: dest.description,
+    description: enrichedData?.description || dest.description,
   }
 }
 
@@ -39,7 +48,11 @@ export default async function DestinationDetailPage({ params }: Props) {
   if (error || !dest) notFound()
 
   // Planner verisinden daha zengin açıklamayı çek
-  const enrichedData = ALL_ACTIVITIES.find(a => a.id === slug || a.title.toLowerCase() === dest.title.toLowerCase())
+  const enrichedData = ALL_ACTIVITIES.find(a => 
+    a.id === slug || 
+    a.id.replace(/-/g, '') === slug.replace(/-/g, '') ||
+    a.title.toLowerCase() === dest.title.toLowerCase()
+  )
   const displayDescription = enrichedData?.description || dest.description
   const displayHistory = enrichedData?.description && enrichedData.description.length > 100 ? enrichedData.description : dest.history
 
