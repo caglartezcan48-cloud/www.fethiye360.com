@@ -32,6 +32,10 @@ export default function ActivityPlannerPage() {
   const [groupType, setGroupType] = useState('couple')
   const [finalPlan, setFinalPlan] = useState<any[]>([])
   const router = useRouter()
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
   const [destinations, setDestinations] = useState<any[]>([])
   const supabase = createClient()
 
@@ -250,63 +254,72 @@ export default function ActivityPlannerPage() {
               </div>
 
               {/* Activities Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredActivities.map((activity) => (
                   <div 
                     key={activity.id}
                     onClick={() => toggleActivity(activity.id)}
-                    className={`group relative h-[320px] rounded-[40px] overflow-hidden border transition-all cursor-pointer ${
+                    className={`group relative bg-slate-900/50 rounded-[32px] overflow-hidden border transition-all duration-300 cursor-pointer hover:scale-[1.02] ${
                       selectedActivities.includes(activity.id) 
-                        ? 'border-[#64ffda] ring-4 ring-[#64ffda]/20 scale-95' 
+                        ? 'border-[#64ffda] ring-4 ring-[#64ffda]/20 shadow-2xl shadow-[#64ffda]/10' 
                         : 'border-white/10 hover:border-white/30'
                     }`}
                   >
-                    {/* Image Layer */}
-                    <div className="absolute inset-0 z-0">
+                    {/* Image Section - Exactly like TourCard */}
+                    <div className="relative aspect-[4/3] overflow-hidden">
                       <Image 
                         src={activity.image} 
                         alt={activity.title} 
                         fill 
                         className={`object-cover transition-transform duration-700 group-hover:scale-110 ${
-                          selectedActivities.includes(activity.id) ? 'brightness-100' : 'brightness-50 group-hover:brightness-75'
+                          selectedActivities.includes(activity.id) ? 'brightness-100' : 'brightness-75 group-hover:brightness-90'
                         }`} 
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-80" />
-                    </div>
-                    
-                    {/* Content Layer */}
-                    <div className="relative z-10 h-full p-6 flex flex-col justify-between">
-                      <div className="flex justify-between items-start">
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
+                      
+                      {/* 360 Badge */}
+                      <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#64ffda]/90 backdrop-blur-sm flex items-center justify-center z-10">
+                        <span className="text-[10px] font-black text-[#0a192f]">360°</span>
+                      </div>
+
+                      {/* Selection Circle (The Difference) */}
+                      <div className="absolute top-4 left-4 z-20">
                         <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
                           selectedActivities.includes(activity.id) 
                             ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' 
-                            : 'bg-black/20 border-white/30 text-transparent'
+                            : 'bg-black/40 border-white/30 text-white/40'
                         }`}>
                           <CheckCircle2 className="w-5 h-5" />
                         </div>
+                      </div>
 
+                      {/* Category Badge */}
+                      <div className="absolute bottom-4 left-4">
+                        <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[8px] font-black text-white uppercase tracking-widest">
+                          {activity.category === 'tarih' ? 'TARİH' : activity.category === 'doga' ? 'DOĞA' : activity.category === 'deneyim' ? 'AKTİVİTE' : 'KÜLTÜREL'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Section - Exactly like TourCard */}
+                    <div className="p-6 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-black text-white uppercase italic leading-tight tracking-tighter group-hover:text-[#64ffda] transition-colors">
+                          {activity.title}
+                        </h3>
                         <Link 
                           href={`/rehber/${activity.id}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="p-2 bg-[#64ffda] text-[#0a192f] rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                          className="text-[#64ffda] opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                          title="Detayları Gör"
                         >
                           <Sparkles className="w-4 h-4" />
                         </Link>
                       </div>
-
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2 text-[#64ffda] text-[8px] font-black uppercase tracking-[0.2em]">
-                          <MapPin className="w-3 h-3" /> {activity.location}
-                        </div>
-                        <h3 className="text-xl font-black text-white uppercase italic leading-tight tracking-tighter">{activity.title}</h3>
-                        <p className="text-slate-400 text-[10px] line-clamp-2 font-medium italic">"{activity.description}"</p>
-                        
-                        <div className="pt-2 opacity-0 group-hover:opacity-100 transition-all">
-                          <span className="text-[9px] font-black text-[#64ffda] uppercase tracking-[0.2em]">
-                            SAYFAYI AÇ →
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                        <MapPin className="w-3 h-3 text-[#64ffda]" /> {activity.location}
                       </div>
+                      <p className="text-slate-500 text-[10px] line-clamp-1 italic">"{activity.description}"</p>
                     </div>
 
                     {activity.isPopular && !selectedActivities.includes(activity.id) && (
@@ -383,21 +396,21 @@ export default function ActivityPlannerPage() {
                       </div>
                       <div className="h-px flex-1 bg-white/5" />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {day.activities.map((act: any, i: number) => (
-                        <div key={i} className="group bg-white/5 border border-white/5 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all border-b-4 border-b-[#64ffda]/20">
-                          <Link href={`/rehber/${act.id}`} className="relative h-56 w-full block overflow-hidden">
+                        <div key={i} className="group bg-slate-900/50 border border-white/5 rounded-[40px] overflow-hidden hover:bg-slate-900 transition-all hover:shadow-2xl hover:shadow-[#64ffda]/5">
+                          {/* Use TourCard Style for Results too */}
+                          <div className="relative aspect-[16/10] overflow-hidden">
                             <Image src={act.image} alt={act.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-all" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
+                            <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#64ffda] flex items-center justify-center">
+                              <span className="text-[10px] font-black text-[#0a192f]">360°</span>
+                            </div>
                             <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[8px] text-white font-black uppercase tracking-widest">
                               {act.category}
                             </div>
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                              <div className="bg-[#64ffda] text-[#0a192f] px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                                <Sparkles className="w-3 h-3" /> Sayfayı İncele
-                              </div>
-                            </div>
-                          </Link>
+                          </div>
+                          
                           <div className="p-8 space-y-6">
                             <div className="space-y-2">
                               <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
