@@ -45,18 +45,6 @@ export default function ActivityPlannerPage() {
   useEffect(() => {
     const fetchData = async () => {
       const { data: { user: authUser } } = await supabase.auth.getUser()
-      
-      if (!authUser) {
-        toast.info('Liste oluşturmak için önce giriş yapmalısınız. Giriş sayfasına yönlendiriliyorsunuz...', {
-          duration: 3000,
-          position: 'top-center'
-        })
-        setTimeout(() => {
-          router.push('/giris?returnTo=/aktivite-planla')
-        }, 2000)
-        return
-      }
-
       setUser(authUser)
 
       const { data: dbData } = await supabase.from('destinations').select('*').eq('is_active', true)
@@ -122,7 +110,8 @@ export default function ActivityPlannerPage() {
 
   const savePlan = async () => {
     if (!user) {
-      toast.error('Listenizi kaydetmek için giriş yapmalısınız.')
+      toast.info('Listenizi profilinize kaydetmek için lütfen giriş yapın.', { position: 'top-center' })
+      setTimeout(() => router.push('/giris?returnTo=/aktivite-planla'), 1500)
       return
     }
 
@@ -150,6 +139,11 @@ export default function ActivityPlannerPage() {
   }
 
   const shareWhatsApp = () => {
+    if (!user) {
+      toast.info('Listenizi paylaşmak için lütfen giriş yapın.', { position: 'top-center' })
+      setTimeout(() => router.push('/giris?returnTo=/aktivite-planla'), 1500)
+      return
+    }
     const listText = finalPlan.map((act: any, i: number) => `${i+1}. ${act.title}`).join('\n')
     const text = `Fethiye'de gezeceğim yerleri belirledim! 🌴 İşte listem:\n\n${listText}\n\nSen de kendi listeni oluştur: ${window.location.origin}/aktivite-planla`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
