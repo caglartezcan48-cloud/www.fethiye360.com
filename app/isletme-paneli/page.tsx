@@ -54,11 +54,10 @@ export default function BusinessPanel() {
       }
       setUser(user)
 
-      const { data: businessData } = await supabase
-        .from('businesses')
-        .select('*')
-        .eq('owner_id', user.id)
-        .single()
+      // 406 hatasini bypass etmek icin RPC (Fonksiyon) kullanalim
+      const { data: businessData, error: bError } = await supabase
+        .rpc('get_business_by_owner', { p_owner_id: user.id })
+        .maybeSingle()
       
       if (businessData) {
         setBusiness(businessData)
