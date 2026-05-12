@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { PostGridSkeleton } from '@/components/sosyal/post-skeleton'
 import Image from 'next/image'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import * as tf from '@tensorflow/tfjs'
 import * as nsfwjs from 'nsfwjs'
@@ -40,6 +41,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { Header } from '@/components/fethiye/header'
+import { PlanDetailModal } from '@/components/profil/plan-detail-modal'
 
 const supabase = createClient()
 
@@ -53,6 +55,7 @@ export default function UserProfilePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [activeTab, setActiveTab] = useState<'posts' | 'plans'>('posts')
   const [itineraries, setItineraries] = useState<any[]>([])
+  const [selectedPlan, setSelectedPlan] = useState<any>(null)
   
   // Modal State'leri
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -497,24 +500,24 @@ export default function UserProfilePage() {
                             <Image src={act.image} alt={act.title} fill className="object-cover" />
                           </div>
                         ))}
-                        {plan.activities?.length > 4 && (
-                          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-slate-500 shrink-0">
-                            +{plan.activities.length - 4}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="pt-4 flex items-center justify-between">
-                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                          {plan.activities?.length || 0} AKTİVİTE SEÇİLDİ
+                          {plan.activities?.length > 4 && (
+                            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-slate-500 shrink-0">
+                              +{plan.activities.length - 4}
+                            </div>
+                          )}
                         </div>
-                        <Link 
-                          href="/aktivite-planla" 
-                          className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
-                        >
-                          Görüntüle
-                        </Link>
-                      </div>
+
+                        <div className="pt-4 flex items-center justify-between">
+                          <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
+                            {plan.activities?.length || 0} AKTİVİTE SEÇİLDİ
+                          </div>
+                          <button 
+                            onClick={() => setSelectedPlan(plan)} 
+                            className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
+                          >
+                            Görüntüle
+                          </button>
+                        </div>
 
                       <div className="flex items-center justify-between pt-4 border-t border-white/5">
                         <span className="text-[10px] text-slate-500 font-medium italic">{new Date(plan.created_at).toLocaleDateString('tr-TR')}</span>
@@ -556,6 +559,15 @@ export default function UserProfilePage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {selectedPlan && (
+          <PlanDetailModal 
+            isOpen={!!selectedPlan}
+            onClose={() => setSelectedPlan(null)}
+            plan={selectedPlan}
+            onUpdate={() => user && fetchItineraries(user.id)}
+          />
+        )}
       </main>
 
       {/* Global Navigation */}

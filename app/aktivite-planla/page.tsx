@@ -25,6 +25,7 @@ import Image from 'next/image'
 import { ALL_ACTIVITIES, REGIONS } from '@/lib/planner-data'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { ReviewModal } from '@/components/rehber/review-modal'
 
 const supabase = createClient()
 
@@ -42,6 +43,7 @@ export default function ActivityPlannerPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [destinations, setDestinations] = useState<any[]>([])
+  const [reviewTarget, setReviewTarget] = useState<{ id: string, title: string } | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -355,9 +357,19 @@ export default function ActivityPlannerPage() {
                         >
                           {completedActivities.includes(act.id) ? <><CheckCircle className="w-3 h-3" /> GEZDİM!</> : 'GEZDİM Mİ?'}
                         </button>
+                        
+                        {completedActivities.includes(act.id) && (
+                          <button 
+                            onClick={() => setReviewTarget({ id: act.id, title: act.title })}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#64ffda]/10 text-[#64ffda] border border-[#64ffda]/20 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#64ffda] hover:text-[#0a192f] transition-all"
+                          >
+                            <Sparkles className="w-3 h-3" /> Yorum Yap
+                          </button>
+                        )}
+
                         <Link 
                           href={`/rehber/${act.id}`}
-                          className="text-[10px] font-black uppercase tracking-widest text-[#64ffda] hover:underline"
+                          className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-[#64ffda] hover:underline"
                         >
                           İncele →
                         </Link>
@@ -367,6 +379,16 @@ export default function ActivityPlannerPage() {
                 ))}
               </div>
             </div>
+          )}
+
+          {reviewTarget && user && (
+            <ReviewModal 
+              isOpen={!!reviewTarget}
+              onClose={() => setReviewTarget(null)}
+              destinationId={reviewTarget.id}
+              destinationTitle={reviewTarget.title}
+              userId={user.id}
+            />
           )}
 
         </div>
