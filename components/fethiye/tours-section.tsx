@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase/client"
 import { Loader2, Compass } from "lucide-react"
 import { useRouter } from "next/navigation"
 
+import { ALL_ACTIVITIES } from "@/lib/planner-data"
+
 export function ToursSection() {
   const [activeCategory, setActiveCategory] = useState("Tümü")
   const [destinations, setDestinations] = useState<any[]>([])
@@ -16,60 +18,34 @@ export function ToursSection() {
 
   const categories = ["Tümü", "Plaj", "Tarihi Yer", "Doğa", "Kültürel"]
 
-  const staticTours = [
-    {
-      id: 'static-1',
-      title: "Ölüdeniz Plajı",
-      slug: "oludeniz-plaji",
-      category: "Plaj",
-      main_image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80",
-    },
-    {
-      id: 'static-2',
-      title: "Kayaköy Hayalet Şehir",
-      slug: "kayakoy",
-      category: "Tarihi Yer",
-      main_image: "https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800&q=80",
-    },
-    {
-      id: 'static-3',
-      title: "Saklıkent Kanyonu",
-      slug: "saklikent-kanyonu",
-      category: "Doğa",
-      main_image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80",
-    },
-    {
-      id: 'static-4',
-      title: "Fethiye Balık Pazarı",
-      slug: "fethiye-balik-pazari",
-      category: "Kültürel",
-      main_image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80",
-    },
-    {
-      id: 'static-5',
-      title: "Kelebekler Vadisi",
-      slug: "kelebekler-vadisi",
-      category: "Doğa",
-      main_image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-    },
-    {
-      id: 'static-6',
-      title: "Antik Kaya Mezarları",
-      slug: "likya-kaya-mezarlari",
-      category: "Tarihi Yer",
-      main_image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
-    },
-  ]
-
   useEffect(() => {
     fetchDestinations()
   }, [])
 
   const fetchDestinations = async () => {
     setLoading(true)
-    const { data } = await supabase.from('destinations').select('*').eq('is_active', true)
-    // Statik verilerle DB verilerini birlestir (DB bos olsa bile site dolu gorunsun)
-    setDestinations([...staticTours, ...(data || [])])
+    const { data: dbData } = await supabase.from('destinations').select('*').eq('is_active', true)
+    
+    // Planner verilerini ana kaynak olarak kullan, DB verileriyle zenginleştir
+    const merged = ALL_ACTIVITIES.map(activity => {
+      const dbMatch = dbData?.find(d => d.slug === activity.id || d.title.toLowerCase() === activity.title.toLowerCase())
+      
+      // Kategori eşleme (Planner'dan UI kategorilerine)
+      let uiCategory = "Doğa"
+      if (activity.category === 'tarih') uiCategory = "Tarihi Yer"
+      if (activity.category === 'sosyal') uiCategory = "Kültürel"
+      if (activity.id.includes('plaj') || activity.id.includes('koyu') || activity.id === 'oludeniz' || activity.id === 'belcekiz' || activity.id === 'kumburnu') uiCategory = "Plaj"
+
+      return {
+        id: dbMatch?.id || activity.id,
+        slug: activity.id,
+        title: activity.title,
+        category: uiCategory,
+        main_image: dbMatch?.main_image || activity.image,
+      }
+    })
+
+    setDestinations(merged)
     setLoading(false)
   }
 

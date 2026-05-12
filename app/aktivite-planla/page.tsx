@@ -348,29 +348,45 @@ export default function ActivityPlannerPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                       {day.activities.map((act: any, i: number) => (
                         <div key={i} className="group bg-white/5 border border-white/5 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all border-b-4 border-b-[#64ffda]/20">
-                          <div className="relative h-56 w-full">
-                            <Image src={act.image} alt={act.title} fill className="object-cover" />
+                          <Link href={`/rehber/${act.id}`} className="relative h-56 w-full block overflow-hidden">
+                            <Image src={act.image} alt={act.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-all" />
                             <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[8px] text-white font-black uppercase tracking-widest">
                               {act.category}
                             </div>
-                          </div>
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                              <div className="bg-[#64ffda] text-[#0a192f] px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                <Sparkles className="w-3 h-3" /> Sayfayı İncele
+                              </div>
+                            </div>
+                          </Link>
                           <div className="p-8 space-y-6">
                             <div className="space-y-2">
                               <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
                                 <MapPin className="w-3 h-3" /> {act.location}
                               </div>
-                              <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
+                              <Link href={`/rehber/${act.id}`}>
+                                <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter hover:text-[#64ffda] transition-colors">{act.title}</h4>
+                              </Link>
                               <p className="text-slate-400 text-sm leading-relaxed font-medium">"{act.description}"</p>
                             </div>
                             
-                            <a 
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.title + ' Fethiye')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-[#64ffda] transition-all group/btn"
-                            >
-                              Yol Tarifi Al <Navigation className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                            </a>
+                            <div className="flex items-center justify-between border-t border-white/5 pt-6">
+                              <a 
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.title + ' Fethiye')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-[#64ffda] transition-all group/btn"
+                              >
+                                Yol Tarifi <Navigation className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                              </a>
+                              <Link 
+                                href={`/rehber/${act.id}`}
+                                className="text-[10px] font-black uppercase tracking-widest text-[#64ffda] hover:underline"
+                              >
+                                Detaylar →
+                              </Link>
+                            </div>
                           </div>
                         </div>
                       ))}

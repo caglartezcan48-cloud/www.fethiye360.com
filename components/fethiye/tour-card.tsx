@@ -21,9 +21,14 @@ export function TourCard({ title, location, category, image, onStartTour }: Tour
   }
 
   return (
-    <div className="group relative bg-card rounded-xl overflow-hidden border border-border transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10">
+    <div 
+      className="group relative bg-card rounded-xl overflow-hidden border border-border transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10"
+    >
       {/* Image Container */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div 
+        className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+        onClick={onStartTour}
+      >
         <img
           src={image}
           alt={title}
@@ -46,7 +51,10 @@ export function TourCard({ title, location, category, image, onStartTour }: Tour
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+        <h3 
+          className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors cursor-pointer"
+          onClick={onStartTour}
+        >
           {title}
         </h3>
         <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-4">
@@ -58,7 +66,7 @@ export function TourCard({ title, location, category, image, onStartTour }: Tour
           onClick={onStartTour}
         >
           <Play className="w-4 h-4 mr-2 transition-transform group-hover/btn:scale-110" />
-          Sanal Tura Başla
+          Sayfayı Keşfet
         </Button>
       </div>
     </div>
