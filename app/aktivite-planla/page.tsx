@@ -69,7 +69,7 @@ export default function ActivityPlannerPage() {
     }
     setLoading(true)
     
-    // Akıllı Gruplama: Önce lokasyona göre sırala ki yakın yerler aynı güne denk gelsin
+    // Akıllı Gruplama
     const selectedData = ALL_ACTIVITIES
       .filter(a => selectedActivities.includes(a.id))
       .sort((a, b) => a.location.localeCompare(b.location))
@@ -86,10 +86,10 @@ export default function ActivityPlannerPage() {
 
     setTimeout(() => {
       setFinalPlan(days)
-      setStep(3)
+      setStep(2)
       setLoading(false)
       window.scrollTo({ top: 0, behavior: 'smooth' })
-    }, 1200)
+    }, 800)
   }
 
   const getTransportTip = () => {
@@ -97,7 +97,6 @@ export default function ActivityPlannerPage() {
     const hasFarPlaces = locations.some(l => ['Faralya', 'Seydikemer', 'Antalya', 'Yaka'].includes(l))
     
     if (hasFarPlaces) return "Seçtiğiniz bazı noktalar merkeze uzak (Faralya, Seydikemer vb.). Bu rota için araç kiralamanızı veya şahsi aracınızı kullanmanızı öneririz."
-    if (selectedRegion === 'merkez') return "Rotanızdaki yerlerin çoğu merkeze yakın. Dolmuş ve sahil yolu yürüyüş parkurlarını kullanarak rahatça gezebilirsiniz."
     return "Fethiye genelinde dolmuş seferleri oldukça düzenlidir, ancak daha fazla özgürlük için motosiklet veya araç kiralama iyi bir seçenek olabilir."
   }
 
@@ -109,32 +108,30 @@ export default function ActivityPlannerPage() {
 
     try {
       setIsSaving(true)
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_itineraries')
         .insert([{
           user_id: user.id,
-          title: `Fethiye Tatil Planım (${new Date().toLocaleDateString('tr-TR')})`,
+          title: `Fethiye Rotam (${new Date().toLocaleDateString('tr-TR')})`,
           activities: finalPlan,
-          region: selectedRegion,
-          group_type: groupType
+          region: 'Genel',
+          group_type: 'Genel'
         }])
-        .select()
-        .single()
 
       if (error) throw error
 
       setIsSaved(true)
-      toast.success('Planınız başarıyla profilinize kaydedildi! 🌴')
+      toast.success('Rotanız başarıyla profilinize kaydedildi! 🌴')
     } catch (error) {
       console.error(error)
-      toast.error('Plan kaydedilirken bir hata oluştu.')
+      toast.error('Rota kaydedilirken bir hata oluştu.')
     } finally {
       setIsSaving(false)
     }
   }
 
   const shareWhatsApp = () => {
-    const text = `Fethiye360 ile harika bir tatil planı oluşturdum! 🌴\n\nSenin için ideal rotayı keşfet: ${window.location.origin}/aktivite-planla`
+    const text = `Fethiye360 ile harika bir rota oluşturdum! 🌴\n\nSenin için ideal yerleri keşfet: ${window.location.origin}/aktivite-planla`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
@@ -151,14 +148,12 @@ export default function ActivityPlannerPage() {
       <section className="relative pt-40 pb-32 px-6">
         <div className="max-w-7xl mx-auto space-y-16">
           
-          {/* Header kaldırıldı */}
-
-          {/* STEP 1: COMPREHENSIVE SELECTION */}
+          {/* STEP 1: SELECTION */}
           {step === 1 && (
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-8">
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">1. Görmek İstediğin Yerleri Seç</h2>
+                  <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">Görmek İstediğin Yerleri Seç</h2>
                   <p className="text-slate-500 font-medium">Fethiye'nin tüm hazineleri burada. Gitmek istediklerini işaretle.</p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -166,11 +161,11 @@ export default function ActivityPlannerPage() {
                     {selectedActivities.length} SEÇİLDİ
                   </div>
                   <button 
-                    onClick={() => setStep(2)}
-                    disabled={selectedActivities.length === 0}
+                    onClick={generatePlan}
+                    disabled={selectedActivities.length === 0 || loading}
                     className="px-10 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-xl shadow-[#64ffda]/20 disabled:opacity-50 disabled:scale-100"
                   >
-                    Bölge Seçimine Geç <ChevronRight className="inline-block ml-2 w-4 h-4" />
+                    {loading ? 'Hazırlanıyor...' : 'ROTAMI OLUŞTUR'} <ChevronRight className="inline-block ml-2 w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -207,7 +202,6 @@ export default function ActivityPlannerPage() {
                     <Image src={activity.image} alt={activity.title} fill className={`object-cover transition-transform duration-700 group-hover:scale-110 ${selectedActivities.includes(activity.id) ? 'brightness-100' : 'brightness-50 group-hover:brightness-75'}`} />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-80" />
                     
-                    {/* Multi-select checkmark */}
                     <div className="absolute top-4 left-4">
                       <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
                         selectedActivities.includes(activity.id) 
@@ -218,7 +212,6 @@ export default function ActivityPlannerPage() {
                       </div>
                     </div>
 
-                    {/* Popular Badge */}
                     {activity.isPopular && (
                       <div className="absolute top-4 right-4 px-3 py-1 bg-amber-500 rounded-full text-[8px] font-black text-[#0a192f] uppercase tracking-widest shadow-lg">
                         POPÜLER
@@ -238,74 +231,8 @@ export default function ActivityPlannerPage() {
             </div>
           )}
 
-          {/* STEP 2: REGION & DETAILS */}
+          {/* STEP 2: RESULT */}
           {step === 2 && (
-            <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <div className="text-center">
-                <button onClick={() => setStep(1)} className="text-[#64ffda] text-[10px] font-black uppercase tracking-widest mb-4 hover:underline">← Yer Seçimine Geri Dön</button>
-                <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">2. Tatil Detayların</h2>
-                <p className="text-slate-500">Nerede konaklayacaksın ve kiminle geliyorsun?</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white/5 border border-white/10 p-12 rounded-[60px] backdrop-blur-xl">
-                <div className="space-y-8">
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest ml-2">Konaklama Bölgesi</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {REGIONS.map(r => (
-                        <button 
-                          key={r.id}
-                          onClick={() => setSelectedRegion(r.id)}
-                          className={`p-4 rounded-2xl border text-left transition-all ${
-                            selectedRegion === r.id ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' : 'bg-white/5 border-white/5 text-white hover:border-white/20'
-                          }`}
-                        >
-                          <span className="text-[10px] font-black uppercase tracking-tighter">{r.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-8 border-l border-white/5 md:pl-12">
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest ml-2">Grup Tipi</label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { id: 'single', label: 'Yalnız', icon: User },
-                        { id: 'couple', label: 'Çift', icon: Heart },
-                        { id: 'group', label: 'Grup', icon: Users },
-                      ].map(g => (
-                        <button 
-                          key={g.id}
-                          onClick={() => setGroupType(g.id)}
-                          className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
-                            groupType === g.id ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' : 'bg-white/5 border-white/5 text-white hover:border-white/20'
-                          }`}
-                        >
-                          <g.icon className="w-4 h-4" />
-                          <span className="text-[9px] font-black uppercase tracking-tighter">{g.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 pt-4">
-                    <button 
-                      onClick={generatePlan}
-                      disabled={loading}
-                      className="w-full py-6 bg-[#64ffda] text-[#0a192f] rounded-[32px] font-black uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all shadow-2xl shadow-[#64ffda]/30 flex items-center justify-center gap-3"
-                    >
-                      {loading ? 'Planlanıyor...' : 'TATİLİMİ OLUŞTUR'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: FINAL PLAN */}
-          {step === 3 && (
             <div className="space-y-16 animate-in fade-in duration-1000">
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-12">
                 <div className="text-left space-y-2">
@@ -319,7 +246,7 @@ export default function ActivityPlannerPage() {
                       disabled={isSaving}
                       className="px-8 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2"
                     >
-                      {isSaving ? 'Kaydediliyor...' : <><CheckCircle2 className="w-4 h-4" /> Planı Kaydet</>}
+                      {isSaving ? 'Kaydediliyor...' : <><CheckCircle2 className="w-4 h-4" /> Rotayı Kaydet</>}
                     </button>
                   ) : (
                     <button 
@@ -332,7 +259,7 @@ export default function ActivityPlannerPage() {
                   <button onClick={shareWhatsApp} className="px-6 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 flex items-center gap-2">
                     <Share2 className="w-4 h-4" /> Paylaş
                   </button>
-                  <button onClick={() => setStep(1)} className="px-6 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10">Yeni Plan</button>
+                  <button onClick={() => {setStep(1); setIsSaved(false);}} className="px-6 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10">Yeni Rota</button>
                 </div>
               </div>
 
