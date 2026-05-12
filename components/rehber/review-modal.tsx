@@ -122,10 +122,10 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
                     key={star}
                     type="button"
                     onClick={() => setRating(star)}
-                    className="transition-all hover:scale-125 p-1"
+                    className="transition-all hover:scale-125 p-1 active:scale-90"
                   >
                     <Star 
-                      className={`w-8 h-8 ${star <= rating ? 'fill-yellow-500 text-yellow-500' : 'text-slate-800'}`} 
+                      className={`w-9 h-9 ${star <= rating ? 'fill-yellow-400 text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.4)]' : 'text-white/10'}`} 
                     />
                   </button>
                 ))}
@@ -133,25 +133,25 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
             </div>
 
             {/* Public Review */}
-            <div className="space-y-2">
-              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">DENEYİMİN (HERKESE AÇIK)</label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DENEYİMİN (HERKESE AÇIK)</label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 required
                 placeholder="Neler yaşadın? Tavsiyelerin neler?"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[100px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-800 font-medium"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[120px] focus:ring-2 focus:ring-[#64ffda] outline-none transition-all placeholder:text-slate-500 font-medium"
               />
             </div>
 
             {/* Personal Note */}
-            <div className="space-y-2 pb-4">
-                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">ZAMANA NOT DÜŞ (KİŞİSEL)</label>
+            <div className="space-y-3 pb-6">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">ZAMANA NOT DÜŞ (KİŞİSEL)</label>
                 <textarea
                     value={visitNote}
                     onChange={(e) => setVisitNote(e.target.value)}
                     placeholder="O an ne hissettin? Yanında kim vardı?"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[100px] focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-800 font-medium italic border-dashed"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white text-sm min-h-[100px] focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-500 font-medium italic border-dashed"
                 />
             </div>
           </form>
