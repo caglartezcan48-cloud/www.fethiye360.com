@@ -15,7 +15,11 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Check
+  Check,
+  Calendar,
+  Trash2,
+  MapPin,
+  ChevronRight
 } from 'lucide-react'
 import { PostGridSkeleton } from '@/components/sosyal/post-skeleton'
 import Image from 'next/image'
@@ -44,6 +48,8 @@ export default function UserProfilePage() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [activeTab, setActiveTab] = useState<'posts' | 'plans'>('posts')
+  const [itineraries, setItineraries] = useState<any[]>([])
   
   // Modal State'leri
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -157,6 +163,45 @@ export default function UserProfilePage() {
       setLoading(false)
     }
   }
+
+  const fetchItineraries = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_itineraries')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setItineraries(data || [])
+    } catch (error) {
+      console.error('Planlar getirilemedi:', error)
+    }
+  }
+
+  const deleteItinerary = async (id: string) => {
+    if (!confirm('Bu planı silmek istediğine emin misin?')) return
+
+    try {
+      const { error } = await supabase
+        .from('user_itineraries')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      
+      setItineraries(prev => prev.filter(item => item.id !== id))
+      toast.success('Plan başarıyla silindi.')
+    } catch (error) {
+      toast.error('Plan silinemedi.')
+    }
+  }
+
+  useEffect(() => {
+    if (user) {
+      fetchItineraries(user.id)
+    }
+  }, [user])
 
   const togglePrivacy = async () => {
     try {
@@ -363,38 +408,113 @@ export default function UserProfilePage() {
           </div>
         </section>
 
-        {/* Posts Grid */}
+        {/* Tabs Grid */}
         <div className="border-t border-white/5 pt-8">
           <div className="flex items-center justify-center gap-16 mb-12 font-black text-[10px] uppercase tracking-[0.3em]">
-            <button className="flex items-center gap-3 text-[#64ffda] relative py-3">
+            <button 
+              onClick={() => setActiveTab('posts')}
+              className={`flex items-center gap-3 relative py-3 transition-all ${activeTab === 'posts' ? 'text-[#64ffda]' : 'text-slate-500 hover:text-white'}`}
+            >
               <Grid className="w-4 h-4" /> Gönderiler
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#64ffda] rounded-full" />
+              {activeTab === 'posts' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#64ffda] rounded-full" />}
+            </button>
+            <button 
+              onClick={() => setActiveTab('plans')}
+              className={`flex items-center gap-3 relative py-3 transition-all ${activeTab === 'plans' ? 'text-[#64ffda]' : 'text-slate-500 hover:text-white'}`}
+            >
+              <Calendar className="w-4 h-4" /> Planlarım
+              {activeTab === 'plans' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#64ffda] rounded-full" />}
             </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-1 md:gap-6">
-            <button onClick={() => router.push('/sosyal/yukle')} className="aspect-square bg-[#112240]/50 rounded-2xl md:rounded-[48px] border-2 border-dashed border-white/5 flex flex-col items-center justify-center gap-4 text-slate-500 hover:text-[#64ffda] transition-all group">
-              <div className="w-14 h-14 rounded-[24px] bg-white/5 flex items-center justify-center group-hover:scale-110 transition-all">
-                <Plus className="w-8 h-8" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] hidden md:block">Yeni Paylaşım</span>
-            </button>
-
-            {posts.map((post) => (
-              <div 
-                key={post.id} 
-                onClick={() => router.push(`/sosyal/post/${post.id}`)}
-                className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
-              >
-                <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
-
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-8">
-                  <div className="flex flex-col items-center gap-1 text-white font-black"><Heart className="w-7 h-7 fill-[#64ffda] text-[#64ffda]" /> {post.post_likes?.length || 0}</div>
-                  <div className="flex flex-col items-center gap-1 text-white font-black"><MessageSquare className="w-7 h-7 fill-white" /> {post.post_comments?.length || 0}</div>
+          {activeTab === 'posts' ? (
+            <div className="grid grid-cols-3 gap-1 md:gap-6">
+              <button onClick={() => router.push('/sosyal/yukle')} className="aspect-square bg-[#112240]/50 rounded-2xl md:rounded-[48px] border-2 border-dashed border-white/5 flex flex-col items-center justify-center gap-4 text-slate-500 hover:text-[#64ffda] transition-all group">
+                <div className="w-14 h-14 rounded-[24px] bg-white/5 flex items-center justify-center group-hover:scale-110 transition-all">
+                  <Plus className="w-8 h-8" />
                 </div>
-              </div>
-            ))}
-          </div>
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] hidden md:block">Yeni Paylaşım</span>
+              </button>
+
+              {posts.map((post) => (
+                <div 
+                  key={post.id} 
+                  onClick={() => router.push(`/sosyal/post/${post.id}`)}
+                  className="group relative aspect-square bg-[#112240] rounded-2xl md:rounded-[48px] overflow-hidden cursor-pointer active:scale-95 transition-transform"
+                >
+                  <Image src={post.image_url} alt="Post" fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
+
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-8">
+                    <div className="flex flex-col items-center gap-1 text-white font-black"><Heart className="w-7 h-7 fill-[#64ffda] text-[#64ffda]" /> {post.post_likes?.length || 0}</div>
+                    <div className="flex flex-col items-center gap-1 text-white font-black"><MessageSquare className="w-7 h-7 fill-white" /> {post.post_comments?.length || 0}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {itineraries.length === 0 ? (
+                <div className="col-span-full py-20 text-center space-y-4">
+                  <div className="w-20 h-20 bg-white/5 rounded-[32px] flex items-center justify-center mx-auto">
+                    <Calendar className="w-10 h-10 text-slate-500" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-slate-400 font-medium italic">Henüz bir tatil planı oluşturmamışsın.</p>
+                    <button onClick={() => router.push('/aktivite-planla')} className="text-[#64ffda] text-[10px] font-black uppercase tracking-widest hover:underline">Şimdi Oluştur →</button>
+                  </div>
+                </div>
+              ) : (
+                itineraries.map((plan) => (
+                  <div key={plan.id} className="group bg-white/5 border border-white/10 rounded-[40px] p-8 hover:bg-white/10 transition-all relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#64ffda]/10 transition-all" />
+                    
+                    <div className="relative space-y-6">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <h3 className="text-xl font-black text-white uppercase italic tracking-tighter leading-tight">{plan.title}</h3>
+                          <div className="flex items-center gap-2 text-[#64ffda] text-[10px] font-black uppercase tracking-widest">
+                            <MapPin className="w-3 h-3" /> {plan.region} • {plan.group_type === 'couple' ? 'Çift' : plan.group_type === 'single' ? 'Yalnız' : 'Grup'}
+                          </div>
+                        </div>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            deleteItinerary(plan.id)
+                          }}
+                          className="p-3 bg-red-500/10 text-red-500 rounded-2xl hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="flex gap-2 overflow-hidden">
+                        {plan.activities?.[0]?.activities?.slice(0, 3).map((act: any, idx: number) => (
+                          <div key={idx} className="relative w-16 h-16 rounded-2xl overflow-hidden border border-white/10">
+                            <Image src={act.image} alt={act.title} fill className="object-cover" />
+                          </div>
+                        ))}
+                        {plan.activities?.length > 1 && (
+                          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-slate-500">
+                            +{plan.activities.length - 1} GÜN
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                        <span className="text-[10px] text-slate-500 font-medium italic">{new Date(plan.created_at).toLocaleDateString('tr-TR')}</span>
+                        <button 
+                          onClick={() => router.push(`/plan/${plan.id}`)}
+                          className="flex items-center gap-2 text-white text-[10px] font-black uppercase tracking-widest hover:text-[#64ffda] transition-all"
+                        >
+                          Detaylar <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* Edit Modal */}

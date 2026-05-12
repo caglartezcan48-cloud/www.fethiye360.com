@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
+import { useRouter } from 'next/navigation'
 import { 
   Sparkles, 
   MapPin, 
@@ -11,17 +12,12 @@ import {
   ChevronRight, 
   CheckCircle2, 
   Share2, 
-  Clock,
-  Heart,
-  Plus,
-  Trash2,
-  Calendar,
   Zap,
   Coffee,
-  Gem,
   Waves,
   History,
-  Navigation
+  Navigation,
+  Heart
 } from 'lucide-react'
 import Image from 'next/image'
 import { ALL_ACTIVITIES, REGIONS } from '@/lib/planner-data'
@@ -35,8 +31,11 @@ export default function ActivityPlannerPage() {
   const [selectedRegion, setSelectedRegion] = useState('merkez')
   const [groupType, setGroupType] = useState('couple')
   const [finalPlan, setFinalPlan] = useState<any[]>([])
+  const router = useRouter()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
 
   const supabase = createClient()
 
@@ -70,7 +69,11 @@ export default function ActivityPlannerPage() {
     }
     setLoading(true)
     
-    const selectedData = ALL_ACTIVITIES.filter(a => selectedActivities.includes(a.id))
+    // Akıllı Gruplama: Önce lokasyona göre sırala ki yakın yerler aynı güne denk gelsin
+    const selectedData = ALL_ACTIVITIES
+      .filter(a => selectedActivities.includes(a.id))
+      .sort((a, b) => a.location.localeCompare(b.location))
+
     const days = []
     const itemsPerDay = 3
     
@@ -89,6 +92,52 @@ export default function ActivityPlannerPage() {
     }, 1200)
   }
 
+  const getTransportTip = () => {
+    const locations = ALL_ACTIVITIES.filter(a => selectedActivities.includes(a.id)).map(a => a.location)
+    const hasFarPlaces = locations.some(l => ['Faralya', 'Seydikemer', 'Antalya', 'Yaka'].includes(l))
+    
+    if (hasFarPlaces) return "Seçtiğiniz bazı noktalar merkeze uzak (Faralya, Seydikemer vb.). Bu rota için araç kiralamanızı veya şahsi aracınızı kullanmanızı öneririz."
+    if (selectedRegion === 'merkez') return "Rotanızdaki yerlerin çoğu merkeze yakın. Dolmuş ve sahil yolu yürüyüş parkurlarını kullanarak rahatça gezebilirsiniz."
+    return "Fethiye genelinde dolmuş seferleri oldukça düzenlidir, ancak daha fazla özgürlük için motosiklet veya araç kiralama iyi bir seçenek olabilir."
+  }
+
+  const savePlan = async () => {
+    if (!user) {
+      toast.error('Planı kaydetmek için giriş yapmalısınız.')
+      return
+    }
+
+    try {
+      setIsSaving(true)
+      const { data, error } = await supabase
+        .from('user_itineraries')
+        .insert([{
+          user_id: user.id,
+          title: `Fethiye Tatil Planım (${new Date().toLocaleDateString('tr-TR')})`,
+          activities: finalPlan,
+          region: selectedRegion,
+          group_type: groupType
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setIsSaved(true)
+      toast.success('Planınız başarıyla profilinize kaydedildi! 🌴')
+    } catch (error) {
+      console.error(error)
+      toast.error('Plan kaydedilirken bir hata oluştu.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const shareWhatsApp = () => {
+    const text = `Fethiye360 ile harika bir tatil planı oluşturdum! 🌴\n\nSenin için ideal rotayı keşfet: ${window.location.origin}/aktivite-planla`
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
@@ -102,16 +151,7 @@ export default function ActivityPlannerPage() {
       <section className="relative pt-40 pb-32 px-6">
         <div className="max-w-7xl mx-auto space-y-16">
           
-          {/* Header */}
-          <div className="text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl">
-              <Sparkles className="w-4 h-4 text-[#64ffda]" />
-              <span className="text-white text-xs font-black uppercase tracking-[0.3em]">Smart Travel Designer</span>
-            </div>
-            <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none">
-              Tatilini <span className="text-[#64ffda]">Tasla</span>
-            </h1>
-          </div>
+          {/* Header kaldırıldı */}
 
           {/* STEP 1: COMPREHENSIVE SELECTION */}
           {step === 1 && (
@@ -272,7 +312,48 @@ export default function ActivityPlannerPage() {
                   <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">Senin <span className="text-[#64ffda]">Fethiye Rotan</span></h2>
                   <p className="text-slate-500 font-medium italic">Seçtiğin {selectedActivities.length} özel nokta için en ideal sıralama.</p>
                 </div>
-                <button onClick={() => setStep(1)} className="px-8 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10">Yeni Plan Yap</button>
+                <div className="flex items-center gap-4">
+                  {!isSaved ? (
+                    <button 
+                      onClick={savePlan}
+                      disabled={isSaving}
+                      className="px-8 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2"
+                    >
+                      {isSaving ? 'Kaydediliyor...' : <><CheckCircle2 className="w-4 h-4" /> Planı Kaydet</>}
+                    </button>
+                  ) : (
+                    <button 
+                      disabled
+                      className="px-8 py-4 bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center gap-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" /> Kaydedildi
+                    </button>
+                  )}
+                  <button onClick={shareWhatsApp} className="px-6 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 flex items-center gap-2">
+                    <Share2 className="w-4 h-4" /> Paylaş
+                  </button>
+                  <button onClick={() => setStep(1)} className="px-6 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10">Yeni Plan</button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                <div className="bg-white/5 border border-[#64ffda]/20 p-8 rounded-[40px] space-y-4">
+                  <div className="flex items-center gap-3 text-[#64ffda]">
+                    <Navigation className="w-5 h-5" />
+                    <span className="text-xs font-black uppercase tracking-widest">Ulaşım İpucu</span>
+                  </div>
+                  <p className="text-slate-300 text-sm leading-relaxed">{getTransportTip()}</p>
+                </div>
+                <div className="bg-white/5 border border-blue-500/20 p-8 rounded-[40px] space-y-4">
+                  <div className="flex items-center gap-3 text-blue-400">
+                    <Coffee className="w-5 h-5" />
+                    <span className="text-xs font-black uppercase tracking-widest">Gastronomi Tavsiyesi</span>
+                  </div>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    Bu rota üzerindeki duraklarda acıktığınızda yerel balık pazarlarını veya sahil restoranlarını deneyebilirsiniz. 
+                    <button onClick={() => router.push('/isletmeler')} className="text-[#64ffda] ml-1 hover:underline">Restoranları Keşfet →</button>
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-24">
@@ -291,12 +372,23 @@ export default function ActivityPlannerPage() {
                               {act.category}
                             </div>
                           </div>
-                          <div className="p-8 space-y-4">
-                            <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
-                              <MapPin className="w-3 h-3" /> {act.location}
+                          <div className="p-8 space-y-6">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
+                                <MapPin className="w-3 h-3" /> {act.location}
+                              </div>
+                              <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
+                              <p className="text-slate-400 text-sm leading-relaxed font-medium">"{act.description}"</p>
                             </div>
-                            <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
-                            <p className="text-slate-400 text-sm leading-relaxed font-medium">"{act.description}"</p>
+                            
+                            <a 
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.title + ' Fethiye')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-[#64ffda] transition-all group/btn"
+                            >
+                              Yol Tarifi Al <Navigation className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                            </a>
                           </div>
                         </div>
                       ))}
