@@ -18,10 +18,11 @@ import Link from 'next/link'
 import { BottomNav } from '@/components/sosyal/bottom-nav'
 import { toast } from 'sonner'
 
+const supabase = createClient()
+
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
   const router = useRouter()
 
   useEffect(() => {

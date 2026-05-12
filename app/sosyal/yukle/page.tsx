@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
+const supabase = createClient()
+
 function UploadContent() {
   const searchParams = useSearchParams()
   const initialType = searchParams.get('type') === 'story' ? 'story' : 'post'
@@ -59,7 +61,6 @@ function UploadContent() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const supabase = createClient()
   const router = useRouter()
 
   const checkAuth = async () => {
