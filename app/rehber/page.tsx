@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { ALL_ACTIVITIES } from '@/lib/planner-data'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
 import { MapPin, Sparkles, ChevronRight, Camera, Star } from 'lucide-react'
@@ -10,11 +11,21 @@ export const dynamic = 'force-dynamic'
 export default async function GuidePage() {
   const supabase = await createClient()
   
-  const { data: destinations } = await supabase
+  // Veritabanındaki aktif yerleri de kontrol edelim (Yorumlar vb. için ID eşleşmesi gerekebilir)
+  const { data: dbDestinations } = await supabase
     .from('destinations')
-    .select('*')
+    .select('id, slug, title')
     .eq('is_active', true)
-    .order('created_at', { ascending: false })
+
+  const destinations = ALL_ACTIVITIES.map(activity => {
+    const dbMatch = dbDestinations?.find(d => d.slug === activity.id || d.title.toLowerCase() === activity.title.toLowerCase())
+    return {
+      ...activity,
+      id: dbMatch?.id || activity.id,
+      slug: activity.id, // Planner ID'lerini slug olarak kullanıyoruz
+      main_image: activity.image,
+    }
+  })
 
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">

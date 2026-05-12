@@ -43,18 +43,31 @@ export default async function DestinationDetailPage({ params }: Props) {
   if (!slug) notFound()
 
   const supabase = await createClient()
-  const { data: dest, error } = await supabase.from('destinations').select('*').eq('slug', slug).single()
-
-  if (error || !dest) notFound()
+  const { data: dbDest, error } = await supabase.from('destinations').select('*').eq('slug', slug).single()
 
   // Planner verisinden daha zengin açıklamayı çek
   const enrichedData = ALL_ACTIVITIES.find(a => 
     a.id === slug || 
     a.id.replace(/-/g, '') === slug.replace(/-/g, '') ||
-    a.title.toLowerCase() === dest.title.toLowerCase()
+    a.title.toLowerCase() === dbDest?.title?.toLowerCase()
   )
-  const displayDescription = enrichedData?.description || dest.description
-  const displayHistory = enrichedData?.description && enrichedData.description.length > 100 ? enrichedData.description : dest.history
+
+  // Ne DB'de ne de Planner'da yoksa 404
+  if (!dbDest && !enrichedData) notFound()
+
+  // Veri önceliği: Enriched > DB
+  const dest = {
+    id: dbDest?.id || enrichedData?.id || 'temp-id',
+    title: enrichedData?.title || dbDest?.title || 'İsimsiz Konum',
+    description: enrichedData?.description || dbDest?.description || '',
+    history: enrichedData?.description && enrichedData.description.length > 100 ? enrichedData.description : (dbDest?.history || ''),
+    main_image: enrichedData?.image || dbDest?.main_image || 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800',
+    category: enrichedData?.category || dbDest?.category || 'Genel',
+    gallery: dbDest?.gallery || [],
+  }
+
+  const displayDescription = dest.description
+  const displayHistory = dest.history
 
   const { data: comments } = await supabase
     .from('destination_comments')
