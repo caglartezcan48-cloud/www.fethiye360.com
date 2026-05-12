@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { 
   Plus, 
@@ -14,18 +14,25 @@ import {
   Loader2,
   Sparkles,
   Link as LinkIcon,
-  X
+  X,
+  Upload
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
 import Link from 'next/link'
+import { compressImage } from '@/lib/utils'
 
 export default function AdminDestinationsPage() {
   const [destinations, setDestinations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   
+  const mainImageInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState<number | null>(null)
+
   // Gallery management state
   const [galleryItems, setGalleryItems] = useState<string[]>([])
 
@@ -52,6 +59,41 @@ export default function AdminDestinationsPage() {
     const { data } = await supabase.from('destinations').select('*').order('created_at', { ascending: false })
     setDestinations(data || [])
     setLoading(false)
+  }
+
+  const handleUpload = async (file: File, target: 'main' | 'gallery', index?: number) => {
+    setUploading(true)
+    try {
+      const compressedFile = await compressImage(file)
+      const fileExt = file.name.split('.').pop()
+      const fileName = `dest_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = `destinations/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('tour-images')
+        .upload(filePath, compressedFile)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('tour-images')
+        .getPublicUrl(filePath)
+
+      if (target === 'main') {
+        setFormData(prev => ({ ...prev, main_image: publicUrl }))
+        toast.success('Ana görsel yüklendi!')
+      } else if (target === 'gallery' && index !== undefined) {
+        const newItems = [...galleryItems]
+        newItems[index] = publicUrl
+        setGalleryItems(newItems)
+        toast.success('Galeri görseli yüklendi!')
+      }
+    } catch (err) {
+      toast.error('Görsel yüklenirken bir hata oluştu')
+      console.error(err)
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -213,13 +255,36 @@ export default function AdminDestinationsPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ana Görsel URL</label>
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ana Görsel</label>
                     <input 
-                      required
-                      value={formData.main_image}
-                      onChange={e => setFormData({...formData, main_image: e.target.value})}
-                      className="w-full bg-[#0a192f] border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-[#64ffda] outline-none"
+                      type="file"
+                      ref={mainImageInputRef}
+                      onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0], 'main')}
+                      className="hidden"
+                      accept="image/*"
                     />
+                    <div className="relative group">
+                      <input 
+                        required
+                        value={formData.main_image}
+                        onChange={e => setFormData({...formData, main_image: e.target.value})}
+                        className="w-full bg-[#0a192f] border border-white/10 rounded-2xl p-4 text-white focus:ring-1 focus:ring-[#64ffda] outline-none pr-12"
+                        placeholder="Görsel URL veya yükleyin..."
+                      />
+                      <button 
+                        type="button"
+                        disabled={uploading}
+                        onClick={() => mainImageInputRef.current?.click()}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-[#64ffda] text-[#0a192f] rounded-xl hover:scale-110 transition-all disabled:opacity-50"
+                      >
+                        {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {formData.main_image && (
+                      <div className="mt-2 relative h-32 w-full rounded-2xl overflow-hidden border border-white/5">
+                        <img src={formData.main_image} alt="Önizleme" className="w-full h-full object-cover" />
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Kısa Açıklama</label>
@@ -259,9 +324,21 @@ export default function AdminDestinationsPage() {
                       onClick={addGalleryItem}
                       className="flex items-center gap-2 text-[#64ffda] text-[10px] font-black uppercase hover:underline"
                     >
-                      <Plus className="w-3 h-3" /> Yeni Fotoğraf Ekle
+                      <Plus className="w-3 h-3" /> Yeni Alan Ekle
                     </button>
                   </div>
+
+                  <input 
+                    type="file"
+                    ref={galleryInputRef}
+                    onChange={e => {
+                      if (e.target.files?.[0] && activeGalleryIndex !== null) {
+                        handleUpload(e.target.files[0], 'gallery', activeGalleryIndex)
+                      }
+                    }}
+                    className="hidden"
+                    accept="image/*"
+                  />
 
                   <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                     {galleryItems.map((item, index) => (
@@ -279,18 +356,29 @@ export default function AdminDestinationsPage() {
                           </button>
                         </div>
                         <div className="flex gap-4">
-                          <div className="w-20 h-20 bg-white/5 rounded-xl overflow-hidden shrink-0 border border-white/5">
-                            {item ? <img src={item} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-6 h-6 text-slate-800" /></div>}
+                          <div 
+                            onClick={() => {
+                              setActiveGalleryIndex(index)
+                              galleryInputRef.current?.click()
+                            }}
+                            className="w-20 h-20 bg-white/5 rounded-xl overflow-hidden shrink-0 border border-white/5 cursor-pointer hover:border-[#64ffda] transition-all relative group"
+                          >
+                            {item ? <img src={item} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Upload className="w-6 h-6 text-slate-800 group-hover:text-[#64ffda]" /></div>}
+                            {uploading && activeGalleryIndex === index && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <Loader2 className="w-6 h-6 animate-spin text-[#64ffda]" />
+                              </div>
+                            )}
                           </div>
                           <div className="flex-1 space-y-1">
-                            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Görsel URL</label>
+                            <label className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Görsel URL veya Yükle</label>
                             <div className="flex items-center gap-2">
                               <LinkIcon className="w-3 h-3 text-slate-700" />
                               <input 
                                 value={item}
                                 onChange={e => updateGalleryItem(index, e.target.value)}
                                 className="w-full bg-transparent border-none p-0 text-white text-xs outline-none focus:text-[#64ffda]"
-                                placeholder="https://unsplash.com/..."
+                                placeholder="Görsel linkini buraya yapıştırın..."
                               />
                             </div>
                           </div>
