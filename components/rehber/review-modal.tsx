@@ -39,10 +39,34 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
 
     try {
       setIsSubmitting(true)
-      console.log('Kayit baslatiliyor...', { destinationId, userId, rating })
+      let finalId = destinationId
+
+      // Eger destinationId bir UUID degilse (slug gelmisse), resolve et
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(destinationId)
+      
+      if (!isUuid) {
+        console.log('ID bir UUID degil, slug üzerinden cozuluyor:', destinationId)
+        const { data: dest } = await supabase
+          .from('destinations')
+          .select('id')
+          .or(`slug.eq.${destinationId},title.ilike.${destinationId}`)
+          .maybeSingle()
+        
+        if (dest?.id) {
+          finalId = dest.id
+          console.log('Gercek ID bulundu:', finalId)
+        } else {
+          console.error('Mekan veritabaninda bulunamadi:', destinationId)
+          toast.error('Mekan bilgisi doğrulanamadı. Lütfen tekrar deneyin.')
+          setIsSubmitting(false)
+          return
+        }
+      }
+
+      console.log('Kayit baslatiliyor...', { finalId, userId, rating })
       
       const { error: reviewError } = await supabase.from('destination_comments').insert([{
-        destination_id: destinationId,
+        destination_id: finalId,
         user_id: userId,
         comment: comment,
         rating: rating,
