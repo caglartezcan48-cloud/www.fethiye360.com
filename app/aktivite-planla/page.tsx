@@ -45,6 +45,18 @@ export default function ActivityPlannerPage() {
   useEffect(() => {
     const fetchData = async () => {
       const { data: { user: authUser } } = await supabase.auth.getUser()
+      
+      if (!authUser) {
+        toast.info('Liste oluşturmak için önce giriş yapmalısınız. Giriş sayfasına yönlendiriliyorsunuz...', {
+          duration: 3000,
+          position: 'top-center'
+        })
+        setTimeout(() => {
+          router.push('/giris?returnTo=/aktivite-planla')
+        }, 2000)
+        return
+      }
+
       setUser(authUser)
 
       const { data: dbData } = await supabase.from('destinations').select('*').eq('is_active', true)

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { LogIn, Phone, Lock, Loader2, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -16,13 +16,15 @@ export default function UnifiedLoginPage() {
   
   const supabase = createClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const returnTo = searchParams.get('returnTo')
 
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/callback${returnTo ? `?next=${encodeURIComponent(returnTo)}` : ''}`
         }
       })
       if (error) throw error
@@ -53,6 +55,12 @@ export default function UnifiedLoginPage() {
     }
 
     if (data.user) {
+      if (returnTo) {
+        router.push(returnTo)
+        router.refresh()
+        return
+      }
+
       const { data: business } = await supabase
         .from('businesses')
         .select('id')
