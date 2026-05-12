@@ -12,6 +12,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { DestinationGallery } from '@/components/rehber/destination-gallery'
 import { DestinationComments } from '@/components/rehber/destination-comments'
+import { ALL_ACTIVITIES } from '@/lib/planner-data'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -36,6 +37,11 @@ export default async function DestinationDetailPage({ params }: Props) {
   const { data: dest, error } = await supabase.from('destinations').select('*').eq('slug', slug).single()
 
   if (error || !dest) notFound()
+
+  // Planner verisinden daha zengin açıklamayı çek
+  const enrichedData = ALL_ACTIVITIES.find(a => a.id === slug || a.title.toLowerCase() === dest.title.toLowerCase())
+  const displayDescription = enrichedData?.description || dest.description
+  const displayHistory = enrichedData?.description && enrichedData.description.length > 100 ? enrichedData.description : dest.history
 
   const { data: comments } = await supabase
     .from('destination_comments')
@@ -83,7 +89,7 @@ export default async function DestinationDetailPage({ params }: Props) {
             <Sparkles className="w-6 h-6 text-[#64ffda]/20" />
           </div>
           <p className="text-xl md:text-2xl text-slate-300 font-light leading-relaxed text-center italic opacity-80">
-            "{dest.description}"
+            "{displayDescription}"
           </p>
         </div>
 
@@ -98,7 +104,7 @@ export default async function DestinationDetailPage({ params }: Props) {
               Zamanın Ötesinde <span className="text-[#64ffda]/60">{dest.title}</span>
             </h2>
             <p className="text-slate-400 leading-relaxed text-lg font-light first-letter:text-5xl first-letter:font-black first-letter:text-[#64ffda] first-letter:mr-3 first-letter:float-left">
-              {dest.history}
+              {displayHistory}
             </p>
           </div>
         </div>
