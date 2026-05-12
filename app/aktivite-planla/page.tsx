@@ -62,6 +62,11 @@ export default function ActivityPlannerPage() {
     )
   }
 
+  const selectAll = () => {
+    setSelectedActivities(ALL_ACTIVITIES.map(a => a.id))
+    setActiveTab('all')
+  }
+
   const generatePlan = () => {
     if (selectedActivities.length === 0) {
       toast.error('Lütfen en az bir yer seçin.')
@@ -175,7 +180,7 @@ export default function ActivityPlannerPage() {
                 {categories.map(cat => (
                   <button
                     key={cat.id}
-                    onClick={() => setActiveTab(cat.id)}
+                    onClick={() => cat.id === 'all' ? selectAll() : setActiveTab(cat.id)}
                     className={`flex items-center gap-3 px-6 py-3 rounded-full border whitespace-nowrap transition-all text-[10px] font-black tracking-widest uppercase ${
                       activeTab === cat.id 
                         ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' 
