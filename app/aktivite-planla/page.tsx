@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { 
   Sparkles, 
   MapPin, 
