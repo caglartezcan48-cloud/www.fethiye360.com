@@ -190,9 +190,13 @@ export default function SharedPlanPage() {
                 <Navigation className="w-6 h-6 text-amber-500" />
               </div>
               <div>
-                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Toplam Nokta</p>
+                <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Toplam Durak</p>
                 <p className="text-white font-black uppercase italic">
-                  {plan.activities.reduce((acc: number, curr: any) => acc + curr.activities.length, 0)} Durak
+                  {Array.isArray(plan.activities) 
+                    ? (plan.activities[0]?.activities 
+                        ? plan.activities.reduce((acc: number, curr: any) => acc + (curr.activities?.length || 0), 0)
+                        : plan.activities.length)
+                    : 0} Durak
                 </p>
               </div>
             </div>
@@ -214,48 +218,70 @@ export default function SharedPlanPage() {
               </div>
               <p className="text-slate-300 text-sm leading-relaxed">
                 Bu rota üzerindeki duraklarda acıktığınızda yerel balık pazarlarını veya sahil restoranlarını deneyebilirsiniz. 
-                Fethiye360 işletmeler rehberine göz atmayı unutmayın!
-              </p>
-            </div>
-          </div>
-
-          {/* Itinerary Steps */}
-          <div className="space-y-24">
-            {plan.activities.map((day: any) => (
-              <div key={day.day} className="space-y-10">
-                <div className="flex items-center gap-4">
-                  <div className="px-8 py-2 bg-[#64ffda] text-[#0a192f] rounded-full font-black uppercase tracking-widest text-[10px]">GÜN {day.day}</div>
-                  <div className="h-px flex-1 bg-white/5" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {day.activities.map((act: any, i: number) => (
-                    <div key={i} className="group bg-white/5 border border-white/5 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all border-b-4 border-b-[#64ffda]/20">
-                      <div className="relative h-64 w-full">
-                        <Image src={act.image} alt={act.title} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
-                        <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[8px] text-white font-black uppercase tracking-widest">
-                          {act.category}
-                        </div>
-                      </div>
-                      <div className="p-8 space-y-6">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
-                            <MapPin className="w-3 h-3" /> {act.location}
-                          </div>
-                          <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
-                          <p className="text-slate-400 text-sm leading-relaxed font-medium">"{act.description}"</p>
-                        </div>
-
-                        <a 
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.title + ' Fethiye')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-[#64ffda] transition-all group/btn"
-                        >
-                          Yol Tarifi Al <Navigation className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                        </a>
+                Fethiye360 işletmeler rehberine göz           {/* Itinerary Steps */}
+          <div className="space-y-12">
+            {!plan.activities[0]?.activities ? (
+              // Düz Liste Görünümü
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {plan.activities.map((act: any, i: number) => (
+                  <div key={i} className="group bg-white/5 border border-white/5 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all border-b-4 border-b-[#64ffda]/20">
+                    <div className="relative h-64 w-full">
+                      <Image src={act.image} alt={act.title} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
+                      <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[8px] text-white font-black uppercase tracking-widest">
+                        {act.category}
                       </div>
                     </div>
-                  ))}
+                    <div className="p-8 space-y-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
+                          <MapPin className="w-3 h-3" /> {act.location}
+                        </div>
+                        <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
+                      </div>
+                      <a 
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(act.title + ' Fethiye')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/50 hover:text-[#64ffda] transition-all group/btn"
+                      >
+                        Yol Tarifi Al <Navigation className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Günlere Bölünmüş Görünüm (Eski Model)
+              plan.activities.map((day: any) => (
+                <div key={day.day} className="space-y-10">
+                  <div className="flex items-center gap-4">
+                    <div className="px-8 py-2 bg-[#64ffda] text-[#0a192f] rounded-full font-black uppercase tracking-widest text-[10px]">GÜN {day.day}</div>
+                    <div className="h-px flex-1 bg-white/5" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {day.activities.map((act: any, i: number) => (
+                      <div key={i} className="group bg-white/5 border border-white/5 rounded-[40px] overflow-hidden hover:bg-white/10 transition-all border-b-4 border-b-[#64ffda]/20">
+                        <div className="relative h-64 w-full">
+                          <Image src={act.image} alt={act.title} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
+                          <div className="absolute top-4 left-4 px-3 py-1 bg-black/40 backdrop-blur-md rounded-full text-[8px] text-white font-black uppercase tracking-widest">
+                            {act.category}
+                          </div>
+                        </div>
+                        <div className="p-8 space-y-6">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-[#64ffda] text-[9px] font-black uppercase tracking-widest">
+                              <MapPin className="w-3 h-3" /> {act.location}
+                            </div>
+                            <h4 className="text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">{act.title}</h4>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
                 </div>
               </div>
             ))}
