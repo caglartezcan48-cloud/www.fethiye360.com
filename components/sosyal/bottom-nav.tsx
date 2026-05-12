@@ -23,8 +23,8 @@ export function BottomNav() {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] px-6 pb-8 md:pb-10 pointer-events-none">
-      <nav className="max-w-lg mx-auto bg-[#0a192f]/80 backdrop-blur-2xl border border-white/10 rounded-[32px] p-2 flex items-center justify-around shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto ring-1 ring-white/5">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] px-6 pb-3 md:pb-6 pointer-events-none">
+      <nav className="max-w-md mx-auto bg-[#0a192f]/80 backdrop-blur-2xl border border-white/10 rounded-[24px] p-1.5 flex items-center justify-around shadow-[0_20px_50px_rgba(0,0,0,0.5)] pointer-events-auto ring-1 ring-white/5">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
@@ -33,17 +33,17 @@ export function BottomNav() {
             <Link 
               key={item.href} 
               href={item.href}
-              className={`relative flex flex-col items-center p-3 rounded-2xl transition-all duration-300 group ${isActive ? 'text-[#64ffda]' : 'text-slate-500 hover:text-white'}`}
+              className={`relative flex flex-col items-center p-2 rounded-xl transition-all duration-300 group ${isActive ? 'text-[#64ffda]' : 'text-slate-500 hover:text-white'}`}
             >
               {item.special ? (
-                <div className="w-12 h-12 bg-gradient-to-br from-[#64ffda] to-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-[#64ffda]/20 group-hover:scale-110 group-active:scale-95 transition-all -translate-y-2 border-4 border-[#0a192f]">
-                  <Icon className="w-6 h-6 text-[#0a192f]" />
+                <div className="w-10 h-10 bg-gradient-to-br from-[#64ffda] to-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-[#64ffda]/20 group-hover:scale-110 group-active:scale-95 transition-all -translate-y-1.5 border-[3px] border-[#0a192f]">
+                  <Icon className="w-5 h-5 text-[#0a192f]" />
                 </div>
               ) : (
                 <>
-                  <Icon className={`w-6 h-6 ${isActive ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} />
+                  <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : 'group-hover:scale-110'} transition-transform`} />
                   {isActive && (
-                    <div className="absolute -bottom-1 w-1 h-1 bg-[#64ffda] rounded-full shadow-[0_0_8px_#64ffda]" />
+                    <div className="absolute -bottom-0.5 w-1 h-1 bg-[#64ffda] rounded-full shadow-[0_0_8px_#64ffda]" />
                   )}
                 </>
               )}

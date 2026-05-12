@@ -70,7 +70,7 @@ export const ReviewModal = ({ destinationId, destinationTitle, onClose }: Review
   }
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-start justify-center p-2 pt-12 md:pt-20">
+    <div className="fixed inset-0 z-[200] flex items-start justify-center p-2 pt-2 md:pt-6">
       <div className="absolute inset-0 bg-[#0a192f]/98 backdrop-blur-md" onClick={onClose} />
       
       <div className="relative w-full max-sm:max-w-[320px] max-w-sm bg-[#112240] border border-white/10 rounded-[32px] shadow-2xl animate-in slide-in-from-top-10 duration-500 overflow-hidden flex flex-col h-[50vh] min-h-[380px]">
