@@ -82,42 +82,68 @@ export default async function DestinationDetailPage({ params }: Props) {
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
       
-      {/* CLEAN HERO - No Gap with Header */}
-      <section className="relative h-[65vh] w-full overflow-hidden -mt-20">
-        <Image src={dest.main_image} alt={dest.title} fill className="object-cover scale-100" priority />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60" />
+      <section className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden">
+        <Image 
+          src={dest.main_image} 
+          alt={dest.title}
+          fill
+          className="object-cover scale-105"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-[#0a192f]/20 to-[#0a192f]/60" />
         
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-20 animate-bounce">
-          <ChevronDown className="w-6 h-6 text-white" />
+        {/* Content Overlay */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10 mt-12">
+          <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 space-y-4">
+            <div className="flex items-center justify-center gap-3">
+              <span className="h-px w-6 bg-[#64ffda]/50" />
+              <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.4em]">{dest.category}</span>
+              <span className="h-px w-6 bg-[#64ffda]/50" />
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic leading-none drop-shadow-2xl">
+              {dest.title}
+            </h1>
+            <div className="flex items-center justify-center gap-2 text-[#64ffda] text-[10px] font-black uppercase tracking-[0.2em] bg-[#0a192f]/40 backdrop-blur-md px-4 py-2 rounded-full w-fit mx-auto">
+              <MapPin className="w-3 h-3" /> FETHİYE / MUĞLA
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Overlay */}
+        <div className="absolute top-0 left-0 right-0 p-8 flex justify-between items-center z-20">
+          <Link 
+            href="/rehber"
+            className="group flex items-center gap-3 text-white/70 hover:text-[#64ffda] transition-all"
+          >
+            <div className="p-3 bg-[#0a192f]/60 backdrop-blur-xl rounded-2xl group-hover:scale-110 transition-all border border-white/5">
+              <ArrowLeft className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest hidden md:block">Rehbere Dön</span>
+          </Link>
+          
+          <div className="flex gap-3">
+            <button className="p-4 bg-[#0a192f]/60 backdrop-blur-xl rounded-2xl text-white/70 hover:text-[#64ffda] border border-white/5 transition-all hover:scale-110">
+              <Share2 className="w-5 h-5" />
+            </button>
+            <button className="p-4 bg-[#0a192f]/60 backdrop-blur-xl rounded-2xl text-white/70 hover:text-[#64ffda] border border-white/5 transition-all hover:scale-110">
+              <Bookmark className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </section>
 
-      <section className="max-w-4xl mx-auto px-6 py-12 space-y-16">
+      <section className="max-w-4xl mx-auto px-6 py-12 space-y-12">
         
-        {/* Title & Category */}
-        <div className="space-y-4 text-center">
-          <div className="flex items-center justify-center gap-3">
-            <span className="h-px w-6 bg-[#64ffda]/30" />
-            <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.4em]">{dest.category}</span>
-            <span className="h-px w-6 bg-[#64ffda]/30" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight uppercase italic leading-tight">
-            {dest.title}
-          </h1>
-          <div className="flex items-center justify-center gap-2 text-white/40 text-[9px] font-bold uppercase tracking-[0.2em]">
-            <MapPin className="w-3 h-3 text-[#64ffda]" /> FETHİYE / MUĞLA
-          </div>
-        </div>
-
         {/* Spot Description - Only first sentence */}
         <div className="max-w-2xl mx-auto">
-          <p className="text-lg md:text-xl text-slate-300 font-medium leading-relaxed text-center italic opacity-90 border-l-2 border-[#64ffda]/20 pl-4">
+          <p className="text-xl md:text-2xl text-white font-medium leading-relaxed text-center italic opacity-95">
             {displayDescription.split('.')[0]}.
           </p>
+          <div className="w-12 h-1 bg-[#64ffda] mx-auto mt-6 rounded-full opacity-50" />
         </div>
 
         {/* Detailed Content Section */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pt-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pt-4">
           <div className="md:col-span-12 space-y-8">
             <div className="flex items-center gap-4">
               <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">BÖLGE HAKKINDA</h3>
