@@ -1,97 +1,69 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Star, Send, Loader2, Sparkles, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { Star, X, Loader2, CheckCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface ReviewModalProps {
-  isOpen: boolean
-  onClose: () => void
   destinationId: string
   destinationTitle: string
-  userId: string
-  onSuccess?: (data: { rating: number, comment: string, visitNote: string }) => void
+  onClose: () => void
 }
 
-const supabase = createClient()
-
-export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, userId, onSuccess }: ReviewModalProps) {
+export const ReviewModal = ({ destinationId, destinationTitle, onClose }: ReviewModalProps) => {
+  const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [visitNote, setVisitNote] = useState('')
-  const [rating, setRating] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  if (!isOpen) return null
+  const supabase = createClient()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     if (rating === 0) {
-      toast.error('Lütfen bir puan verin (1-5 yıldız)')
+      toast.error('Lütfen bir puan verin.')
       return
     }
 
-    if (!comment.trim()) {
-      toast.error('Lütfen deneyiminizi kısaca yazın.')
-      return
-    }
-
+    setIsSubmitting(true)
     try {
-      setIsSubmitting(true)
-      let finalId = destinationId
-
-      // Eger destinationId bir UUID degilse (slug gelmisse), resolve et
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(destinationId)
-      
-      if (!isUuid) {
-        console.log('ID bir UUID degil, slug üzerinden cozuluyor:', destinationId)
-        const { data: dest } = await supabase
-          .from('destinations')
-          .select('id')
-          .or(`slug.eq.${destinationId},title.ilike.${destinationId}`)
-          .maybeSingle()
-        
-        if (dest?.id) {
-          finalId = dest.id
-          console.log('Gercek ID bulundu:', finalId)
-        } else {
-          console.error('Mekan veritabaninda bulunamadi:', destinationId)
-          toast.error('Mekan bilgisi doğrulanamadı. Lütfen tekrar deneyin.')
-          setIsSubmitting(false)
-          return
-        }
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('Lütfen giriş yapın.')
+        return
       }
 
-      console.log('Kayit baslatiliyor...', { finalId, userId, rating })
-      
+      // UUID Cozumleme (Slug gelirse UUID bulur)
+      let finalId = destinationId
+      if (!destinationId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        const { data: destData } = await supabase
+          .from('businesses')
+          .select('id')
+          .or(`slug.eq.${destinationId},title.ilike.${destinationId}`)
+          .single()
+        
+        if (destData) finalId = destData.id
+      }
+
       const { error: reviewError } = await supabase.from('destination_comments').insert([{
         destination_id: finalId,
-        user_id: userId,
+        user_id: user.id,
         comment: comment,
         rating: rating,
         visit_note: visitNote,
         is_approved: false
       }])
 
-      if (reviewError) {
-          console.error('Yorum kayit hatasi:', reviewError)
-          throw reviewError
-      }
+      if (reviewError) throw reviewError
 
-      toast.success('Harika! Deneyiminiz kaydedildi. ✨')
-      
-      if (onSuccess) {
-        onSuccess({ rating, comment, visitNote })
-      }
-      
+      toast.success('Deneyiminiz kaydedildi! ✨')
       setComment('')
       setVisitNote('')
       setRating(0)
       onClose()
     } catch (error: any) {
-      console.error('Yakalanamayan hata:', error)
-      toast.error(`Hata: ${error.message || 'Kayıt sırasında bir sorun oluştu.'}`)
+      console.error('Kayit hatasi:', error)
+      toast.error(`Hata: ${error.message || 'Bir sorun oluştu.'}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -101,19 +73,16 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
     <div className="fixed inset-0 z-[200] flex items-start justify-center p-2 pt-12 md:pt-20">
       <div className="absolute inset-0 bg-[#0a192f]/98 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-sm bg-[#112240] border border-white/10 rounded-[32px] shadow-2xl animate-in slide-in-from-top-10 duration-500 overflow-hidden flex flex-col h-[50vh] min-h-[380px]">
+      <div className="relative w-full max-sm:max-w-[320px] max-w-sm bg-[#112240] border border-white/10 rounded-[32px] shadow-2xl animate-in slide-in-from-top-10 duration-500 overflow-hidden flex flex-col h-[50vh] min-h-[380px]">
         <div className="absolute top-0 right-0 w-24 h-24 bg-[#64ffda]/5 blur-3xl -mr-12 -mt-12" />
         
-        {/* Header - Mikro */}
         <header className="p-3 border-b border-white/5 relative z-10 text-center shrink-0">
             <h3 className="text-sm font-black text-white uppercase italic tracking-tighter">ANINI ÖLÜMSÜZLEŞTİR</h3>
             <p className="text-[#64ffda] text-[7px] font-black uppercase tracking-[0.2em]">{destinationTitle}</p>
         </header>
 
-        {/* Form - Mikro Kaydirilabilir */}
         <div className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4 no-scrollbar">
           <form id="review-form" onSubmit={handleSubmit} className="space-y-4">
-            {/* Rating */}
             <div className="space-y-2 text-center">
               <div className="flex items-center justify-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -123,15 +92,12 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
                     onClick={() => setRating(star)}
                     className="transition-all hover:scale-110 p-0.5 active:scale-90"
                   >
-                    <Star 
-                      className={`w-7 h-7 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-white/10'}`} 
-                    />
+                    <Star className={`w-7 h-7 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-white/10'}`} />
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Public Review */}
             <div className="space-y-1">
               <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">DENEYİMİN</label>
               <textarea
@@ -143,7 +109,6 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
               />
             </div>
 
-            {/* Personal Note */}
             <div className="space-y-1 pb-1">
                 <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">KİŞİSEL NOT</label>
                 <textarea
@@ -156,7 +121,6 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
           </form>
         </div>
 
-        {/* Footer - Mikro Sabit Buton */}
         <div className="p-4 bg-[#1a2c4e] border-t border-[#64ffda]/20 shrink-0 relative z-10">
             <button
               form="review-form"
@@ -168,5 +132,6 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
             </button>
         </div>
       </div>
+    </div>
   )
 }
