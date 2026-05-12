@@ -93,7 +93,11 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
       console.error('Yakalanamayan hata:', error)
       toast.error(`Hata: ${error.message || 'Kayıt sırasında bir sorun oluştu.'}`)
     } finally {
-      setIsSubmitting(fa  return (
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
     <div className="fixed inset-0 z-[200] flex items-start justify-center p-2 pt-12 md:pt-20">
       <div className="absolute inset-0 bg-[#0a192f]/98 backdrop-blur-md" onClick={onClose} />
       
@@ -164,10 +168,5 @@ export function ReviewModal({ isOpen, onClose, destinationId, destinationTitle, 
             </button>
         </div>
       </div>
-    </div>
-           </button>
-        </div>
-      </div>
-    </div>
   )
 }
