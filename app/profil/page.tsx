@@ -458,17 +458,25 @@ export default function UserProfilePage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {itineraries.length === 0 ? (
-                <div className="col-span-full py-20 text-center space-y-4">
-                  <div className="w-20 h-20 bg-white/5 rounded-[32px] flex items-center justify-center mx-auto">
-                    <Calendar className="w-10 h-10 text-slate-500" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-slate-400 font-medium italic">Henüz bir tatil planı oluşturmamışsın.</p>
-                    <button onClick={() => router.push('/aktivite-planla')} className="text-[#64ffda] text-[10px] font-black uppercase tracking-widest hover:underline">Şimdi Oluştur →</button>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {/* Yeni Plan Ekle Butonu */}
+              <button 
+                onClick={() => router.push('/aktivite-planla')}
+                className="group h-full min-h-[250px] bg-[#112240]/50 rounded-[40px] border-2 border-dashed border-white/5 flex flex-col items-center justify-center gap-6 text-slate-500 hover:text-[#64ffda] hover:border-[#64ffda]/30 transition-all relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-[#64ffda]/5 to-transparent opacity-0 group-hover:opacity-100 transition-all" />
+                <div className="w-20 h-20 rounded-[32px] bg-white/5 flex items-center justify-center group-hover:scale-110 transition-all group-hover:bg-[#64ffda]/10">
+                  <Plus className="w-10 h-10" />
                 </div>
+                <div className="text-center space-y-1 relative z-10">
+                  <span className="text-sm font-black uppercase tracking-[0.2em]">Yeni Plan Oluştur</span>
+                  <p className="text-[10px] font-medium italic text-slate-600 group-hover:text-slate-400 transition-all">Fethiye'de gezeceğin yerleri seç</p>
+                </div>
+              </button>
+
+              {itineraries.length === 0 ? (
+                // Eger baska plan yoksa sadece "Henüz bir tatil planı..." mesajını göstermek yerine sadece butonu bıraktık
+                null
               ) : (
                 itineraries.map((plan) => (
                   <div key={plan.id} className="group bg-white/5 border border-white/10 rounded-[40px] p-8 hover:bg-white/10 transition-all relative overflow-hidden">
