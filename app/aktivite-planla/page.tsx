@@ -32,15 +32,26 @@ export default function ActivityPlannerPage() {
   const [groupType, setGroupType] = useState('couple')
   const [finalPlan, setFinalPlan] = useState<any[]>([])
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
-
+  const [destinations, setDestinations] = useState<any[]>([])
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user))
+    const fetchData = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+
+      const { data: dbData } = await supabase.from('destinations').select('*').eq('is_active', true)
+      
+      const merged = ALL_ACTIVITIES.map(activity => {
+        const dbMatch = dbData?.find(d => d.slug === activity.id || d.title.toLowerCase() === activity.title.toLowerCase())
+        return {
+          ...activity,
+          image: dbMatch?.main_image || activity.image
+        }
+      })
+      setDestinations(merged)
+    }
+    fetchData()
   }, [])
 
   const categories = [
@@ -53,8 +64,8 @@ export default function ActivityPlannerPage() {
   ]
 
   const filteredActivities = activeTab === 'all' 
-    ? ALL_ACTIVITIES 
-    : ALL_ACTIVITIES.filter(a => a.category === activeTab)
+    ? destinations 
+    : destinations.filter(a => a.category === activeTab)
 
   const toggleActivity = (id: string) => {
     setSelectedActivities(prev => 
@@ -85,7 +96,7 @@ export default function ActivityPlannerPage() {
       'Antalya': 7, 'Kaş': 7, 'Kalkan': 7
     }
 
-    const selectedData = ALL_ACTIVITIES.filter(a => selectedActivities.includes(a.id))
+    const selectedData = destinations.filter(a => selectedActivities.includes(a.id))
     
     // Gruplandırma: Deniz (Tekne) ve Kara olarak ayır
     const boatActivities = selectedData.filter(a => a.transport === 'boat')
@@ -250,32 +261,59 @@ export default function ActivityPlannerPage() {
                         : 'border-white/10 hover:border-white/30'
                     }`}
                   >
-                    <Image src={activity.image} alt={activity.title} fill className={`object-cover transition-transform duration-700 group-hover:scale-110 ${selectedActivities.includes(activity.id) ? 'brightness-100' : 'brightness-50 group-hover:brightness-75'}`} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-80" />
+                    {/* Image Layer */}
+                    <div className="absolute inset-0 z-0">
+                      <Image 
+                        src={activity.image} 
+                        alt={activity.title} 
+                        fill 
+                        className={`object-cover transition-transform duration-700 group-hover:scale-110 ${
+                          selectedActivities.includes(activity.id) ? 'brightness-100' : 'brightness-50 group-hover:brightness-75'
+                        }`} 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-80" />
+                    </div>
                     
-                    <div className="absolute top-4 left-4">
-                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                        selectedActivities.includes(activity.id) 
-                          ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' 
-                          : 'bg-black/20 border-white/30 text-transparent'
-                      }`}>
-                        <CheckCircle2 className="w-5 h-5" />
+                    {/* Content Layer */}
+                    <div className="relative z-10 h-full p-6 flex flex-col justify-between">
+                      <div className="flex justify-between items-start">
+                        <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                          selectedActivities.includes(activity.id) 
+                            ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f]' 
+                            : 'bg-black/20 border-white/30 text-transparent'
+                        }`}>
+                          <CheckCircle2 className="w-5 h-5" />
+                        </div>
+
+                        <Link 
+                          href={`/rehber/${activity.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="p-2 bg-[#64ffda] text-[#0a192f] rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:scale-110"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                        </Link>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-[#64ffda] text-[8px] font-black uppercase tracking-[0.2em]">
+                          <MapPin className="w-3 h-3" /> {activity.location}
+                        </div>
+                        <h3 className="text-xl font-black text-white uppercase italic leading-tight tracking-tighter">{activity.title}</h3>
+                        <p className="text-slate-400 text-[10px] line-clamp-2 font-medium italic">"{activity.description}"</p>
+                        
+                        <div className="pt-2 opacity-0 group-hover:opacity-100 transition-all">
+                          <span className="text-[9px] font-black text-[#64ffda] uppercase tracking-[0.2em]">
+                            SAYFAYI AÇ →
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    {activity.isPopular && (
-                      <div className="absolute top-4 right-4 px-3 py-1 bg-amber-500 rounded-full text-[8px] font-black text-[#0a192f] uppercase tracking-widest shadow-lg">
+                    {activity.isPopular && !selectedActivities.includes(activity.id) && (
+                      <div className="absolute top-16 right-4 px-3 py-1 bg-amber-500 rounded-full text-[8px] font-black text-[#0a192f] uppercase tracking-widest shadow-lg z-20">
                         POPÜLER
                       </div>
                     )}
-
-                    <div className="absolute bottom-6 left-6 right-6 space-y-1">
-                      <div className="flex items-center gap-2 text-[#64ffda] text-[8px] font-black uppercase tracking-[0.2em]">
-                        <MapPin className="w-3 h-3" /> {activity.location}
-                      </div>
-                      <h3 className="text-xl font-black text-white uppercase italic leading-tight tracking-tighter">{activity.title}</h3>
-                      <p className="text-slate-400 text-[10px] line-clamp-1 font-medium italic">"{activity.description}"</p>
-                    </div>
                   </div>
                 ))}
               </div>
