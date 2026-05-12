@@ -17,38 +17,73 @@ interface PlanDetailModalProps {
 const supabase = createClient()
 
 export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailModalProps) {
-  const [completedIds, setCompletedIds] = useState<string[]>(plan?.completed_activities || [])
+  const [completedActivities, setCompletedActivities] = useState<any[]>(plan?.completed_activities || [])
   const [reviewTarget, setReviewTarget] = useState<{ id: string, title: string } | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     if (plan?.completed_activities) {
-      setCompletedIds(plan.completed_activities)
+      setCompletedActivities(plan.completed_activities)
     }
   }, [plan])
 
+  const completedIds = Array.isArray(completedActivities) 
+    ? completedActivities.map(a => typeof a === 'string' ? a : a.id)
+    : []
+
   if (!isOpen || !plan) return null
 
-  const toggleComplete = async (activityId: string) => {
-    const newCompletedIds = completedIds.includes(activityId)
-      ? completedIds.filter(id => id !== activityId)
-      : [...completedIds, activityId]
+  const handleCheckInSuccess = async (data: { rating: number, comment: string, visitNote: string }) => {
+    if (!reviewTarget) return
+
+    const newActivity = {
+      id: reviewTarget.id,
+      note: data.visitNote,
+      rating: data.rating,
+      visited_at: new Date().toISOString()
+    }
+
+    const newCompletedActivities = [...completedActivities.filter(a => (typeof a === 'string' ? a : a.id) !== reviewTarget.id), newActivity]
     
-    setCompletedIds(newCompletedIds)
+    setCompletedActivities(newCompletedActivities)
     
     try {
       setIsUpdating(true)
       const { error } = await supabase
         .from('user_itineraries')
-        .update({ completed_activities: newCompletedIds })
+        .update({ completed_activities: newCompletedActivities })
         .eq('id', plan.id)
 
       if (error) throw error
       onUpdate()
+      setReviewTarget(null)
     } catch (error) {
       toast.error('İlerleme kaydedilemedi')
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const toggleComplete = async (activityId: string, activityTitle: string, dbId: string) => {
+    if (completedIds.includes(activityId)) {
+      // Zaten gezilmisse, listeden cikar (Notu siler)
+      if (!confirm('Bu yerin gezi notlarını ve işaretini kaldırmak istediğine emin misin?')) return
+      
+      const newCompletedActivities = completedActivities.filter(a => (typeof a === 'string' ? a : a.id) !== activityId)
+      setCompletedActivities(newCompletedActivities)
+      
+      try {
+        setIsUpdating(true)
+        await supabase.from('user_itineraries').update({ completed_activities: newCompletedActivities }).eq('id', plan.id)
+        onUpdate()
+      } catch (error) {
+        toast.error('Guncellenemedi')
+      } finally {
+        setIsUpdating(false)
+      }
+    } else {
+      // Gezilmemisse, yorum modalini ac (Zorunlu)
+      setReviewTarget({ id: dbId || activityId, title: activityTitle })
     }
   }
 
@@ -120,7 +155,7 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
 
                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
                                 <button 
-                                    onClick={() => toggleComplete(act.id)}
+                                    onClick={() => toggleComplete(act.id, act.title, act.dbId)}
                                     disabled={isUpdating}
                                     className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                                         completedIds.includes(act.id)
@@ -131,13 +166,16 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
                                     {completedIds.includes(act.id) ? 'GEZDİM!' : 'GEZDİM Mİ?'}
                                 </button>
 
-                                {completedIds.includes(act.id) && act.dbId && (
-                                    <button 
-                                        onClick={() => setReviewTarget({ id: act.dbId, title: act.title })}
-                                        className="flex items-center gap-2 text-[#64ffda] hover:scale-105 transition-all text-[10px] font-black uppercase tracking-widest"
-                                    >
-                                        <Sparkles className="w-4 h-4" /> Yorum Yap
-                                    </button>
+                                {completedIds.includes(act.id) && (
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className="text-[8px] text-slate-500 font-bold uppercase">ZİYARET NOTU VAR ✅</span>
+                                        <button 
+                                            onClick={() => setReviewTarget({ id: act.dbId || act.id, title: act.title })}
+                                            className="text-[#64ffda] hover:scale-105 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-1"
+                                        >
+                                            <Sparkles className="w-3 h-3" /> Notu Düzenle
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -153,6 +191,7 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
                 destinationId={reviewTarget.id}
                 destinationTitle={reviewTarget.title}
                 userId={plan.user_id}
+                onSuccess={handleCheckInSuccess}
             />
         )}
       </div>
