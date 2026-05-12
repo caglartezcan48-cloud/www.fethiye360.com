@@ -266,23 +266,17 @@ export default function ActivityPlannerPage() {
                         : 'border-white/10 hover:border-white/30'
                     }`}
                   >
-                    {/* Image Section - Exactly like TourCard */}
+                    {/* Image Section - Matches TourCard style */}
                     <div className="relative aspect-[4/3] overflow-hidden">
-                      <Image 
+                      <img 
                         src={activity.image} 
                         alt={activity.title} 
-                        fill 
-                        className={`object-cover transition-transform duration-700 group-hover:scale-110 ${
+                        className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
                           selectedActivities.includes(activity.id) ? 'brightness-100' : 'brightness-75 group-hover:brightness-90'
                         }`} 
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
                       
-                      {/* 360 Badge */}
-                      <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#64ffda]/90 backdrop-blur-sm flex items-center justify-center z-10">
-                        <span className="text-[10px] font-black text-[#0a192f]">360°</span>
-                      </div>
-
                       {/* Selection Circle (The Difference) */}
                       <div className="absolute top-4 left-4 z-20">
                         <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -302,7 +296,7 @@ export default function ActivityPlannerPage() {
                       </div>
                     </div>
 
-                    {/* Content Section - Exactly like TourCard */}
+                    {/* Content Section */}
                     <div className="p-6 space-y-3">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-black text-white uppercase italic leading-tight tracking-tighter group-hover:text-[#64ffda] transition-colors">
@@ -322,12 +316,6 @@ export default function ActivityPlannerPage() {
                       </div>
                       <p className="text-slate-500 text-[10px] line-clamp-1 italic">"{activity.description}"</p>
                     </div>
-
-                    {activity.isPopular && !selectedActivities.includes(activity.id) && (
-                      <div className="absolute top-16 right-4 px-3 py-1 bg-amber-500 rounded-full text-[8px] font-black text-[#0a192f] uppercase tracking-widest shadow-lg z-20">
-                        POPÜLER
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
