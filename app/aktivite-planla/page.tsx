@@ -74,10 +74,25 @@ export default function ActivityPlannerPage() {
     }
     setLoading(true)
     
-    // Akıllı Gruplama
+    // Coğrafi Kümelendirme Haritası
+    const clusterMap: { [key: string]: number } = {
+      'Merkez': 1, 'Merkez Liman': 1, 'Fethiye': 1, 'Çalış': 1,
+      'Ölüdeniz': 2, 'Babadağ': 2,
+      'Kayaköy': 3,
+      'Faralya': 4,
+      'Seydikemer': 5, 'Yaka': 5,
+      'Göcek': 6, 'Yanıklar': 6,
+      'Antalya': 7, 'Kaş': 7, 'Kalkan': 7
+    }
+
+    // Akıllı Gruplama: Kümelere göre sırala ki yakın yerler aynı güne denk gelsin
     const selectedData = ALL_ACTIVITIES
       .filter(a => selectedActivities.includes(a.id))
-      .sort((a, b) => a.location.localeCompare(b.location))
+      .sort((a, b) => {
+        const clusterA = clusterMap[a.location] || 99
+        const clusterB = clusterMap[b.location] || 99
+        return clusterA - clusterB
+      })
 
     const days = []
     const itemsPerDay = 3
