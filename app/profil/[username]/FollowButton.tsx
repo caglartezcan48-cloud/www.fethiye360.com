@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { UserPlus, UserMinus, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
+const supabase = createClient()
+
 export default function FollowButton({ 
     profileId, 
     username, 
@@ -19,7 +21,6 @@ export default function FollowButton({
 }) {
     const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
     const [loading, setLoading] = useState(false)
-    const supabase = createClient()
     const router = useRouter()
 
     const handleFollow = async () => {

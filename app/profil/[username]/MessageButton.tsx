@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation'
 import { MessageSquare, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
+const supabase = createClient()
+
 export default function MessageButton({ profileId, currentUserId }: { profileId: string, currentUserId?: string }) {
     const [loading, setLoading] = useState(false)
-    const supabase = createClient()
     const router = useRouter()
 
     const handleMessage = async () => {
