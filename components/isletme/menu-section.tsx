@@ -30,7 +30,15 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
     return cartItems?.find(item => item.id === productId)?.quantity || 0
   }
 
-  if (products.length === 0) return null
+  if (products.length === 0) {
+    return (
+      <div className="py-32 text-center bg-[#112240] rounded-3xl border border-dashed border-white/10 flex flex-col items-center justify-center">
+        <Package className="w-16 h-16 text-slate-600 mb-6" />
+        <h3 className="text-2xl font-black text-white mb-2">Menü Henüz Eklenmedi</h3>
+        <p className="text-slate-400">Bu işletme henüz satışa sunduğu ürünleri sisteme yüklememiş.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
