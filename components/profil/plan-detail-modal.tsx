@@ -172,64 +172,68 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-8 no-scrollbar">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {plan.activities?.map((act: any) => (
-                    <div 
-                        key={act.id} 
-                        className={`group bg-white/5 border rounded-[32px] overflow-hidden transition-all duration-500 ${
-                            completedIds.includes(act.id) 
-                            ? 'border-emerald-500/50 opacity-60 grayscale' 
-                            : 'border-white/5 hover:border-[#64ffda]/30'
-                        }`}
-                    >
-                        <div className="relative aspect-video overflow-hidden">
-                            <Image src={act.image} alt={act.title} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60" />
-                            
-                            {completedIds.includes(act.id) && (
-                                <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-[1px] flex items-center justify-center">
-                                    <CheckCircle className="w-12 h-12 text-white drop-shadow-2xl animate-in zoom-in duration-300" />
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2 text-[#64ffda] text-[10px] font-black uppercase tracking-widest">
-                                    <MapPin className="w-3 h-3" /> {act.location}
-                                </div>
-                                <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">{act.title}</h4>
-                            </div>
-
-                            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                {!completedIds.includes(act.id) ? (
-                                    <button 
-                                        onClick={() => toggleComplete(act.id, act.title, act.dbId)}
-                                        disabled={isUpdating}
-                                        className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white/5 text-slate-400 hover:bg-[#64ffda] hover:text-[#0a192f] border border-white/10"
-                                    >
-                                        GEZDİM Mİ?
-                                    </button>
-                                ) : (
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest">
-                                        <CheckCircle className="w-3 h-3" /> GEZİLDİ
+                {plan.activities?.map((act: any) => {
+                    const isCompleted = completedIds.includes(act.id) || (act.dbId && completedIds.includes(act.dbId))
+                    
+                    return (
+                        <div 
+                            key={act.id} 
+                            className={`group bg-white/5 border rounded-[32px] overflow-hidden transition-all duration-500 ${
+                                isCompleted 
+                                ? 'border-emerald-500/50 opacity-60 grayscale' 
+                                : 'border-white/5 hover:border-[#64ffda]/30'
+                            }`}
+                        >
+                            <div className="relative aspect-video overflow-hidden">
+                                <Image src={act.image} alt={act.title} fill className="object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60" />
+                                
+                                {isCompleted && (
+                                    <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-[1px] flex items-center justify-center">
+                                        <CheckCircle className="w-12 h-12 text-white drop-shadow-2xl animate-in zoom-in duration-300" />
                                     </div>
                                 )}
+                            </div>
 
-                                {completedIds.includes(act.id) && (
-                                    <div className="flex flex-col items-end gap-1">
-                                        <span className="text-[8px] text-slate-500 font-bold uppercase">ZİYARET NOTU VAR ✅</span>
+                            <div className="p-6 space-y-4">
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2 text-[#64ffda] text-[10px] font-black uppercase tracking-widest">
+                                        <MapPin className="w-3 h-3" /> {act.location}
+                                    </div>
+                                    <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">{act.title}</h4>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                    {!isCompleted ? (
                                         <button 
-                                            onClick={() => setReviewTarget({ id: act.dbId || act.id, title: act.title })}
-                                            className="text-[#64ffda] hover:scale-105 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-1"
+                                            onClick={() => toggleComplete(act.id, act.title, act.dbId)}
+                                            disabled={isUpdating}
+                                            className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white/5 text-slate-400 hover:bg-[#64ffda] hover:text-[#0a192f] border border-white/10"
                                         >
-                                            <Sparkles className="w-3 h-3" /> Notu Düzenle
+                                            GEZDİM Mİ?
                                         </button>
-                                    </div>
-                                )}
+                                    ) : (
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest">
+                                            <CheckCircle className="w-3 h-3" /> GEZİLDİ
+                                        </div>
+                                    )}
+
+                                    {isCompleted && (
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className="text-[8px] text-slate-500 font-bold uppercase">ZİYARET NOTU VAR ✅</span>
+                                            <button 
+                                                onClick={() => setReviewTarget({ id: act.dbId || act.id, title: act.title })}
+                                                className="text-[#64ffda] hover:scale-105 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-1"
+                                            >
+                                                <Sparkles className="w-3 h-3" /> Notu Düzenle
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    )
+                })}
             </div>
         </div>
 
