@@ -6,6 +6,7 @@ import { Footer } from '@/components/fethiye/footer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MenuSection } from '@/components/isletme/menu-section'
+import { OrderLayout } from '@/components/isletme/order-layout'
 import { 
   MapPin, 
   Phone, 
@@ -85,9 +86,6 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
   // Satis Odakli Sayfa Kontrolu (Paket Servis bilgisine gore)
   const isSalesOriented = business.services?.includes('Paket Servis') || false
 
-import { OrderLayout } from '@/components/isletme/order-layout'
-
-// ... inside the component after all fetches ...
 
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
