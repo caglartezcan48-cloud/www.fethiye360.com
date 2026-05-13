@@ -8,14 +8,16 @@ import { Upload, CheckCircle2, AlertCircle, Database, Plus, FileText, Download, 
 const columnMap: { [key: string]: string } = {
   'İşletme Adı': 'name',
   'Şirket Ünvanı': 'company_title',
-  'Kategori': 'category_name', // Akilli eslestirme icin
+  'Kategori': 'category_name',
   'URL Uzantısı': 'slug',
   'Adres': 'address',
   'Telefon': 'phone',
   'Web Sitesi': 'website',
+  'WhatsApp': 'whatsapp',
   'Açıklama': 'description',
   'Kapak Resmi URL': 'main_image',
-  'Puan': 'rating'
+  'Puan': 'rating',
+  'Paket Servis (1/0)': 'has_delivery'
 }
 
 export default function BulkUploadPage() {
@@ -56,7 +58,7 @@ export default function BulkUploadPage() {
   const downloadCSVTemplate = () => {
     const BOM = '\uFEFF'
     const headers = Object.keys(columnMap).join(';') + '\n'
-    const sampleData = "Örnek Lezzet Durağı;Lezzet Gıda Turizm San. Tic. Ltd. Şti.;Restoran;ornek-lezzet;Fethiye Kordon;0252 614 00 00;https://lezzet.com;Harika bir yer...;https://resim.jpg;5"
+    const sampleData = "Örnek Lezzet Durağı;Lezzet Gıda;Restoran;ornek-lezzet;Fethiye;02526140000;https://lezzet.com;905320000000;Harika bir yer;https://resim.jpg;5;1"
     const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -102,11 +104,13 @@ export default function BulkUploadPage() {
 
       // 3. Verileri veritabani formatina donustur
       const businessesToInsert = jsonData.map((item: any) => {
-        const { category_name, ...rest } = item
+        const { category_name, has_delivery, ...rest } = item
         return {
           ...rest,
           category_id: categoryMap[category_name?.toLowerCase()] || null,
           slug: item.slug || item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+          services: has_delivery === '1' ? ['Paket Servis'] : [],
+          status: 'active',
           updated_at: new Date().toISOString()
         }
       })
