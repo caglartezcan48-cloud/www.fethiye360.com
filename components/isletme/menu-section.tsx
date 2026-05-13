@@ -60,19 +60,35 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
         {/* Kategoriler */}
         <div className="flex-1 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
-                  activeCategory === cat
-                    ? 'bg-[#64ffda] text-[#0a192f]'
-                    : 'bg-[#112240] text-slate-300 hover:bg-white/10 border border-white/5'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const count = cat === 'Tümü' 
+                ? products.length 
+                : products.filter(p => (p.category || 'Diğer') === cat).length;
+                
+              return (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setActiveCategory(cat);
+                    // Seçilen kategoriye yumuşak kaydırma
+                    if (cat !== 'Tümü') {
+                      const el = document.getElementById(`category-${cat}`);
+                      if (el) {
+                        const y = el.getBoundingClientRect().top + window.scrollY - 150;
+                        window.scrollTo({ top: y, behavior: 'smooth' });
+                      }
+                    }
+                  }}
+                  className={`px-5 py-3 text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 border-b-2 ${
+                    activeCategory === cat
+                      ? 'border-[#64ffda] text-[#64ffda]'
+                      : 'border-transparent text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {cat} <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeCategory === cat ? 'bg-[#64ffda]/10 text-[#64ffda]' : 'bg-white/5 text-slate-500'}`}>{count}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -88,8 +104,11 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
           if (categoryProducts.length === 0) return null;
 
           return (
-            <div key={category} className="space-y-6">
-              <h2 className="text-2xl font-black text-white">{category}</h2>
+            <div key={category} id={`category-${category}`} className="space-y-6 pt-4 scroll-mt-[150px]">
+              <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                {category}
+                <span className="text-sm font-medium text-slate-500 bg-white/5 px-3 py-1 rounded-full">{categoryProducts.length} Ürün</span>
+              </h2>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {categoryProducts.map((product) => {
