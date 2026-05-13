@@ -9,9 +9,15 @@ export async function saveBusiness(businessData: any, id?: string) {
   try {
     if (id) {
       // Guncelleme
+      const { password, ...updateData } = businessData
+
+      if (password && updateData.owner_id) {
+        await supabase.auth.admin.updateUserById(updateData.owner_id, { password })
+      }
+
       const { data, error } = await supabase
         .from('businesses')
-        .update(businessData)
+        .update(updateData)
         .eq('id', id)
         .select()
         .single()
@@ -24,10 +30,11 @@ export async function saveBusiness(businessData: any, id?: string) {
       
       // 1. Standart Auth Kullanicisi Olustur (Eger owner_id yoksa)
       let ownerId = businessData.owner_id
+      const { password, ...insertData } = businessData
       
-      if (!ownerId && businessData.slug) {
-        const generatedEmail = `${businessData.slug}@fethiye360.com`
-        const standardPassword = '123456'
+      if (!ownerId && insertData.slug) {
+        const generatedEmail = `${insertData.slug}@fethiye360.com`
+        const standardPassword = password || '123456'
         
         // Kullaniciyi yarat
         const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -45,7 +52,7 @@ export async function saveBusiness(businessData: any, id?: string) {
       }
 
       const finalBusinessData = {
-        ...businessData,
+        ...insertData,
         owner_id: ownerId
       }
 

@@ -54,8 +54,7 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
     phone: business?.phone || '',
     whatsapp: business?.whatsapp || '',
     website: business?.website || '',
-    location_lat: business?.location_lat?.toString() || '',
-    location_lng: business?.location_lng?.toString() || '',
+    password: '',
     is_featured: business?.is_featured ?? false,
     has_delivery: business?.services?.includes('Paket Servis') || false,
     main_image: business?.main_image || '',
@@ -128,8 +127,7 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
         phone: form.phone || null,
         whatsapp: form.whatsapp || null,
         website: form.website || null,
-        location_lat: form.location_lat ? parseFloat(form.location_lat) : null,
-        location_lng: form.location_lng ? parseFloat(form.location_lng) : null,
+        password: form.password || null,
         is_featured: form.is_featured,
         main_image: form.main_image || null,
         services: [
@@ -260,24 +258,14 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+          <div className="grid grid-cols-1 gap-6 pt-4 border-t border-white/5">
             <div>
-              <label className="block text-sm text-slate-300 mb-2">Harita Enlem (Latitude)</label>
+              <label className="block text-sm text-slate-300 mb-2">İşletme Giriş Şifresi</label>
               <input
                 type="text"
-                value={form.location_lat}
-                onChange={(e) => setForm({ ...form, location_lat: e.target.value })}
-                placeholder="Örn: 36.6234"
-                className="w-full bg-[#0a192f] border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-[#64ffda] transition-colors"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-slate-300 mb-2">Harita Boylam (Longitude)</label>
-              <input
-                type="text"
-                value={form.location_lng}
-                onChange={(e) => setForm({ ...form, location_lng: e.target.value })}
-                placeholder="Örn: 29.1164"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                placeholder={business ? "Şifreyi değiştirmek için yeni şifre girin (Boş bırakırsanız mevcut şifre kalır)" : "Örn: 123456 (Boş bırakılırsa otomatik 123456 atanır)"}
                 className="w-full bg-[#0a192f] border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-[#64ffda] transition-colors"
               />
             </div>
