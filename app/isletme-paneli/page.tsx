@@ -44,6 +44,10 @@ export default function BusinessPanel() {
   const supabase = createClient()
   const router = useRouter()
   const imageInputRef = useRef<HTMLInputElement>(null)
+  const productImageInputRef = useRef<HTMLInputElement>(null)
+  const editProductImageInputRef = useRef<HTMLInputElement>(null)
+
+  const [editingProduct, setEditingProduct] = useState<any>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -118,6 +122,58 @@ export default function BusinessPanel() {
       setNewProduct({ name: '', price: '', description: '', category: '', image_url: '' })
     }
     setUpdating(false)
+  }
+
+  const handleUpdateProduct = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingProduct || !editingProduct.name || !editingProduct.price) return
+    setUpdating(true)
+    const { error } = await supabase
+      .from('business_products')
+      .update({
+        name: editingProduct.name,
+        price: parseFloat(editingProduct.price),
+        description: editingProduct.description,
+        category: editingProduct.category,
+        image_url: editingProduct.image_url
+      })
+      .eq('id', editingProduct.id)
+
+    if (!error) {
+      setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p))
+      setEditingProduct(null)
+    }
+    setUpdating(false)
+  }
+
+  const handleProductImageUpload = async (file: File, isEditing: boolean = false) => {
+    setUploading(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `product_${business.id}_${Date.now()}.${fileExt}`
+      const filePath = `products/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('tour-images')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('tour-images')
+        .getPublicUrl(filePath)
+
+      if (isEditing) {
+        setEditingProduct({ ...editingProduct, image_url: publicUrl })
+      } else {
+        setNewProduct(prev => ({ ...prev, image_url: publicUrl }))
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Görsel yüklenemedi')
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleDeleteProduct = async (id: string) => {
@@ -374,13 +430,34 @@ export default function BusinessPanel() {
                     />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Görsel URL</label>
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Görseli</label>
                     <input 
-                      value={newProduct.image_url}
-                      onChange={(e) => setNewProduct({...newProduct, image_url: e.target.value})}
-                      className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
-                      placeholder="https://..."
+                      type="file"
+                      ref={productImageInputRef}
+                      onChange={(e) => e.target.files?.[0] && handleProductImageUpload(e.target.files[0])}
+                      className="hidden"
+                      accept="image/*"
                     />
+                    {newProduct.image_url ? (
+                      <div className="relative w-full h-14 bg-white/5 rounded-2xl flex items-center justify-between px-4 border border-white/10 overflow-hidden">
+                        <span className="text-xs font-bold text-[#64ffda] truncate">Görsel Yüklendi</span>
+                        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                          <img src={newProduct.image_url} className="w-full h-full object-cover" />
+                        </div>
+                        <button type="button" onClick={() => setNewProduct({...newProduct, image_url: ''})} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/40">
+                           <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        type="button"
+                        onClick={() => productImageInputRef.current?.click()}
+                        disabled={uploading}
+                        className="w-full bg-[#0a192f] border border-dashed border-white/20 rounded-2xl p-4 text-slate-400 hover:text-[#64ffda] hover:border-[#64ffda]/50 transition-all flex items-center justify-center gap-2"
+                      >
+                        {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Upload className="w-5 h-5" /> Görsel Seç</>}
+                      </button>
+                    )}
                   </div>
                   <div className="md:col-span-2 space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Açıklaması</label>
@@ -392,11 +469,45 @@ export default function BusinessPanel() {
                     />
                   </div>
                 </div>
-                <button type="submit" disabled={updating} className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-[24px] font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-[#64ffda]/10 disabled:opacity-50">
+                <button type="submit" disabled={updating || uploading} className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-[24px] font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-[#64ffda]/10 disabled:opacity-50">
                   {updating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
                   YENİ ÜRÜNÜ MENÜYE EKLE
                 </button>
               </form>
+
+              {/* Edit Modal (Inline) */}
+              {editingProduct && (
+                <div className="fixed inset-0 bg-[#0a192f]/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+                  <form onSubmit={handleUpdateProduct} className="bg-[#112240] w-full max-w-2xl p-8 rounded-[40px] border border-[#64ffda]/20 shadow-2xl space-y-6">
+                    <h3 className="text-2xl font-black text-white">Ürünü Düzenle</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase">Ürün Adı</label>
+                        <input value={editingProduct.name} onChange={(e) => setEditingProduct({...editingProduct, name: e.target.value})} className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase">Fiyat (TL)</label>
+                        <input type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({...editingProduct, price: e.target.value})} className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase">Kategori</label>
+                        <input value={editingProduct.category} onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})} className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-slate-500 uppercase">Görsel Değiştir</label>
+                        <input type="file" ref={editProductImageInputRef} onChange={(e) => e.target.files?.[0] && handleProductImageUpload(e.target.files[0], true)} className="hidden" accept="image/*" />
+                        <button type="button" onClick={() => editProductImageInputRef.current?.click()} className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-[#64ffda] font-bold flex items-center gap-2 justify-center hover:bg-white/5">
+                          <Upload className="w-4 h-4" /> Yeni Görsel Yükle
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                      <button type="button" onClick={() => setEditingProduct(null)} className="flex-1 py-4 border border-white/10 rounded-2xl text-slate-400 font-bold hover:bg-white/5">İptal</button>
+                      <button type="submit" disabled={updating} className="flex-1 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest">Kaydet</button>
+                    </div>
+                  </form>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 gap-4">
                 {products.map((p) => (
@@ -410,11 +521,16 @@ export default function BusinessPanel() {
                         <div className="text-slate-500 text-xs">{p.description}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4">
                       <div className="text-xl font-black text-[#64ffda]">{p.price} TL</div>
-                      <button onClick={() => handleDeleteProduct(p.id)} className="p-3 text-red-500/50 hover:text-red-500 transition-colors">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
+                      <div className="flex items-center bg-[#0a192f] rounded-xl overflow-hidden border border-white/5">
+                        <button onClick={() => setEditingProduct(p)} className="p-3 text-slate-400 hover:text-white transition-colors hover:bg-white/5 border-r border-white/5">
+                          <Settings className="w-5 h-5" />
+                        </button>
+                        <button onClick={() => handleDeleteProduct(p.id)} className="p-3 text-red-500/50 hover:text-red-500 transition-colors hover:bg-red-500/10">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
