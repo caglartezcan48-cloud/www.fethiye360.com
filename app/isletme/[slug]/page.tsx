@@ -85,11 +85,15 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
   // Satis Odakli Sayfa Kontrolu (Paket Servis bilgisine gore)
   const isSalesOriented = business.services?.includes('Paket Servis') || false
 
+import { OrderLayout } from '@/components/isletme/order-layout'
+
+// ... inside the component after all fetches ...
+
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
 
-      {/* Hero Section - Sales Focused */}
+      {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
         <img 
           src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=90"} 
@@ -148,183 +152,63 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
 
       {/* Main Content Area */}
       <section className="max-w-7xl mx-auto px-6 py-12 md:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-          
-          {/* Left Column: Menu & Content */}
-          <div className="lg:col-span-8 space-y-24">
-            
-            {/* Sales Focus: Marketing Header */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">MEKAN HAKKINDA</h3>
-                    <div className="h-px w-full bg-white/5" />
-                </div>
-                <p className="text-xl md:text-2xl text-white font-medium leading-relaxed italic opacity-95 first-letter:text-5xl first-letter:font-black first-letter:text-[#64ffda] first-letter:mr-3 first-letter:float-left">
-                    {business.description || "Fethiye'nin kalbinde, eşsiz lezzetler ve unutulmaz anılar için kapılarımızı açıyoruz. Modern dokunuşlar ve geleneksel misafirperverliğimizle sizleri bekliyoruz."}
-                </p>
-            </div>
-
-            {/* Menu Section (Conditional) */}
-            {isSalesOriented && (
-                <MenuSection 
-                  products={products} 
-                  businessName={business.name} 
-                  whatsappNumber={business.whatsapp || business.phone} 
-                />
-            )}
-
-            {/* Photo Gallery Wall */}
-            <div className="space-y-12">
-              <div className="flex items-center gap-4">
-                <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">MEKANDAN KARELER</h3>
-                <div className="h-px w-full bg-white/5" />
+        {isSalesOriented ? (
+          /* SALES ORIENTED LAYOUT (Order Panel) */
+          <OrderLayout 
+            products={products} 
+            businessName={business.name} 
+            whatsappNumber={business.whatsapp || business.phone} 
+          />
+        ) : (
+          /* STANDARD INFORMATIONAL LAYOUT */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-8 space-y-24">
+              <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">MEKAN HAKKINDA</h3>
+                      <div className="h-px w-full bg-white/5" />
+                  </div>
+                  <p className="text-xl md:text-2xl text-white font-medium leading-relaxed italic opacity-95 first-letter:text-5xl first-letter:font-black first-letter:text-[#64ffda] first-letter:mr-3 first-letter:float-left">
+                      {business.description || "Fethiye'nin kalbinde, eşsiz lezzetler ve unutulmaz anılar için kapılarımızı açıyoruz."}
+                  </p>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="relative aspect-square rounded-[32px] overflow-hidden group border border-white/5">
-                    <img 
-                      src={`https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&i=${i}`} 
-                      alt="Galeri" 
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" 
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Review Section */}
-            <div className="space-y-12">
+              <div className="space-y-12">
                 <div className="flex items-center gap-4">
-                    <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">MİSAFİR DENEYİMLERİ</h3>
-                    <div className="h-px w-full bg-white/5" />
+                  <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">MEKANDAN KARELER</h3>
+                  <div className="h-px w-full bg-white/5" />
                 </div>
-                <div className="grid grid-cols-1 gap-6">
-                    {reviews.map((r) => (
-                        <div key={r.id} className="bg-white/5 p-10 rounded-[48px] border border-white/5 space-y-6">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda] font-black uppercase">
-                                        {r.user_name?.[0] || 'G'}
-                                    </div>
-                                    <div>
-                                        <h5 className="text-white font-black uppercase tracking-widest text-xs">{r.user_name}</h5>
-                                        <p className="text-[10px] text-slate-500 font-bold uppercase mt-1">{new Date(r.created_at).toLocaleDateString('tr-TR')}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-1.5 bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20 text-yellow-500 font-black text-xs">
-                                    <Star className="w-3.5 h-3.5 fill-yellow-500" /> {r.rating}.0
-                                </div>
-                            </div>
-                            <p className="text-slate-400 text-lg leading-relaxed italic">"{r.comment}"</p>
-                            {r.reply && (
-                                <div className="ml-8 p-6 bg-white/5 rounded-[32px] border-l-2 border-[#64ffda]/30">
-                                    <span className="text-[#64ffda] text-[8px] font-black uppercase tracking-[0.3em] block mb-2">İŞLETME YANITI</span>
-                                    <p className="text-slate-500 text-sm italic">{r.reply}</p>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                    {reviews.length === 0 && (
-                        <div className="text-center py-20 bg-white/5 rounded-[40px] border border-dashed border-white/10 text-slate-600 font-bold uppercase text-[10px] tracking-widest">
-                            Henüz yorum yapılmamış. İlk yorumu sen yap!
-                        </div>
-                    )}
-                </div>
-            </div>
-          </div>
-
-          {/* Right Column: Contact & Sales Stats */}
-          <div className="lg:col-span-4 space-y-10">
-            <div className="bg-white/5 border border-white/10 rounded-[48px] p-10 space-y-10 sticky top-32 overflow-hidden">
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#64ffda]/5 rounded-full blur-3xl" />
-              
-              <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter relative z-10">İletişim & Konum</h3>
-              
-              <div className="space-y-8 relative z-10">
-                <div className="flex items-start gap-5">
-                  <div className="p-4 bg-[#64ffda]/10 rounded-2xl border border-[#64ffda]/20">
-                    <MapPin className="w-5 h-5 text-[#64ffda]" />
-                  </div>
-                  <div>
-                    <p className="text-white font-black text-[10px] uppercase tracking-widest">Adres</p>
-                    <p className="text-slate-400 text-sm mt-1 leading-relaxed font-medium">{business.address || 'Fethiye Merkez'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-5">
-                  <div className="p-4 bg-[#64ffda]/10 rounded-2xl border border-[#64ffda]/20">
-                    <Phone className="w-5 h-5 text-[#64ffda]" />
-                  </div>
-                  <div>
-                    <p className="text-white font-black text-[10px] uppercase tracking-widest">Telefon</p>
-                    <p className="text-slate-400 text-sm mt-1 font-medium">{business.phone || '0(252) --- -- --'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-5">
-                  <div className="p-4 bg-[#64ffda]/10 rounded-2xl border border-[#64ffda]/20">
-                    <Clock className="w-5 h-5 text-[#64ffda]" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                        <p className="text-white font-black text-[10px] uppercase tracking-widest">Çalışma Saatleri</p>
-                        <span className="text-[#64ffda] text-[8px] font-black uppercase bg-[#64ffda]/10 px-2 py-0.5 rounded-full">AÇIK</span>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[1,2,3,4,5,6].map(i => (
+                    <div key={i} className="relative aspect-square rounded-[32px] overflow-hidden group border border-white/5">
+                      <img src={`https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80&i=${i}`} alt="Galeri" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
                     </div>
-                    <div className="space-y-1">
-                        <div className="flex justify-between text-slate-400 text-xs font-medium italic">
-                            <span>Hafta İçi</span>
-                            <span>09:00 - 22:00</span>
-                        </div>
-                        <div className="flex justify-between text-slate-400 text-xs font-medium italic">
-                            <span>Hafta Sonu</span>
-                            <span>10:00 - 23:00</span>
-                        </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 space-y-10">
+              <div className="bg-white/5 border border-white/10 rounded-[48px] p-10 space-y-10 sticky top-32 overflow-hidden">
+                <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">İletişim</h3>
+                <div className="space-y-8">
+                  <div className="flex items-start gap-5">
+                    <div className="p-4 bg-[#64ffda]/10 rounded-2xl border border-[#64ffda]/20"><MapPin className="w-5 h-5 text-[#64ffda]" /></div>
+                    <div>
+                      <p className="text-white font-black text-[10px] uppercase tracking-widest">Adres</p>
+                      <p className="text-slate-400 text-sm mt-1">{business.address || 'Fethiye Merkez'}</p>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="pt-10 border-t border-white/5 space-y-4 relative z-10">
-                <a 
-                    href={`https://wa.me/${(business.whatsapp || business.phone)?.replace(/\s+/g, '')}`} 
-                    target="_blank"
-                    className={`w-full py-5 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 shadow-2xl ${
-                        isSalesOriented 
-                        ? 'bg-[#64ffda] text-[#0a192f] shadow-[#64ffda]/20' 
-                        : 'bg-white/10 text-white border border-white/10'
-                    }`}
-                >
-                    <MessageCircle className="w-5 h-5 text-[#64ffda]" /> 
-                    {isSalesOriented ? 'WHATSAPP SİPARİŞ' : 'WHATSAPP İLE İLETİŞİM'}
-                </a>
-                
-                {!isSalesOriented && (
-                  <a 
-                    href={`tel:${business.phone}`}
-                    className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 shadow-2xl shadow-[#64ffda]/20"
-                  >
-                    <Phone className="w-5 h-5" /> ŞİMDİ ARA
+                <div className="pt-10 border-t border-white/5 space-y-4">
+                  <a href={`tel:${business.phone}`} className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3">
+                    <Phone className="w-5 h-5" /> HEMEN ARA
                   </a>
-                )}
-
-                <button className="w-full py-5 bg-white/5 text-white border border-white/10 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all flex items-center justify-center gap-3">
-                    <Navigation className="w-4 h-4 text-blue-400" /> YOL TARİFİ AL
-                </button>
-              </div>
-
-              <div className="bg-gradient-to-br from-[#64ffda]/5 to-blue-500/5 p-6 rounded-[32px] border border-white/5 mt-8 space-y-4">
-                  <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Popülerlik</span>
-                      <span className="text-[#64ffda] text-[10px] font-black uppercase">Çok Yüksek 🔥</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full w-[85%] bg-gradient-to-r from-[#64ffda] to-blue-500" />
-                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-        </div>
+        )}
       </section>
 
       {/* Floating Order Bar - Mobile Only */}
