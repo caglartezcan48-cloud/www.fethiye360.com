@@ -40,6 +40,7 @@ export default function ProductsManagementPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [selectedBusiness, setSelectedBusiness] = useState<string>('all')
+  const [seeding, setSeeding] = useState(false)
   
   // Form State
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -130,6 +131,27 @@ export default function ProductsManagementPage() {
     }
   }
 
+  const handleSeedMenus = async () => {
+    if (!confirm('Paket servisi olan işletmelere örnek (dummy) menüler yüklenecek. Onaylıyor musunuz?')) return
+    
+    setSeeding(true)
+    try {
+      const res = await fetch('/api/seed-menus')
+      const data = await res.json()
+      
+      if (data.success) {
+        alert(data.message)
+        fetchData()
+      } else {
+        alert('Hata: ' + data.error)
+      }
+    } catch (err: any) {
+      alert('Yükleme sırasında hata oluştu.')
+    } finally {
+      setSeeding(false)
+    }
+  }
+
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
                          p.businesses?.name?.toLowerCase().includes(search.toLowerCase())
@@ -151,14 +173,24 @@ export default function ProductsManagementPage() {
           </div>
         </div>
         
-        <button 
-          onClick={() => setIsFormOpen(true)}
-          className="flex items-center gap-3 px-8 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-[10px] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#64ffda]/10"
-        >
-          <Plus className="w-5 h-5" />
-          Yeni Ürün Ekle
-        </button>
-      </div>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleSeedMenus}
+            disabled={seeding}
+            className="flex items-center gap-2 px-6 py-4 bg-yellow-500/10 text-yellow-500 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-yellow-500/20 transition-all border border-yellow-500/20 disabled:opacity-50"
+          >
+            {seeding ? <Loader2 className="w-5 h-5 animate-spin" /> : <Package className="w-5 h-5" />}
+            Örnek Menüleri Yükle
+          </button>
+
+          <button 
+            onClick={() => setIsFormOpen(true)}
+            className="flex items-center gap-3 px-8 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-[10px] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#64ffda]/10"
+          >
+            <Plus className="w-5 h-5" />
+            Yeni Ürün Ekle
+          </button>
+        </div>
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
