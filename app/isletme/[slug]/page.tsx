@@ -25,7 +25,7 @@ import {
 } from 'lucide-react'
 
 async function getBusiness(slug: string) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -35,6 +35,10 @@ async function getBusiness(slug: string) {
           return cookieStore.get(name)?.value
         },
       },
+      auth: {
+        storageKey: 'fethiye360-auth-token',
+        persistSession: true
+      }
     }
   )
 
@@ -61,7 +65,7 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
     salesOrientedCategories.includes(business.business_categories?.name)
   )
 
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -71,6 +75,10 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
           return cookieStore.get(name)?.value
         },
       },
+      auth: {
+        storageKey: 'fethiye360-auth-token',
+        persistSession: true
+      }
     }
   )
 
