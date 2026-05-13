@@ -55,17 +55,6 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
   const { slug } = await params
   const business = await getBusiness(slug)
 
-  if (!business) {
-    notFound()
-  }
-
-  // Satis Odakli Sayfa Kontrolu (Restoran, Kafe vb.)
-  const salesOrientedCategories = ['Yemek', 'Restoran', 'Kafe', 'Restoran & Cafe', 'Fast Food', 'Kahvaltı', 'Pide', 'Kebap', 'Pizza', 'Döner', 'Meyhane', 'Izgara', 'Pastane']
-  const isSalesOriented = salesOrientedCategories.some(cat => 
-    business.business_categories?.name?.includes(cat) || 
-    salesOrientedCategories.includes(business.business_categories?.name)
-  )
-
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -92,6 +81,14 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
   const products = productsRes.data || []
   const reviews = reviewsRes.data || []
   const avgRating = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : '5.0'
+
+  // Satis Odakli Sayfa Kontrolu (Ürünleri olan veya yemek kategorisindeki isletmeler)
+  const salesOrientedCategories = ['Yemek', 'Restoran', 'Kafe', 'Restoran & Cafe', 'Fast Food', 'Kahvaltı', 'Pide', 'Kebap', 'Pizza', 'Döner', 'Meyhane', 'Izgara', 'Pastane']
+  const hasProducts = products.length > 0
+  const isSalesOriented = hasProducts || salesOrientedCategories.some(cat => 
+    business.business_categories?.name?.includes(cat) || 
+    salesOrientedCategories.includes(business.business_categories?.name)
+  )
 
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
