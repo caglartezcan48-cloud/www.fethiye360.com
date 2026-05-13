@@ -287,10 +287,25 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
                 <a 
                     href={`https://wa.me/${(business.whatsapp || business.phone)?.replace(/\s+/g, '')}`} 
                     target="_blank"
-                    className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 shadow-2xl shadow-[#64ffda]/20"
+                    className={`w-full py-5 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 shadow-2xl ${
+                        isSalesOriented 
+                        ? 'bg-[#64ffda] text-[#0a192f] shadow-[#64ffda]/20' 
+                        : 'bg-white/10 text-white border border-white/10'
+                    }`}
                 >
-                    <MessageCircle className="w-5 h-5" /> WHATSAPP SİPARİŞ
+                    <MessageCircle className="w-5 h-5 text-[#64ffda]" /> 
+                    {isSalesOriented ? 'WHATSAPP SİPARİŞ' : 'WHATSAPP İLE İLETİŞİM'}
                 </a>
+                
+                {!isSalesOriented && (
+                  <a 
+                    href={`tel:${business.phone}`}
+                    className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-all flex items-center justify-center gap-3 shadow-2xl shadow-[#64ffda]/20"
+                  >
+                    <Phone className="w-5 h-5" /> ŞİMDİ ARA
+                  </a>
+                )}
+
                 <button className="w-full py-5 bg-white/5 text-white border border-white/10 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all flex items-center justify-center gap-3">
                     <Navigation className="w-4 h-4 text-blue-400" /> YOL TARİFİ AL
                 </button>
@@ -314,10 +329,14 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
       {/* Floating Order Bar - Mobile Only */}
       <div className="fixed bottom-6 left-6 right-6 z-[100] md:hidden">
           <a 
-            href={`tel:${business.phone}`}
+            href={isSalesOriented ? `https://wa.me/${(business.whatsapp || business.phone)?.replace(/\s+/g, '')}` : `tel:${business.phone}`}
             className="w-full h-16 bg-[#64ffda] text-[#0a192f] rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-[#64ffda]/40 font-black uppercase tracking-widest text-xs"
           >
-            <Phone className="w-5 h-5" /> HEMEN ARA / SİPARİŞ VER
+            {isSalesOriented ? (
+              <><MessageCircle className="w-5 h-5" /> ŞİMDİ SİPARİŞ VER</>
+            ) : (
+              <><Phone className="w-5 h-5" /> HEMEN ARA / İLETİŞİM</>
+            )}
           </a>
       </div>
 
