@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 export async function saveBusiness(businessData: any, id?: string) {
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   try {
     if (id) {
