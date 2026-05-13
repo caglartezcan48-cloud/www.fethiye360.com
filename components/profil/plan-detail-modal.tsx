@@ -162,7 +162,7 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
                         <Sparkles className="w-6 h-6 text-white" />
                     </div>
                     <div className="space-y-0.5">
-                        <h4 className="text-sm font-black text-white uppercase italic tracking-tighter">TEBRİKLER! FETHİYE FATİHİ! 👑</h4>
+                        <h4 className="text-sm font-black text-white uppercase italic tracking-tighter">TEBRİKLER! ROTA TAMAMLANDI! ✨</h4>
                         <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Bu gezi listesindeki tüm yerleri keşfettin!</p>
                     </div>
                 </div>

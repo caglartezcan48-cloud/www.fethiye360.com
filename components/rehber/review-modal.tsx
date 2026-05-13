@@ -35,28 +35,63 @@ export const ReviewModal = ({ destinationId, destinationTitle, userId, onClose, 
         return
       }
 
-      // UUID Cozumleme (Slug gelirse UUID bulur)
+      // UUID ve Tablo Cozumleme
       let finalId = destinationId
+      let tableType: 'business' | 'destination' = 'destination'
+
+      // Eger bir UUID degilse, once isletmelerde sonra destinasyonlarda ara
       if (!destinationId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-        const { data: destData } = await supabase
+        const { data: busData } = await supabase
           .from('businesses')
           .select('id')
           .or(`slug.eq.${destinationId},title.ilike.${destinationId}`)
           .single()
         
-        if (destData) finalId = destData.id
+        if (busData) {
+          finalId = busData.id
+          tableType = 'business'
+        } else {
+          const { data: destData } = await supabase
+            .from('destinations')
+            .select('id')
+            .or(`slug.eq.${destinationId},title.ilike.${destinationId}`)
+            .single()
+          
+          if (destData) {
+            finalId = destData.id
+            tableType = 'destination'
+          }
+        }
+      } else {
+        // Zaten UUID gelmisse, hangi tabloya ait oldugunu bul
+        const { data: isBus } = await supabase.from('businesses').select('id').eq('id', destinationId).maybeSingle()
+        if (isBus) {
+          tableType = 'business'
+        }
       }
 
-      const { error: reviewError } = await supabase.from('destination_comments').insert([{
-        destination_id: finalId,
-        user_id: user.id,
-        comment: comment,
-        rating: rating,
-        visit_note: visitNote,
-        is_approved: false
-      }])
-
-      if (reviewError) throw reviewError
+      if (tableType === 'business') {
+        const { error: reviewError } = await supabase.from('business_reviews').insert([{
+          business_id: finalId,
+          user_id: user.id,
+          user_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+          comment: comment,
+          rating: rating,
+          visit_note: visitNote,
+          is_approved: false
+        }])
+        if (reviewError) throw reviewError
+      } else {
+        const { error: reviewError } = await supabase.from('destination_comments').insert([{
+          destination_id: finalId,
+          user_id: user.id,
+          comment: comment,
+          rating: rating,
+          visit_note: visitNote,
+          is_approved: false
+        }])
+        if (reviewError) throw reviewError
+      }
 
       if (onSuccess) {
         onSuccess({ rating, comment, visitNote })

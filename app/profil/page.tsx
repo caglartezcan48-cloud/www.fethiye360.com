@@ -485,7 +485,7 @@ export default function UserProfilePage() {
                     {plan.completed_activities?.length === plan.activities?.length && (
                       <div className="absolute top-6 left-6 z-10">
                         <div className="bg-[#64ffda] text-[#0a192f] px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#64ffda]/20 animate-bounce">
-                          Fethiye Fatihi 👑
+                          Rota Tamamlandı ✨
                         </div>
                       </div>
                     )}
@@ -517,10 +517,10 @@ export default function UserProfilePage() {
                               const total = plan.activities?.length || 0
                               const completed = plan.completed_activities?.length || 0
                               const pct = total > 0 ? (completed / total) * 100 : 0
-                              if (pct === 0) return 'Macera Başlıyor! 🧭'
-                              if (pct === 100) return 'Görev Tamamlandı! ✨'
-                              if (pct >= 50) return 'Neredeyse Bitti! 🔥'
-                              return 'Yolun Yarısı! 🏃‍♂️'
+                              if (pct === 0) return 'Yolculuk Başladı! 🧭'
+                              if (pct === 100) return 'Liste Tamamlandı! ✨'
+                              if (pct >= 50) return 'Hedefe Az Kaldı! 🔥'
+                              return 'Keşif Devam Ediyor... 🏃‍♂️'
                             })()}
                           </span>
                           <span className="text-[10px] font-bold text-[#64ffda]">
