@@ -8,7 +8,7 @@ export async function GET() {
   const { data: cat } = await supabase
     .from('business_categories')
     .select('id')
-    .ilike('name', 'Restoran')
+    .ilike('name', 'Restoran & Cafe')
     .single()
   
   if (!cat) {

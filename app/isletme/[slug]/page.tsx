@@ -55,7 +55,7 @@ export default async function BusinessDetailPage({ params }: { params: { slug: s
   }
 
   // Satis Odakli Sayfa Kontrolu (Restoran, Kafe vb.)
-  const salesOrientedCategories = ['Yemek', 'Restoran', 'Kafe', 'Fast Food', 'Kahvaltı', 'Pide', 'Kebap', 'Pizza', 'Döner', 'Meyhane', 'Izgara', 'Pastane']
+  const salesOrientedCategories = ['Yemek', 'Restoran', 'Kafe', 'Restoran & Cafe', 'Fast Food', 'Kahvaltı', 'Pide', 'Kebap', 'Pizza', 'Döner', 'Meyhane', 'Izgara', 'Pastane']
   const isSalesOriented = salesOrientedCategories.some(cat => 
     business.business_categories?.name?.includes(cat) || 
     salesOrientedCategories.includes(business.business_categories?.name)
