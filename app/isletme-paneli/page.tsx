@@ -38,7 +38,7 @@ export default function BusinessPanel() {
   const [updating, setUpdating] = useState(false)
   const [uploading, setUploading] = useState(false)
   
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '' })
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: '', image_url: '' })
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({})
   
   const supabase = createClient()
@@ -107,13 +107,15 @@ export default function BusinessPanel() {
         business_id: business.id,
         name: newProduct.name,
         price: parseFloat(newProduct.price),
-        description: newProduct.description
+        description: newProduct.description,
+        category: newProduct.category || 'Genel',
+        image_url: newProduct.image_url || null
       }])
       .select()
 
     if (!error && data) {
       setProducts([...products, data[0]])
-      setNewProduct({ name: '', price: '', description: '' })
+      setNewProduct({ name: '', price: '', description: '', category: '', image_url: '' })
     }
     setUpdating(false)
   }
@@ -337,39 +339,62 @@ export default function BusinessPanel() {
                 </div>
               </header>
 
-              <form onSubmit={handleAddProduct} className="bg-white/5 p-8 rounded-[40px] border border-white/5 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Adı</label>
+              <form onSubmit={handleAddProduct} className="bg-white/5 p-10 rounded-[48px] border border-white/5 space-y-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 rounded-full blur-3xl" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Adı *</label>
                     <input 
+                      required
                       value={newProduct.name}
                       onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                      className="w-full bg-[#0a192f] border-none rounded-xl p-4 text-white"
-                      placeholder="Örn: Serpme Kahvaltı"
+                      className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
+                      placeholder="Örn: Adana Kebap"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Fiyat (TL)</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Fiyat (TL) *</label>
                     <input 
+                      required
                       type="number"
                       value={newProduct.price}
                       onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                      className="w-full bg-[#0a192f] border-none rounded-xl p-4 text-white"
+                      className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
                       placeholder="350"
                     />
                   </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Kısa Açıklama</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Kategori</label>
                     <input 
+                      value={newProduct.category}
+                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                      className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
+                      placeholder="Örn: Ana Yemekler"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Görsel URL</label>
+                    <input 
+                      value={newProduct.image_url}
+                      onChange={(e) => setNewProduct({...newProduct, image_url: e.target.value})}
+                      className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-3">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Açıklaması</label>
+                    <textarea 
                       value={newProduct.description}
                       onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                      className="w-full bg-[#0a192f] border-none rounded-xl p-4 text-white"
-                      placeholder="İçerik hakkında bilgi..."
+                      className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none h-24 resize-none"
+                      placeholder="Ürün içeriği hakkında kısa bilgi..."
                     />
                   </div>
                 </div>
-                <button type="submit" className="w-full py-4 bg-white/10 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#64ffda] hover:text-[#0a192f] transition-all">
-                  <Plus className="w-5 h-5" /> Ürün Ekle
+                <button type="submit" disabled={updating} className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-[24px] font-black uppercase tracking-[0.2em] text-[11px] flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-xl shadow-[#64ffda]/10 disabled:opacity-50">
+                  {updating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                  YENİ ÜRÜNÜ MENÜYE EKLE
                 </button>
               </form>
 
