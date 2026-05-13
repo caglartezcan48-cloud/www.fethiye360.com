@@ -11,7 +11,10 @@ export async function GET() {
     .ilike('name', 'Restoran')
     .single()
   
-  if (!cat) return NextResponse.json({ error: 'Kategori bulunamadı' })
+  if (!cat) {
+    const { data: allCats } = await supabase.from('business_categories').select('name')
+    return NextResponse.json({ error: 'Kategori bulunamadı', available: allCats?.map(c => c.name) })
+  }
 
   // 2. Örnek İşletme Ekle
   const { data: biz, error: bError } = await supabase
