@@ -110,7 +110,6 @@ export default function BulkUploadPage() {
           category_id: categoryMap[category_name?.toLowerCase()] || null,
           slug: item.slug || item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
           services: has_delivery === '1' ? ['Paket Servis'] : [],
-          status: 'active',
           updated_at: new Date().toISOString()
         }
       })

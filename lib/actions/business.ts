@@ -11,7 +11,7 @@ export async function saveBusiness(businessData: any, id?: string) {
       // Guncelleme
       const { data, error } = await supabase
         .from('businesses')
-        .update({ ...businessData, status: 'active' })
+        .update(businessData)
         .eq('id', id)
         .select()
         .single()
@@ -23,7 +23,7 @@ export async function saveBusiness(businessData: any, id?: string) {
       // Yeni Kayit
       const { data, error } = await supabase
         .from('businesses')
-        .insert({ ...businessData, status: 'active' })
+        .insert(businessData)
         .select()
         .single()
       
