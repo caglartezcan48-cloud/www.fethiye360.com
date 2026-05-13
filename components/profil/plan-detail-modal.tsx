@@ -143,6 +143,32 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
             </div>
         </header>
 
+        {/* Gamification: Progress Bar & Celebration */}
+        <div className="px-8 md:px-12 pt-4 space-y-4">
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+                <span className="text-slate-400">Tur İlerlemesi</span>
+                <span className="text-[#64ffda]">{Math.round((completedIds.length / (plan.activities?.length || 1)) * 100)}%</span>
+            </div>
+            <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                <div 
+                    className="h-full bg-gradient-to-r from-[#64ffda] to-blue-500 transition-all duration-1000 shadow-[0_0_10px_#64ffda44]"
+                    style={{ width: `${(completedIds.length / (plan.activities?.length || 1)) * 100}%` }}
+                />
+            </div>
+
+            {completedIds.length === plan.activities?.length && (
+                <div className="bg-gradient-to-r from-emerald-500/20 to-blue-500/20 border border-emerald-500/30 rounded-2xl p-4 flex items-center justify-center gap-4 animate-in zoom-in-95 duration-500">
+                    <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 shrink-0">
+                        <Sparkles className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="space-y-0.5">
+                        <h4 className="text-sm font-black text-white uppercase italic tracking-tighter">TEBRİKLER! FETHİYE FATİHİ! 👑</h4>
+                        <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Bu gezi listesindeki tüm yerleri keşfettin!</p>
+                    </div>
+                </div>
+            )}
+        </div>
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-8 md:p-12 space-y-8 no-scrollbar">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

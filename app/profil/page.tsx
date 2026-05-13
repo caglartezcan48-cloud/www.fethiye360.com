@@ -479,8 +479,16 @@ export default function UserProfilePage() {
                 null
               ) : (
                 itineraries.map((plan) => (
-                  <div key={plan.id} className="group bg-white/5 border border-white/10 rounded-[40px] p-8 hover:bg-white/10 transition-all relative overflow-hidden">
+                  <div key={plan.id} className={`group bg-white/5 border rounded-[40px] p-8 hover:bg-white/10 transition-all relative overflow-hidden ${plan.completed_activities?.length === plan.activities?.length ? 'ring-2 ring-[#64ffda]/30' : 'border-white/10'}`}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#64ffda]/10 transition-all" />
+                    
+                    {plan.completed_activities?.length === plan.activities?.length && (
+                      <div className="absolute top-6 left-6 z-10">
+                        <div className="bg-[#64ffda] text-[#0a192f] px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#64ffda]/20 animate-bounce">
+                          Fethiye Fatihi 👑
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="relative space-y-6">
                       <div className="flex items-start justify-between">
@@ -501,11 +509,42 @@ export default function UserProfilePage() {
                         </button>
                       </div>
 
+                      {/* Progress Section */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                            {(() => {
+                              const total = plan.activities?.length || 0
+                              const completed = plan.completed_activities?.length || 0
+                              const pct = total > 0 ? (completed / total) * 100 : 0
+                              if (pct === 0) return 'Macera Başlıyor! 🧭'
+                              if (pct === 100) return 'Görev Tamamlandı! ✨'
+                              if (pct >= 50) return 'Neredeyse Bitti! 🔥'
+                              return 'Yolun Yarısı! 🏃‍♂️'
+                            })()}
+                          </span>
+                          <span className="text-[10px] font-bold text-[#64ffda]">
+                            %{Math.round(((plan.completed_activities?.length || 0) / (plan.activities?.length || 1)) * 100)}
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                          <div 
+                            className="h-full bg-gradient-to-r from-[#64ffda] to-blue-500 transition-all duration-1000"
+                            style={{ width: `${((plan.completed_activities?.length || 0) / (plan.activities?.length || 1)) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
                       <div className="flex gap-2 overflow-hidden">
-                        {/* Yeni Bucket List Formati Icin Onizleme */}
+                        {/* Bucket List Previews */}
                         {plan.activities && Array.isArray(plan.activities) && plan.activities.slice(0, 4).map((act: any, idx: number) => (
                           <div key={idx} className="relative w-16 h-16 rounded-2xl overflow-hidden border border-white/10 shrink-0">
                             <Image src={act.image} alt={act.title} fill className="object-cover" />
+                            {plan.completed_activities?.some((ca: any) => (typeof ca === 'string' ? ca : ca.id) === act.id) && (
+                              <div className="absolute inset-0 bg-[#64ffda]/40 flex items-center justify-center">
+                                <Check className="w-6 h-6 text-[#0a192f] stroke-[4]" />
+                              </div>
+                            )}
                           </div>
                         ))}
                           {plan.activities?.length > 4 && (
@@ -517,11 +556,11 @@ export default function UserProfilePage() {
 
                         <div className="pt-4 flex items-center justify-between">
                           <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                            {plan.activities?.length || 0} AKTİVİTE SEÇİLDİ
+                            {plan.completed_activities?.length || 0} / {plan.activities?.length || 0} TAMAMLANDI
                           </div>
                           <button 
                             onClick={() => setSelectedPlan(plan)} 
-                            className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all"
+                            className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-[#64ffda]/10"
                           >
                             Görüntüle
                           </button>
