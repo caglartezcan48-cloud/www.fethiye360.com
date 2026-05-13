@@ -26,6 +26,10 @@ export async function updateSession(request: NextRequest) {
           )
         },
       },
+      auth: {
+        storageKey: 'fethiye360-auth-token',
+        persistSession: true
+      }
     },
   )
 

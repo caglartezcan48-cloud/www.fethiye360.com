@@ -29,6 +29,10 @@ export async function createClient() {
           }
         },
       },
+      auth: {
+        storageKey: 'fethiye360-auth-token',
+        persistSession: true
+      }
     },
   )
 }
