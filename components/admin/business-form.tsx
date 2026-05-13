@@ -63,8 +63,17 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
   })
 
   const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
+    const turkishChars: { [key: string]: string } = {
+      'ğ': 'g', 'ü': 'u', 'ş': 's', 'ı': 'i', 'ö': 'o', 'ç': 'c',
+      'Ğ': 'g', 'Ü': 'u', 'Ş': 's', 'İ': 'i', 'Ö': 'o', 'Ç': 'c'
+    }
+    
+    let slug = name.toLowerCase()
+    Object.keys(turkishChars).forEach(char => {
+      slug = slug.replace(new RegExp(char, 'g'), turkishChars[char])
+    })
+
+    return slug
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
