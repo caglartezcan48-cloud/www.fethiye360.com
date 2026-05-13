@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
 import Image from 'next/image'
+import Link from 'next/link'
+import { MenuSection } from '@/components/isletme/menu-section'
 import { 
   MapPin, 
   Phone, 
@@ -17,7 +19,9 @@ import {
   Clock,
   CheckCircle2,
   Image as ImageIcon,
-  Info
+  Info,
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react'
 
 async function getBusiness(slug: string) {

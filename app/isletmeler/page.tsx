@@ -23,7 +23,8 @@ import {
   MapPin,
   Star,
   CheckCircle2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Clock
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
