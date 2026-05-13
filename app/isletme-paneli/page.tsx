@@ -92,7 +92,8 @@ export default function BusinessPanel() {
         address: business.address,
         location_lat: business.location_lat ? parseFloat(business.location_lat.toString()) : null,
         location_lng: business.location_lng ? parseFloat(business.location_lng.toString()) : null,
-        website: business.website
+        website: business.website,
+        services: business.services || []
       })
       .eq('id', business.id)
 
@@ -369,6 +370,28 @@ export default function BusinessPanel() {
                   />
                 </div>
 
+                <div className="md:col-span-2 space-y-3">
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
+                    <Settings className="w-3 h-3 text-[#64ffda]" /> Sayfa Düzeni Seçimi
+                  </label>
+                  <p className="text-[10px] text-slate-400 ml-1 mb-2">Sayfanızın nasıl görüneceğini belirleyin.</p>
+                  <select 
+                    value={(business.services || []).includes('Paket Servis') ? 'paket_servis' : 'vitrin'}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      let newServices = [...(business.services || [])].filter(s => s !== 'Paket Servis');
+                      if (val === 'paket_servis') {
+                        newServices.push('Paket Servis');
+                      }
+                      setBusiness({...business, services: newServices});
+                    }}
+                    className="w-full bg-[#0a192f] border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-bold"
+                  >
+                    <option value="paket_servis">Sipariş Odaklı Menü Düzeni (Yemeksepeti Tarzı)</option>
+                    <option value="vitrin">Sadece Tanıtım ve Vitrin Düzeni</option>
+                  </select>
+                </div>
+                
                 <div className="md:col-span-2 pt-6">
                   <button 
                     type="submit"

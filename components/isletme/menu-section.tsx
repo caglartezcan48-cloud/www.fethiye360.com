@@ -25,7 +25,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
   const [activeCategory, setActiveCategory] = useState('Tümü')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const categories = ['Tümü', ...Array.from(new Set(products.map(p => p.category || 'Diğer')))]
+  const categories = ['Tümü', ...Array.from(new Set(products.map(p => p.category || 'Diğer'))).sort()]
   
   const getProductQuantity = (productId: string) => {
     return cartItems?.find(item => item.id === productId)?.quantity || 0

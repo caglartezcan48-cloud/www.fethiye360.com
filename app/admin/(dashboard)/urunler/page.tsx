@@ -191,6 +191,7 @@ export default function ProductsManagementPage() {
             Yeni Ürün Ekle
           </button>
         </div>
+      </div>
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
