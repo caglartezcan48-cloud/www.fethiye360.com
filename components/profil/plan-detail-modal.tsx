@@ -220,13 +220,7 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
 
                                     {isCompleted && (
                                         <div className="flex flex-col items-end gap-1">
-                                            <span className="text-[8px] text-slate-500 font-bold uppercase">ZİYARET NOTU VAR ✅</span>
-                                            <button 
-                                                onClick={() => setReviewTarget({ id: act.dbId || act.id, title: act.title })}
-                                                className="text-[#64ffda] hover:scale-105 transition-all text-[9px] font-black uppercase tracking-widest flex items-center gap-1"
-                                            >
-                                                <Sparkles className="w-3 h-3" /> Notu Düzenle
-                                            </button>
+                                            <span className="text-[8px] text-[#64ffda] font-black uppercase tracking-widest bg-[#64ffda]/5 px-2 py-1 rounded-lg border border-[#64ffda]/10">ZİYARET NOTU KAYDEDİLDİ ✅</span>
                                         </div>
                                     )}
                                 </div>
