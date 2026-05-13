@@ -5,10 +5,18 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-async function check() {
-  const { data, error } = await supabase.from('business_products').select('*').limit(1)
-  console.log('Columns:', data ? Object.keys(data[0]) : 'No data or error')
-  if (error) console.error(error)
+async function checkSchema() {
+  // Isletmeler tablosundaki kolonlari listele
+  const { data, error } = await supabase
+    .from('businesses')
+    .select('*')
+    .limit(1)
+  
+  if (data && data.length > 0) {
+    console.log('Mevcut Kolonlar:', Object.keys(data[0]))
+  } else {
+    console.log('Tablo boş veya hata oluştu:', error)
+  }
 }
 
-check()
+checkSchema()
