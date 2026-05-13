@@ -83,25 +83,23 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
   const reviews = reviewsRes.data || []
   const avgRating = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : '5.0'
 
-  // Satis Odakli Sayfa Kontrolu (Paket Servis bilgisine gore)
-  const isSalesOriented = business.services?.includes('Paket Servis') || false
-
-
+  // Satis Odakli Sayfa Kontrolu (Paket Servis bilgisine gore - case insensitive)
+  const isSalesOriented = business.services?.some((s: string) => s.toLowerCase().includes('paket')) || false;
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
       <Header />
 
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
+      <section className={`relative w-full overflow-hidden ${isSalesOriented ? 'h-[40vh] md:h-[50vh]' : 'h-[60vh] md:h-[70vh]'}`}>
         <img 
           src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=90"} 
           alt={business.name || 'İşletme'} 
           className="w-full h-full object-cover scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-[#0a192f]/40 to-transparent" />
+        <div className={`absolute inset-0 bg-gradient-to-t ${isSalesOriented ? 'from-[#0a192f] via-[#0a192f]/60 to-transparent' : 'from-[#0a192f] via-[#0a192f]/40 to-transparent'}`} />
         
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-10">
-          <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 space-y-6">
+          <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 space-y-6 mt-10">
             <div className="flex flex-wrap items-center justify-center gap-3">
               <span className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#64ffda]/20">
                 {business.business_categories?.name}
@@ -113,21 +111,34 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
               )}
             </div>
             
-            <h1 className="text-6xl md:text-9xl font-black text-white uppercase italic tracking-tighter leading-none drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+            <h1 className={`font-black text-white uppercase tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${isSalesOriented ? 'text-5xl md:text-7xl' : 'text-6xl md:text-9xl italic leading-none'}`}>
               {business.name}
             </h1>
             
-            <div className="flex flex-wrap items-center justify-center gap-8 text-white/90">
-              <div className="flex items-center gap-3 bg-[#0a192f]/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/5">
-                <div className="flex text-amber-400">
-                  {[1,2,3,4,5].map(i => <Star key={i} className="w-4 h-4 fill-current" />)}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-white/90">
+              <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
+                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                <span className="text-sm font-bold">{avgRating} <span className="opacity-60 text-xs font-normal">({reviews.length}+)</span></span>
+              </div>
+              
+              {isSalesOriented && (
+                <>
+                  <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
+                    <Clock className="w-4 h-4 text-[#64ffda]" />
+                    <span className="text-sm font-bold">25-35 dk</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
+                    <span className="text-sm font-bold text-[#64ffda]">Min. 200 TL</span>
+                  </div>
+                </>
+              )}
+              
+              {!isSalesOriented && (
+                <div className="flex items-center gap-3 text-sm font-black uppercase tracking-widest bg-[#0a192f]/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/5">
+                  <MapPin className="w-4 h-4 text-[#64ffda]" />
+                  {business.address?.split(',')[0] || 'FETHİYE Merkez'}
                 </div>
-                <span className="text-sm font-black tracking-widest">{avgRating} <span className="text-[10px] opacity-60">({reviews.length} YORUM)</span></span>
-              </div>
-              <div className="flex items-center gap-3 text-sm font-black uppercase tracking-widest bg-[#0a192f]/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/5">
-                <MapPin className="w-4 h-4 text-[#64ffda]" />
-                {business.address?.split(',')[0] || 'FETHİYE Merkez'}
-              </div>
+              )}
             </div>
           </div>
         </div>

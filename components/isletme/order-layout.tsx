@@ -73,14 +73,15 @@ export function OrderLayout({ products, businessName, whatsappNumber }: OrderLay
           products={products} 
           businessName={businessName} 
           onAddToCart={addToCart}
+          onRemoveFromCart={removeFromCart}
           cartItems={cart}
         />
       </div>
 
-      {/* Sağ Taraf: Canlı Sepet */}
+      {/* Sağ Taraf: Canlı Sepet (Yemeksepeti Style) */}
       <div className="lg:col-span-4">
-        <div className="sticky top-32 space-y-6">
-          <div className="bg-[#112240] border border-[#64ffda]/20 rounded-[40px] p-8 shadow-2xl shadow-[#64ffda]/5">
+        <div className="sticky top-[80px] space-y-6">
+          <div className="bg-[#112240] rounded-2xl p-6 shadow-2xl border border-white/10">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda]">
@@ -142,16 +143,16 @@ export function OrderLayout({ products, businessName, whatsappNumber }: OrderLay
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between px-2">
-                  <span className="text-slate-400 text-[10px] font-black uppercase">Toplam</span>
-                  <span className="text-white text-2xl font-black italic tracking-tighter">{total} TL</span>
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-slate-400 text-sm font-bold">Toplam</span>
+                  <span className="text-[#64ffda] text-xl font-black">{total} TL</span>
                 </div>
 
                 <button 
                   onClick={handleCheckout}
-                  className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-[24px] font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-[#64ffda]/20 flex items-center justify-center gap-3"
+                  className="w-full py-4 bg-[#64ffda] text-[#0a192f] rounded-xl font-bold text-sm hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
-                  <MessageCircle className="w-5 h-5" /> SİPARİŞİ TAMAMLA
+                  SİPARİŞİ ONAYLA
                 </button>
               </div>
             )}
