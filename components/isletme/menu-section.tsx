@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Package, Plus, Minus } from 'lucide-react'
+import { Package, Plus, Minus, Search } from 'lucide-react'
 
 interface Product {
   id: string
@@ -23,6 +23,7 @@ interface MenuSectionProps {
 
 export function MenuSection({ products, businessName, whatsappNumber, onAddToCart, onRemoveFromCart, cartItems }: MenuSectionProps) {
   const [activeCategory, setActiveCategory] = useState('Tümü')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const categories = ['Tümü', ...Array.from(new Set(products.map(p => p.category || 'Diğer')))]
   
@@ -42,29 +43,47 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
 
   return (
     <div className="space-y-8">
-      {/* Kategori Navigasyonu - Sticky Yemeksepeti Style */}
-      <div className="sticky top-[80px] z-30 bg-[#0a192f] py-4 -mx-6 px-6 overflow-x-auto no-scrollbar border-b border-white/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
-                activeCategory === cat
-                  ? 'bg-[#64ffda] text-[#0a192f]'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+      {/* Kategori Navigasyonu ve Arama - Sticky Yemeksepeti Style */}
+      <div className="sticky top-[80px] z-30 bg-[#0a192f] py-4 -mx-6 px-6 border-b border-white/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] flex items-center gap-4">
+        {/* Arama Çubuğu */}
+        <div className="relative shrink-0 w-48 hidden md:block">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input 
+            type="text" 
+            placeholder="Menüde Ara" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#112240] border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-[#64ffda] transition-colors placeholder:text-slate-500"
+          />
+        </div>
+
+        {/* Kategoriler */}
+        <div className="flex-1 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-2">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                  activeCategory === cat
+                    ? 'bg-[#64ffda] text-[#0a192f]'
+                    : 'bg-[#112240] text-slate-300 hover:bg-white/10 border border-white/5'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Kategorilere Göre Gruplanmış Ürün Listesi */}
       <div className="space-y-12">
         {(activeCategory === 'Tümü' ? categories.filter(c => c !== 'Tümü') : [activeCategory]).map(category => {
-          const categoryProducts = products.filter(p => (p.category || 'Diğer') === category)
+          const categoryProducts = products.filter(p => 
+            (p.category || 'Diğer') === category && 
+            p.name.toLowerCase().includes(searchQuery.toLowerCase())
+          )
           
           if (categoryProducts.length === 0) return null;
 
@@ -79,37 +98,36 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
                   return (
                     <div 
                       key={product.id}
-                      className="bg-[#112240] rounded-2xl p-4 flex gap-4 hover:bg-[#1a365d] transition-colors border border-white/5 relative group cursor-pointer"
+                      className="bg-[#112240] rounded-xl p-4 flex gap-4 hover:bg-[#1a365d] transition-colors border border-white/5 relative group cursor-pointer shadow-lg"
                       onClick={() => onAddToCart?.(product)}
                     >
                       {/* Sol: Bilgiler */}
-                      <div className="flex-1 flex flex-col justify-between py-1">
-                        <div>
-                          <h4 className="text-white font-bold text-base leading-tight group-hover:text-[#64ffda] transition-colors">{product.name}</h4>
-                          <p className="text-slate-400 text-xs mt-1.5 line-clamp-2 leading-relaxed">{product.description || 'Açıklama bulunmuyor.'}</p>
+                      <div className="flex-1 flex flex-col py-1 pr-2">
+                        <h4 className="text-white font-bold text-[15px] leading-snug group-hover:text-[#64ffda] transition-colors">{product.name}</h4>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="font-bold text-[#64ffda]">{product.price} TL</span>
+                          <span className="text-xs text-slate-500 line-through">{(product.price * 1.25).toFixed(0)} TL</span>
                         </div>
-                        <div className="mt-4 font-black text-white">
-                          {product.price} TL
-                        </div>
+                        <p className="text-slate-400 text-xs mt-2 line-clamp-2 leading-relaxed">{product.description || 'Açıklama bulunmuyor.'}</p>
                       </div>
 
                       {/* Sağ: Görsel ve Buton */}
-                      <div className="w-28 h-28 shrink-0 relative rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                      <div className="w-[120px] h-[120px] shrink-0 relative rounded-xl overflow-hidden bg-white/5 border border-white/10 shadow-md">
                         {product.image_url ? (
-                          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-600">
+                          <div className="w-full h-full flex items-center justify-center text-slate-600 bg-slate-800">
                             <Package className="w-8 h-8" />
                           </div>
                         )}
 
                         {/* Miktar Kontrolü / Ekle Butonu */}
                         <div 
-                          className="absolute bottom-1 right-1" 
-                          onClick={(e) => e.stopPropagation()} // Kart tıklamasını engelle
+                          className="absolute -bottom-2 -right-2 p-2" 
+                          onClick={(e) => e.stopPropagation()}
                         >
                           {quantity > 0 ? (
-                            <div className="flex items-center bg-white rounded-lg shadow-lg overflow-hidden border border-slate-200">
+                            <div className="flex items-center bg-white rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.5)] border border-slate-100 overflow-hidden">
                               <button 
                                 onClick={() => onRemoveFromCart?.(product.id)}
                                 className="w-8 h-8 flex items-center justify-center text-[#0a192f] hover:bg-slate-100 transition-colors"
@@ -129,9 +147,9 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
                           ) : (
                             <button 
                               onClick={() => onAddToCart?.(product)}
-                              className="w-8 h-8 bg-white rounded-lg shadow-lg flex items-center justify-center text-[#0a192f] hover:bg-[#64ffda] transition-colors"
+                              className="w-10 h-10 bg-white rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.5)] flex items-center justify-center text-[#0a192f] hover:scale-105 transition-transform border border-slate-100"
                             >
-                              <Plus className="w-5 h-5" />
+                              <Plus className="w-6 h-6 text-[#0a192f]" />
                             </button>
                           )}
                         </div>

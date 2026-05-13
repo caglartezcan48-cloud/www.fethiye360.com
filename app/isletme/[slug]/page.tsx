@@ -90,61 +90,114 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
       <Header />
 
       {/* Hero Section */}
-      <section className={`relative w-full overflow-hidden ${isSalesOriented ? 'h-[40vh] md:h-[50vh]' : 'h-[60vh] md:h-[70vh]'}`}>
-        <img 
-          src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=90"} 
-          alt={business.name || 'İşletme'} 
-          className="w-full h-full object-cover scale-105"
-        />
-        <div className={`absolute inset-0 bg-gradient-to-t ${isSalesOriented ? 'from-[#0a192f] via-[#0a192f]/60 to-transparent' : 'from-[#0a192f] via-[#0a192f]/40 to-transparent'}`} />
-        
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-10">
-          <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 space-y-6 mt-10">
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <span className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#64ffda]/20">
-                {business.business_categories?.name}
-              </span>
-              {business.is_featured && (
-                <span className="px-6 py-2 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Sparkles className="w-3 h-3 text-[#64ffda]" /> Popüler Mekan
-                </span>
-              )}
+      {isSalesOriented ? (
+        <section className="max-w-7xl mx-auto px-6 pt-24 pb-8 mt-16">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mb-6">
+            <span>Fethiye</span>
+            <span className="text-slate-600">&gt;</span>
+            <span>Restoran Liste</span>
+            <span className="text-slate-600">&gt;</span>
+            <span className="text-white">{business.name}</span>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            {/* Logo / Square Image */}
+            <div className="w-32 h-32 md:w-40 md:h-40 shrink-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-white/5">
+              <img 
+                src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=90"} 
+                alt={business.name} 
+                className="w-full h-full object-cover hover:scale-105 transition-transform"
+              />
             </div>
-            
-            <h1 className={`font-black text-white uppercase tracking-tighter drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)] ${isSalesOriented ? 'text-5xl md:text-7xl' : 'text-6xl md:text-9xl italic leading-none'}`}>
-              {business.name}
-            </h1>
-            
-            <div className="flex flex-wrap items-center justify-center gap-4 text-white/90">
-              <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
-                <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                <span className="text-sm font-bold">{avgRating} <span className="opacity-60 text-xs font-normal">({reviews.length}+)</span></span>
+
+            {/* Restoran Bilgileri */}
+            <div className="flex-1 space-y-4">
+              <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                <span>{business.business_categories?.name || 'Restoran'}</span>
+                <span>•</span>
+                <span className="text-[#64ffda]">Restoran Teslimatlı</span>
               </div>
               
-              {isSalesOriented && (
-                <>
-                  <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
-                    <Clock className="w-4 h-4 text-[#64ffda]" />
-                    <span className="text-sm font-bold">25-35 dk</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
-                    <span className="text-sm font-bold text-[#64ffda]">Min. 200 TL</span>
-                  </div>
-                </>
-              )}
+              <div className="flex justify-between items-start">
+                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
+                  {business.name}
+                </h1>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6 text-sm">
+                <div className="flex items-center gap-1.5 cursor-pointer hover:bg-white/5 px-2 py-1 -ml-2 rounded-lg transition-colors">
+                  <Star className="w-4 h-4 text-[#e0004d] fill-[#e0004d]" />
+                  <span className="text-[#e0004d] font-bold">{avgRating}/5</span>
+                  <span className="text-slate-400 text-xs">({reviews.length}+)</span>
+                  <span className="text-white font-medium ml-1 underline decoration-white/30 underline-offset-4">Yorumları Gör</span>
+                </div>
+                
+                <div className="flex items-center gap-2 text-slate-300 font-medium cursor-pointer hover:bg-white/5 px-2 py-1 rounded-lg transition-colors">
+                  <Info className="w-4 h-4" />
+                  <span className="underline decoration-white/30 underline-offset-4">Hakkında</span>
+                </div>
+              </div>
               
-              {!isSalesOriented && (
+              {/* Yemeksepeti tarzı rozetler */}
+              <div className="flex flex-wrap gap-3 pt-2">
+                <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-bold text-white">
+                  <Clock className="w-3.5 h-3.5 text-[#64ffda]" />
+                  25-35 dk
+                </div>
+                <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-bold text-white">
+                  <Package className="w-3.5 h-3.5 text-[#64ffda]" />
+                  Min. 200 TL
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
+          <img 
+            src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=90"} 
+            alt={business.name || 'İşletme'} 
+            className="w-full h-full object-cover scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-[#0a192f]/40 to-transparent" />
+          
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-10">
+            <div className="animate-in fade-in slide-in-from-bottom-10 duration-1000 space-y-6">
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <span className="px-6 py-2 bg-[#64ffda] text-[#0a192f] rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[#64ffda]/20">
+                  {business.business_categories?.name}
+                </span>
+                {business.is_featured && (
+                  <span className="px-6 py-2 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                    <Sparkles className="w-3 h-3 text-[#64ffda]" /> Popüler Mekan
+                  </span>
+                )}
+              </div>
+              
+              <h1 className="text-6xl md:text-9xl font-black text-white uppercase italic tracking-tighter leading-none drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                {business.name}
+              </h1>
+              
+              <div className="flex flex-wrap items-center justify-center gap-4 text-white/90">
+                <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
+                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                  <span className="text-sm font-bold">{avgRating} <span className="opacity-60 text-xs font-normal">({reviews.length}+)</span></span>
+                </div>
+                
                 <div className="flex items-center gap-3 text-sm font-black uppercase tracking-widest bg-[#0a192f]/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/5">
                   <MapPin className="w-4 h-4 text-[#64ffda]" />
                   {business.address?.split(',')[0] || 'FETHİYE Merkez'}
                 </div>
-              )}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
+      )}
 
-        {/* Quick Back & Share */}
-        <div className="absolute top-8 left-8 right-8 flex justify-between items-center z-20">
+      {/* Quick Back */}
+      {!isSalesOriented && (
+        <div className="absolute top-24 left-8 right-8 flex justify-between items-center z-20">
              <Link href="/isletmeler" className="p-4 bg-[#0a192f]/60 backdrop-blur-xl rounded-2xl text-white/70 hover:text-[#64ffda] border border-white/5 transition-all hover:scale-110">
                 <ArrowLeft className="w-5 h-5" />
              </Link>
@@ -157,10 +210,10 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
                 </button>
              </div>
         </div>
-      </section>
+      )}
 
       {/* Main Content Area */}
-      <section className="max-w-7xl mx-auto px-6 py-12 md:py-24">
+      <section className={`max-w-7xl mx-auto px-6 py-8 ${isSalesOriented ? 'border-t border-white/5' : 'md:py-24'}`}>
         {isSalesOriented ? (
           /* SALES ORIENTED LAYOUT (Order Panel) */
           <OrderLayout 
