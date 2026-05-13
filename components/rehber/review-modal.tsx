@@ -8,10 +8,12 @@ import { toast } from 'sonner'
 interface ReviewModalProps {
   destinationId: string
   destinationTitle: string
+  userId?: string
   onClose: () => void
+  onSuccess?: (data: { rating: number, comment: string, visitNote: string }) => void
 }
 
-export const ReviewModal = ({ destinationId, destinationTitle, onClose }: ReviewModalProps) => {
+export const ReviewModal = ({ destinationId, destinationTitle, userId, onClose, onSuccess }: ReviewModalProps) => {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [visitNote, setVisitNote] = useState('')
@@ -55,6 +57,10 @@ export const ReviewModal = ({ destinationId, destinationTitle, onClose }: Review
       }])
 
       if (reviewError) throw reviewError
+
+      if (onSuccess) {
+        onSuccess({ rating, comment, visitNote })
+      }
 
       toast.success('Deneyiminiz kaydedildi! ✨')
       setComment('')

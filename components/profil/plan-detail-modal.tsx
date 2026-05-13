@@ -57,6 +57,10 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
       if (error) throw error
       onUpdate()
       setReviewTarget(null)
+      // Kullanici istegi: Gezi kaydedildikten sonra modal kapansin
+      setTimeout(() => {
+        onClose()
+      }, 500)
     } catch (error) {
       toast.error('İlerleme kaydedilemedi')
     } finally {
