@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ArrowLeft, Upload, Loader2, X, Image as ImageIcon, Building2, MapPin, Phone, Globe, Clock, Star } from 'lucide-react'
 import { compressImage } from '@/lib/utils'
+import { saveBusiness } from '@/lib/actions/business'
 import Link from 'next/link'
 
 interface Category {
@@ -125,23 +126,16 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
         updated_at: new Date().toISOString(),
       }
 
-      if (business) {
-        const { error } = await supabase
-          .from('businesses')
-          .update(businessData)
-          .eq('id', business.id)
-        if (error) throw error
-      } else {
-        const { error } = await supabase
-          .from('businesses')
-          .insert(businessData)
-        if (error) throw error
+      const result = await saveBusiness(businessData, business?.id)
+
+      if (!result.success) {
+        throw new Error(result.error)
       }
 
       router.push('/admin/isletmeler')
       router.refresh()
-    } catch (err) {
-      setError('İşletme kaydedilirken hata oluştu')
+    } catch (err: any) {
+      setError(err.message || 'İşletme kaydedilirken hata oluştu')
       console.error(err)
       setLoading(false)
     }
