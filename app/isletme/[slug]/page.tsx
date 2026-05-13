@@ -22,7 +22,8 @@ import {
   Image as ImageIcon,
   Info,
   Sparkles,
-  ArrowLeft
+  ArrowLeft,
+  Package
 } from 'lucide-react'
 
 async function getBusiness(slug: string) {
