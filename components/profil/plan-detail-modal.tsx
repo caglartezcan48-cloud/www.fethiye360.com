@@ -201,17 +201,19 @@ export function PlanDetailModal({ isOpen, onClose, plan, onUpdate }: PlanDetailM
                             </div>
 
                             <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                                <button 
-                                    onClick={() => toggleComplete(act.id, act.title, act.dbId)}
-                                    disabled={isUpdating}
-                                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                                        completedIds.includes(act.id)
-                                        ? 'bg-emerald-500 text-white'
-                                        : 'bg-white/5 text-slate-400 hover:bg-[#64ffda] hover:text-[#0a192f] border border-white/10'
-                                    }`}
-                                >
-                                    {completedIds.includes(act.id) ? 'GEZDİM!' : 'GEZDİM Mİ?'}
-                                </button>
+                                {!completedIds.includes(act.id) ? (
+                                    <button 
+                                        onClick={() => toggleComplete(act.id, act.title, act.dbId)}
+                                        disabled={isUpdating}
+                                        className="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white/5 text-slate-400 hover:bg-[#64ffda] hover:text-[#0a192f] border border-white/10"
+                                    >
+                                        GEZDİM Mİ?
+                                    </button>
+                                ) : (
+                                    <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-xl border border-emerald-500/20 text-[9px] font-black uppercase tracking-widest">
+                                        <CheckCircle className="w-3 h-3" /> GEZİLDİ
+                                    </div>
+                                )}
 
                                 {completedIds.includes(act.id) && (
                                     <div className="flex flex-col items-end gap-1">
