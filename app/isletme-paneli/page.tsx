@@ -48,6 +48,7 @@ export default function BusinessPanel() {
   const editProductImageInputRef = useRef<HTMLInputElement>(null)
 
   const [editingProduct, setEditingProduct] = useState<any>(null)
+  const [editingCategoryName, setEditingCategoryName] = useState<{old: string, new: string} | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -143,6 +144,26 @@ export default function BusinessPanel() {
     if (!error) {
       setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p))
       setEditingProduct(null)
+    }
+    setUpdating(false)
+  }
+
+  const handleRenameCategory = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingCategoryName || !editingCategoryName.new) return
+    
+    setUpdating(true)
+    const { error } = await supabase
+      .from('business_products')
+      .update({ category: editingCategoryName.new })
+      .eq('business_id', business.id)
+      .eq('category', editingCategoryName.old)
+      
+    if (!error) {
+      setProducts(products.map(p => (p.category || 'Genel') === editingCategoryName.old ? { ...p, category: editingCategoryName.new } : p))
+      setEditingCategoryName(null)
+    } else {
+      alert('Kategori güncellenirken hata oluştu.')
     }
     setUpdating(false)
   }
@@ -408,7 +429,7 @@ export default function BusinessPanel() {
           {/* TAB: Products */}
           {activeTab === 'products' && (
             <div className="space-y-12">
-              <header className="flex items-center justify-between">
+              <header className="flex items-center justify-between mb-12">
                 <div>
                   <h2 className="text-4xl font-black text-white mb-2 tracking-tighter">Menü & Ürünler</h2>
                   <p className="text-slate-400">Hizmetlerinizi veya ürünlerinizi listeleyin.</p>
@@ -417,6 +438,50 @@ export default function BusinessPanel() {
                   <Package className="w-6 h-6 text-slate-500" />
                 </div>
               </header>
+
+              {/* Category Management */}
+              <div className="bg-white/5 p-8 rounded-[40px] border border-white/5 space-y-6">
+                <h3 className="text-xl font-black text-white flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-[#64ffda]" /> Menü Başlıkları Yönetimi
+                </h3>
+                <p className="text-xs text-slate-400">Ürün eklerken otomatik oluşan başlıkları buradan yeniden adlandırabilirsiniz. Başlıkları sıralamak için isimlerinin başına numara ekleyebilirsiniz (Örn: "1. Çorbalar", "2. Ana Yemekler").</p>
+                
+                <div className="flex flex-wrap gap-3">
+                  {Array.from(new Set(products.map(p => p.category || 'Genel'))).sort().map(cat => (
+                    <button 
+                      key={cat}
+                      onClick={() => setEditingCategoryName({ old: cat, new: cat })}
+                      className="px-4 py-2 bg-[#0a192f] border border-white/10 rounded-xl text-sm font-bold text-slate-300 hover:border-[#64ffda]/50 hover:text-[#64ffda] transition-all flex items-center gap-2"
+                    >
+                      {cat} <Edit3 className="w-3 h-3 opacity-50" />
+                    </button>
+                  ))}
+                  {products.length === 0 && <span className="text-xs text-slate-500">Henüz başlık oluşturmadınız. Ürün ekledikçe burada listelenecektir.</span>}
+                </div>
+              </div>
+
+              {/* Rename Category Modal */}
+              {editingCategoryName && (
+                <div className="fixed inset-0 bg-[#0a192f]/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+                  <form onSubmit={handleRenameCategory} className="bg-[#112240] w-full max-w-md p-8 rounded-[40px] border border-[#64ffda]/20 shadow-2xl space-y-6">
+                    <h3 className="text-2xl font-black text-white">Başlığı Düzenle</h3>
+                    <p className="text-xs text-slate-400">"{editingCategoryName.old}" başlığı altındaki tüm ürünler otomatik olarak yeni başlığa taşınacaktır.</p>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase">Yeni Başlık İsmi</label>
+                      <input 
+                        required
+                        value={editingCategoryName.new} 
+                        onChange={(e) => setEditingCategoryName({...editingCategoryName, new: e.target.value})} 
+                        className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" 
+                      />
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                      <button type="button" onClick={() => setEditingCategoryName(null)} className="flex-1 py-4 border border-white/10 rounded-2xl text-slate-400 font-bold hover:bg-white/5">İptal</button>
+                      <button type="submit" disabled={updating} className="flex-1 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest">Kaydet</button>
+                    </div>
+                  </form>
+                </div>
+              )}
 
               <form onSubmit={handleAddProduct} className="bg-white/5 p-10 rounded-[48px] border border-white/5 space-y-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 rounded-full blur-3xl" />
@@ -445,11 +510,24 @@ export default function BusinessPanel() {
                   </div>
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Kategori</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {Array.from(new Set(products.map(p => p.category || 'Genel'))).sort().map(cat => (
+                        <button 
+                          key={cat} 
+                          type="button" 
+                          onClick={() => setNewProduct({...newProduct, category: cat})}
+                          className="px-3 py-1 bg-[#0a192f] border border-white/10 text-[10px] text-slate-400 font-bold rounded-lg hover:border-[#64ffda]/50 hover:text-[#64ffda] transition-colors"
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
                     <input 
+                      required
                       value={newProduct.category}
                       onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
                       className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
-                      placeholder="Örn: Ana Yemekler"
+                      placeholder="Yeni başlık yazın veya yukarıdan seçin..."
                     />
                   </div>
                   <div className="space-y-3">
@@ -514,7 +592,25 @@ export default function BusinessPanel() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase">Kategori</label>
-                        <input value={editingProduct.category} onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})} className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" />
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {Array.from(new Set(products.map(p => p.category || 'Genel'))).sort().map(cat => (
+                            <button 
+                              key={cat} 
+                              type="button" 
+                              onClick={() => setEditingProduct({...editingProduct, category: cat})}
+                              className="px-3 py-1 bg-[#0a192f] border border-white/10 text-[10px] text-slate-400 font-bold rounded-lg hover:border-[#64ffda]/50 hover:text-[#64ffda] transition-colors"
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
+                        <input 
+                          required
+                          value={editingProduct.category} 
+                          onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})} 
+                          className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" 
+                          placeholder="Yeni başlık yazın..."
+                        />
                       </div>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase">Görsel Değiştir</label>
