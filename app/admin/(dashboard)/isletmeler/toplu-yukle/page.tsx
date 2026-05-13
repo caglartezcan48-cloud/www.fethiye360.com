@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Upload, CheckCircle2, AlertCircle, Database, Plus, FileText, Download, Loader2 } from 'lucide-react'
+import { bulkSaveBusinesses } from '@/lib/actions/business'
 
 // Turkce Basliklar -> Veritabani Sutunlari Eslesmesi
 const columnMap: { [key: string]: string } = {
@@ -114,8 +115,8 @@ export default function BulkUploadPage() {
         }
       })
 
-      const { error } = await supabase.from('businesses').insert(businessesToInsert)
-      if (error) throw error
+      const result = await bulkSaveBusinesses(businessesToInsert)
+      if (!result.success) throw new Error(result.error)
 
       setStatus('success')
       setMessage(`${businessesToInsert.length} işletme ve kategorileri başarıyla kaydedildi!`)

@@ -16,11 +16,16 @@ export default function BusinessLoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!email) return
+    
     setLoading(true)
     setError('')
 
+    // Kullanici adini otomatik olarak slug (email formati) sekline cevir
+    const formattedEmail = email.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '@fethiye360.com'
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: formattedEmail,
       password,
     })
 
@@ -46,16 +51,16 @@ export default function BusinessLoginPage() {
         <div className="bg-[#112240] rounded-[32px] p-8 border border-slate-700/50 shadow-2xl">
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">E-Posta Adresi</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Kullanıcı Adı (İşletme Adı)</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                 <input
-                  type="email"
+                  type="text"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-[#0a192f] border-none rounded-2xl py-4 pl-12 pr-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all"
-                  placeholder="isim@isletme.com"
+                  placeholder="Örn: Burgerci"
                 />
               </div>
             </div>
