@@ -57,9 +57,10 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
     location_lat: business?.location_lat?.toString() || '',
     location_lng: business?.location_lng?.toString() || '',
     is_featured: business?.is_featured ?? false,
+    has_delivery: business?.services?.includes('Paket Servis') || false,
     main_image: business?.main_image || '',
     images: business?.images || [],
-    services: business?.services?.join(', ') || '',
+    services: business?.services?.filter(s => s !== 'Paket Servis').join(', ') || '',
   })
 
   const generateSlug = (name: string) => {
@@ -131,7 +132,10 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
         location_lng: form.location_lng ? parseFloat(form.location_lng) : null,
         is_featured: form.is_featured,
         main_image: form.main_image || null,
-        services: form.services.split(',').map(s => s.trim()).filter(s => s !== ''),
+        services: [
+          ...form.services.split(',').map(s => s.trim()).filter(s => s !== ''),
+          ...(form.has_delivery ? ['Paket Servis'] : [])
+        ],
         updated_at: new Date().toISOString(),
       }
 
@@ -339,17 +343,32 @@ export default function BusinessForm({ categories, business }: BusinessFormProps
             />
           </div>
 
-          <div className="flex items-center gap-3">
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.is_featured}
-                onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#64ffda]"></div>
-            </label>
-            <span className="text-slate-300">Öne Çıkan İşletme</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex items-center gap-3">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.is_featured}
+                  onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#64ffda]"></div>
+              </label>
+              <span className="text-slate-300">Öne Çıkan İşletme</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.has_delivery}
+                  onChange={(e) => setForm({ ...form, has_delivery: e.target.checked })}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+              </label>
+              <span className="text-slate-300 font-bold text-orange-400">PAKET SERVİS VAR</span>
+            </div>
           </div>
         </div>
 
