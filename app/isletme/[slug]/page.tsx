@@ -51,8 +51,9 @@ async function getBusiness(slug: string) {
   return data
 }
 
-export default async function BusinessDetailPage({ params }: { params: { slug: string } }) {
-  const business = await getBusiness(params.slug)
+export default async function BusinessDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const business = await getBusiness(slug)
 
   if (!business) {
     notFound()
