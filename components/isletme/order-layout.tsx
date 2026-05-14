@@ -27,9 +27,10 @@ interface OrderLayoutProps {
   whatsappNumber?: string
   isFullMenuOpen?: boolean
   onCloseMenu?: () => void
+  onlyOverlay?: boolean // Yeni: Sadece tam ekran katalog modunu aktif eder
 }
 
-export function OrderLayout({ products, businessName, whatsappNumber, isFullMenuOpen, onCloseMenu }: OrderLayoutProps) {
+export function OrderLayout({ products, businessName, whatsappNumber, isFullMenuOpen, onCloseMenu, onlyOverlay }: OrderLayoutProps) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
 
@@ -89,6 +90,80 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
     message += `\n\n_Siparişim hakkında onay bekliyorum._`
 
     window.open(`https://wa.me/${whatsappNumber.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
+  }
+
+  if (onlyOverlay) {
+    return (
+      <>
+        {isFullMenuOpen && (
+          <div className="fixed inset-0 z-[150] bg-[#0a192f] animate-in fade-in slide-in-from-bottom duration-500 overflow-y-auto no-scrollbar">
+            {/* Header */}
+            <div className="sticky top-0 z-20 bg-[#0a192f]/80 backdrop-blur-xl border-b border-white/5 px-6 py-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#64ffda] flex items-center justify-center text-[#0a192f] font-black">
+                    {businessName[0]}
+                  </div>
+                  <div>
+                    <h2 className="text-white font-black uppercase tracking-widest text-xs italic">{businessName}</h2>
+                    <p className="text-[#64ffda] text-[10px] font-bold uppercase tracking-widest">DİJİTAL KATALOG</p>
+                  </div>
+              </div>
+              <button 
+                onClick={onCloseMenu}
+                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="max-w-3xl mx-auto px-6 py-12 space-y-16">
+              <header className="text-center space-y-4">
+                <h1 className="text-5xl md:text-7xl font-black text-white italic tracking-tighter uppercase leading-none">
+                  GÜNCEL <br /> <span className="text-[#64ffda]">MENÜMÜZ</span>
+                </h1>
+                <p className="text-slate-500 text-xs font-black uppercase tracking-[0.3em]">Aşağı Kaydırarak İnceleyin</p>
+              </header>
+
+              <MenuSection 
+                products={products} 
+                businessName={businessName} 
+                onProductClick={(product) => setSelectedProduct(product)}
+                cartItems={cart}
+              />
+              
+              <div className="py-20 text-center border-t border-white/5">
+                <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.5em]">Kataloğun Sonu</p>
+              </div>
+            </div>
+
+            {/* Floating Cart for Catalog */}
+            {cart.length > 0 && (
+              <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-md">
+                <button 
+                  onClick={onCloseMenu}
+                  className="w-full bg-[#64ffda] text-[#0a192f] p-5 rounded-[32px] font-black uppercase tracking-widest text-xs shadow-2xl shadow-[#64ffda]/30 flex items-center justify-between group overflow-hidden"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#0a192f] text-[#64ffda] flex items-center justify-center text-[10px]">
+                      {cart.reduce((a, b) => a + b.quantity, 0)}
+                    </div>
+                    <span>SİPARİŞİ TAMAMLA</span>
+                  </div>
+                  <span className="text-sm">{total} TL</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <ProductModal 
+          product={selectedProduct}
+          isOpen={!!selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={addToCart}
+        />
+      </>
+    )
   }
 
   return (

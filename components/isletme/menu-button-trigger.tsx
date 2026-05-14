@@ -37,6 +37,7 @@ export function MenuButtonTrigger({
         whatsappNumber={whatsappNumber}
         isFullMenuOpen={isOpen}
         onCloseMenu={() => setIsOpen(false)}
+        onlyOverlay={true}
       />
     </>
   )

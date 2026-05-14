@@ -141,44 +141,63 @@ export default function BusinessPanel() {
     setUpdating(false)
   }
 
-  const handleBulkUpload = async () => {
-    if (!bulkText.trim()) return
+  const downloadProductTemplate = () => {
+    const BOM = '\uFEFF'
+    const headers = ['Ürün Adı', 'Fiyat', 'Kategori', 'Açıklama'].join(';') + '\n'
+    const sampleData = "Adana Kebap;350;Ana Yemekler;Zırh kıyması ile özel hazırlanmış\nAyran;45;İçecekler;Ev yapımı taze ayran"
+    const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${business.name}_menu_sablonu.csv`
+    a.click()
+  }
+
+  const handleProductFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
     setUpdating(true)
-    
-    const lines = bulkText.split('\n').filter(l => l.trim())
-    const productsToInsert = lines.map(line => {
-      // Formats: "Ürün Adı, Fiyat, Kategori" or "Ürün Adı - Fiyat - Kategori"
-      const parts = line.includes(',') ? line.split(',') : line.split('-')
-      return {
-        business_id: business.id,
-        name: parts[0]?.trim(),
-        price: parseFloat(parts[1]?.trim() || '0'),
-        category: parts[2]?.trim() || newProduct.category || 'Genel',
-        description: '',
-        image_url: null
+
+    const reader = new FileReader()
+    reader.onload = async (event) => {
+      try {
+        const text = event.target?.result as string
+        const lines = text.split('\n').filter(line => line.trim())
+        if (lines.length <= 1) throw new Error('Dosya boş veya geçersiz.')
+
+        const delimiter = lines[0].includes(';') ? ';' : ','
+        const result = lines.slice(1).map(line => {
+          const values = line.split(delimiter).map(v => v.trim())
+          return {
+            business_id: business.id,
+            name: values[0],
+            price: parseFloat(values[1]?.replace(',', '.') || '0'),
+            category: values[2] || 'Genel',
+            description: values[3] || '',
+            image_url: null
+          }
+        }).filter(p => p.name && p.price > 0)
+
+        if (result.length === 0) throw new Error('Yüklenecek geçerli ürün bulunamadı.')
+
+        const { data, error } = await supabase
+          .from('business_products')
+          .insert(result)
+          .select()
+
+        if (!error && data) {
+          setProducts([...products, ...data])
+          toast.success(`${data.length} ürün başarıyla yüklendi!`)
+        } else {
+          throw error
+        }
+      } catch (err: any) {
+        toast.error('Yükleme hatası: ' + err.message)
+      } finally {
+        setUpdating(false)
       }
-    }).filter(p => p.name && p.price > 0)
-
-    if (productsToInsert.length === 0) {
-      toast.error('Geçerli bir ürün listesi bulunamadı. Format: Ad, Fiyat, Kategori')
-      setUpdating(false)
-      return
     }
-
-    const { data, error } = await supabase
-      .from('business_products')
-      .insert(productsToInsert)
-      .select()
-
-    if (!error && data) {
-      setProducts([...products, ...data])
-      setBulkText('')
-      setShowBulkMode(false)
-      toast.success(`${data.length} ürün başarıyla eklendi!`)
-    } else {
-      toast.error('Toplu yükleme başarısız: ' + (error?.message || 'Bilinmeyen hata'))
-    }
-    setUpdating(false)
+    reader.readAsText(file)
   }
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
@@ -578,31 +597,50 @@ export default function BusinessPanel() {
                 <button 
                   type="button"
                   onClick={() => setShowBulkMode(!showBulkMode)}
-                  className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-[#64ffda] uppercase tracking-widest hover:bg-[#64ffda]/10 transition-all"
+                  className="px-6 py-2 bg-[#64ffda]/10 border border-[#64ffda]/20 rounded-xl text-[10px] font-black text-[#64ffda] uppercase tracking-widest hover:bg-[#64ffda]/20 transition-all flex items-center gap-2"
                 >
-                  {showBulkMode ? 'Tekli Ekleme Modu' : 'Toplu Liste Yükle (Hızlı)'}
+                  <Database className="w-3 h-3" />
+                  {showBulkMode ? 'Tekli Ürün Ekle' : 'Toplu Excel Yükle'}
                 </button>
               </div>
 
               {showBulkMode ? (
-                <div className="bg-white/5 p-10 rounded-[48px] border border-[#64ffda]/30 space-y-6 animate-in fade-in zoom-in-95 duration-500">
+                <div className="bg-white/5 p-12 rounded-[48px] border-2 border-dashed border-[#64ffda]/20 text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest ml-1">Toplu Ürün Listesi</label>
-                    <p className="text-[10px] text-slate-500 ml-1">Her satıra bir ürün yazın: <span className="text-slate-300">İsim, Fiyat, Kategori</span></p>
-                    <textarea 
-                      value={bulkText}
-                      onChange={(e) => setBulkText(e.target.value)}
-                      placeholder="Örn:&#10;Adana Kebap, 350, Ana Yemekler&#10;Lahmacun, 120, Ana Yemekler&#10;Ayran, 45, İçecekler"
-                      className="w-full h-64 bg-[#0a192f] border border-white/5 rounded-3xl p-6 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-mono text-sm"
-                    />
+                    <div className="w-20 h-20 bg-[#64ffda]/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                      <Upload className="w-10 h-10 text-[#64ffda]" />
+                    </div>
+                    <h4 className="text-2xl font-black text-white italic uppercase tracking-tighter">Excel ile Menü Yükle</h4>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                      Yüzlerce ürünü saniyeler içinde yüklemek için hazırladığımız şablonu kullanın.
+                    </p>
                   </div>
-                  <button 
-                    onClick={handleBulkUpload}
-                    disabled={updating}
-                    className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-[24px] font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.01] active:scale-[0.98] transition-all shadow-2xl shadow-[#64ffda]/20 flex items-center justify-center gap-3"
-                  >
-                    {updating ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> LİSTEYİ SİSTEME YÜKLE</>}
-                  </button>
+
+                  <div className="flex flex-col md:flex-row items-center justify-center gap-4 pt-4">
+                    <button 
+                      onClick={downloadProductTemplate}
+                      className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-3"
+                    >
+                      <Download className="w-4 h-4 text-[#64ffda]" /> Şablonu İndir
+                    </button>
+                    
+                    <label className="cursor-pointer px-10 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#64ffda]/20 flex items-center gap-3">
+                       <Plus className="w-4 h-4" /> Dosya Seç ve Yükle
+                       <input 
+                         type="file" 
+                         className="hidden" 
+                         accept=".csv" 
+                         onChange={handleProductFileUpload} 
+                         disabled={updating}
+                       />
+                    </label>
+                  </div>
+
+                  {updating && (
+                    <div className="flex items-center justify-center gap-3 text-[#64ffda] font-bold text-xs uppercase tracking-widest animate-pulse">
+                      <Loader2 className="w-4 h-4 animate-spin" /> Dosya İşleniyor...
+                    </div>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={handleAddProduct} className="bg-white/5 p-10 rounded-[48px] border border-white/5 space-y-8 relative overflow-hidden">
