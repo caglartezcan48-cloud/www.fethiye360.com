@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { MenuSection } from './menu-section'
 import { ProductModal } from './product-modal'
 import { Header as SiteHeader } from '@/components/fethiye/header'
@@ -36,6 +36,22 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+
+  // --- SEPETİ HAFIZADA TUT (LocalStorage Entegrasyonu) ---
+  useEffect(() => {
+    const saved = localStorage.getItem(`cart_${businessName}`)
+    if (saved) {
+      try {
+        setCart(JSON.parse(saved))
+      } catch (e) {
+        console.error('Sepet yüklenemedi', e)
+      }
+    }
+  }, [businessName])
+
+  useEffect(() => {
+    localStorage.setItem(`cart_${businessName}`, JSON.stringify(cart))
+  }, [cart, businessName])
 
   const addToCart = (product: Product, quantity: number = 1, note: string = '') => {
     setCart(prev => {
@@ -74,11 +90,16 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
   const clearCart = () => setCart([])
 
-  const total = useMemo(() => cart.reduce((acc, item) => acc + (Number(item.price || 0) * item.quantity), 0), [cart])
+  const total = useMemo(() => {
+    return cart.reduce((acc, item) => {
+      const price = parseFloat(String(item.price).replace(/[^0-9.-]+/g,"")) || 0
+      return acc + (price * item.quantity)
+    }, 0)
+  }, [cart])
 
   const handleCheckout = () => {
     if (cart.length === 0 || !whatsappNumber) return
-    const message = `Merhaba, sipariş vermek istiyorum:\n\n${cart.map(item => `- ${item.quantity}x ${item.name}${item.note ? ` (${item.note})` : ''} - ${item.price * item.quantity} TL`).join('\n')}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}\n\nİşletme: ${businessName}`
+    const message = `Merhaba, sipariş vermek istiyorum:\n\n${cart.map(item => `- ${item.quantity}x ${item.name}${item.note ? ` (${item.note})` : ''} - ${(parseFloat(String(item.price).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL`).join('\n')}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}\n\nİşletme: ${businessName}`
     window.open(`https://wa.me/${whatsappNumber?.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
   }
 
@@ -147,7 +168,9 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                             </div>
                             <div className="flex items-center gap-2">
                                <span className="text-[10px] font-bold text-slate-400">{item.quantity}x</span>
-                               <span className="text-[11px] font-black text-[#1a1a1a]">{item.price * item.quantity} TL</span>
+                               <span className="text-[11px] font-black text-[#1a1a1a]">
+                                 {(parseFloat(String(item.price).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL
+                               </span>
                             </div>
                          </div>
                        ))}
@@ -228,7 +251,9 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                     <div key={item.cartItemId} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group transition-all hover:bg-white/10">
                        <div className="flex-1">
                           <p className="text-white text-[11px] font-black uppercase tracking-tight line-clamp-1">{item.name}</p>
-                          <p className="text-[#64ffda] text-[10px] font-black mt-0.5">{item.price * item.quantity} TL</p>
+                          <p className="text-[#64ffda] text-[10px] font-black mt-0.5">
+                            {(parseFloat(String(item.price).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL
+                          </p>
                        </div>
                        <div className="flex items-center gap-3 bg-[#0a192f] rounded-xl px-3 py-1.5 border border-white/10">
                           <button onClick={() => removeFromCart(item.cartItemId)} className="text-slate-500 hover:text-white"><Minus className="w-3 h-3" /></button>
