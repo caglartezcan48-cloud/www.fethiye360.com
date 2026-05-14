@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { Header } from '@/components/fethiye/header'
 import { Footer } from '@/components/fethiye/footer'
+import { MenuButtonTrigger } from '@/components/isletme/menu-button-trigger'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MenuSection } from '@/components/isletme/menu-section'
@@ -89,7 +90,6 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
 
   // Satis Odakli Sayfa Kontrolu (Paket Servis bilgisine gore - case insensitive)
   const isSalesOriented = business.services?.some((s: string) => s.toLowerCase().includes('paket')) || false;
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   if (loading) return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
@@ -152,12 +152,13 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
               
               {/* Yemeksepeti tarzı rozetler */}
               <div className="flex flex-wrap gap-3 pt-4">
-                <button 
-                  onClick={() => setIsMenuOpen(true)}
+                <MenuButtonTrigger 
+                  products={products}
+                  businessName={business.name}
+                  whatsappNumber={business.whatsapp || business.phone}
                   className="flex items-center gap-2 bg-[#64ffda] text-[#0a192f] px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#64ffda]/20"
-                >
-                  <List className="w-4 h-4" /> MENÜYÜ GÖR
-                </button>
+                  label="MENÜYÜ GÖR"
+                />
                 <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-bold text-white">
                   <Clock className="w-3.5 h-3.5 text-[#64ffda]" />
                   {business.services?.find((s: string) => s.startsWith('DELIVERY_TIME:'))?.split(':')[1] || '25-35 dk'}
@@ -197,12 +198,13 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
               </h1>
               
               <div className="flex flex-wrap items-center justify-center gap-6 text-white/90">
-                <button 
-                  onClick={() => setIsMenuOpen(true)}
+                <MenuButtonTrigger 
+                  products={products}
+                  businessName={business.name}
+                  whatsappNumber={business.whatsapp || business.phone}
                   className="flex items-center gap-3 bg-[#64ffda] text-[#0a192f] px-10 py-4 rounded-[32px] font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-2xl shadow-[#64ffda]/20"
-                >
-                  <List className="w-5 h-5" /> MENÜ & KATALOG
-                </button>
+                  label="MENÜ & KATALOG"
+                />
                 <div className="flex items-center gap-2 bg-[#0a192f]/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10">
                   <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                   <span className="text-sm font-bold">{avgRating} <span className="opacity-60 text-xs font-normal">({reviews.length}+)</span></span>
@@ -234,8 +236,6 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
               products={products} 
               businessName={business.name} 
               whatsappNumber={business.whatsapp || business.phone}
-              isFullMenuOpen={isMenuOpen}
-              onCloseMenu={() => setIsMenuOpen(false)}
             />
             
             {/* Sales Oriented için Hakkında ve Yorumlar */}
@@ -393,15 +393,7 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* GLOBAL KATALOG OVERLAY (Sales Oriented olmayanlar için de çalışır) */}
-      {!isSalesOriented && (
-        <OrderLayout 
-          products={products} 
-          businessName={business.name} 
-          whatsappNumber={business.whatsapp || business.phone}
-          isFullMenuOpen={isMenuOpen}
-          onCloseMenu={() => setIsMenuOpen(false)}
-        />
-      )}
+      {/* Not: MenuButtonTrigger içinde zaten OrderLayout bulunuyor, bu yüzden burada ayrıca çağırmaya gerek yok */}
 
       <Footer />
     </main>
