@@ -48,6 +48,8 @@ export default function BusinessPanel() {
   const [bulkText, setBulkText] = useState('')
   const [showBulkMode, setShowBulkMode] = useState(false)
   const [bulkPreview, setBulkPreview] = useState<any[]>([])
+  const [gallery, setGallery] = useState<any[]>([])
+  const [showGalleryModal, setShowGalleryModal] = useState<{ isOpen: boolean, target: 'new' | 'edit' }>({ isOpen: false, target: 'new' })
   const [uploading, setUploading] = useState(false)
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({})
   
@@ -69,24 +71,46 @@ export default function BusinessPanel() {
       }
       setUser(user)
 
-      // 406 hatasini bypass etmek icin RPC (Fonksiyon) kullanalim
-      const { data: businessData, error: bError } = await supabase
-        .rpc('get_business_by_owner', { p_owner_id: user.id })
-        .maybeSingle()
-      
-      if (businessData) {
-        setBusiness(businessData)
-        
-        const [prod, img, rev] = await Promise.all([
-          supabase.from('business_products').select('*').eq('business_id', businessData.id),
-          supabase.from('business_images').select('*').eq('business_id', businessData.id),
-          supabase.from('business_reviews').select('*').eq('business_id', businessData.id).order('created_at', { ascending: false })
-        ])
+      // 1. İşletme Bilgilerini Çek
+      const { data: biz, error: bizError } = await supabase
+        .from('businesses')
+        .select('*')
+        .eq('owner_id', user.id)
+        .single()
 
-        setProducts(prod.data || [])
-        setImages(img.data || [])
-        setReviews(rev.data || [])
+      if (bizError || !biz) {
+        setLoading(false)
+        return
       }
+      setBusiness(biz)
+
+      // 2. Ürünleri Çek
+      const { data: prodData } = await supabase
+        .from('business_products')
+        .select('*')
+        .eq('business_id', biz.id)
+        .order('category', { ascending: true })
+
+      if (prodData) setProducts(prodData)
+
+      // 3. Galeriyi Çek
+      const { data: galleryData } = await supabase
+        .from('business_images')
+        .select('*')
+        .eq('business_id', biz.id)
+        .order('created_at', { ascending: false })
+
+      if (galleryData) setGallery(galleryData)
+
+      // 4. Yorumları Çek
+      const { data: revData } = await supabase
+        .from('business_reviews')
+        .select('*')
+        .eq('business_id', biz.id)
+        .order('created_at', { ascending: false })
+
+      if (revData) setReviews(revData)
+
       setLoading(false)
     }
     fetchData()
@@ -329,6 +353,7 @@ export default function BusinessPanel() {
 
       if (!dbError && newImg) {
         setImages([...images, newImg[0]])
+        setGallery([...gallery, newImg[0]])
         toast.success('Fotoğraf yüklendi!')
       }
     } catch (err: any) {
@@ -478,62 +503,6 @@ export default function BusinessPanel() {
                     className="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
                   />
                 </div>
-                <div className="md:col-span-2 space-y-3">
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
-                    <Settings className="w-3 h-3 text-[#64ffda]" /> Sayfa Düzeni Seçimi
-                  </label>
-                  <p className="text-[10px] text-slate-400 ml-1 mb-2">Sayfanızın nasıl görüneceğini belirleyin.</p>
-                  <select 
-                    value={(business.services || []).includes('Paket Servis') ? 'paket_servis' : 'vitrin'}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      let newServices = [...(business.services || [])].filter(s => s !== 'Paket Servis');
-                      if (val === 'paket_servis') {
-                        newServices.push('Paket Servis');
-                      }
-                      setBusiness({...business, services: newServices});
-                    }}
-                    className="w-full bg-[#0a192f] border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-bold"
-                  >
-                    <option value="paket_servis">Sipariş Odaklı Menü Düzeni (Yemeksepeti Tarzı)</option>
-                    <option value="vitrin">Sadece Tanıtım ve Vitrin Düzeni</option>
-                  </select>
-                </div>
-
-                {(business.services || []).includes('Paket Servis') && (
-                  <>
-                    <div className="space-y-3">
-                      <label className="text-xs font-black text-[#64ffda] uppercase tracking-widest ml-1">Teslimat Süresi</label>
-                      <input 
-                        type="text"
-                        value={business.services?.find((s: string) => s.startsWith('DELIVERY_TIME:'))?.split(':')[1] || '25-35 dk'}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          let newServices = [...(business.services || [])].filter((s: string) => !s.startsWith('DELIVERY_TIME:'));
-                          if (val) newServices.push(`DELIVERY_TIME:${val}`);
-                          setBusiness({...business, services: newServices});
-                        }}
-                        className="w-full bg-[#0a192f] border border-[#64ffda]/30 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-medium"
-                        placeholder="Örn: 30-45 dk"
-                      />
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-xs font-black text-[#64ffda] uppercase tracking-widest ml-1">Minimum Paket Tutarı</label>
-                      <input 
-                        type="text"
-                        value={business.services?.find((s: string) => s.startsWith('MIN_ORDER:'))?.split(':')[1] || 'Min. 200 TL'}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          let newServices = [...(business.services || [])].filter((s: string) => !s.startsWith('MIN_ORDER:'));
-                          if (val) newServices.push(`MIN_ORDER:${val}`);
-                          setBusiness({...business, services: newServices});
-                        }}
-                        className="w-full bg-[#0a192f] border border-[#64ffda]/30 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-medium"
-                        placeholder="Örn: Min. 150 TL"
-                      />
-                    </div>
-                  </>
-                )}
                 
                 <div className="md:col-span-2 pt-6">
                   <button 
@@ -561,13 +530,38 @@ export default function BusinessPanel() {
                 </div>
               </header>
 
+              {/* Gallery Selector Modal */}
+              {showGalleryModal.isOpen && (
+                <div className="fixed inset-0 bg-[#0a192f]/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+                  <div className="bg-[#112240] w-full max-w-2xl p-8 rounded-[40px] border border-[#64ffda]/20 shadow-2xl space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-2xl font-black text-white">Galeriden Seç</h3>
+                      <button onClick={() => setShowGalleryModal({ isOpen: false, target: 'new' })} className="text-slate-400">Kapat</button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 h-[300px] overflow-y-auto">
+                      {gallery.map((img) => (
+                        <button 
+                          key={img.id} 
+                          onClick={() => {
+                            if (showGalleryModal.target === 'new') setNewProduct({...newProduct, image_url: img.image_url})
+                            else setEditingProduct({...editingProduct, image_url: img.image_url})
+                            setShowGalleryModal({ isOpen: false, target: 'new' })
+                          }}
+                          className="aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#64ffda]"
+                        >
+                          <img src={img.image_url} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Category Management */}
               <div className="bg-white/5 p-8 rounded-[40px] border border-white/5 space-y-6">
                 <h3 className="text-xl font-black text-white flex items-center gap-2">
                   <Settings className="w-5 h-5 text-[#64ffda]" /> Menü Başlıkları Yönetimi
                 </h3>
-                <p className="text-xs text-slate-400">Ürün eklerken otomatik oluşan başlıkları buradan yeniden adlandırabilirsiniz. Başlıkları sıralamak için isimlerinin başına numara ekleyebilirsiniz (Örn: "1. Çorbalar", "2. Ana Yemekler").</p>
-                
                 <div className="flex flex-wrap gap-3">
                   {Array.from(new Set(products.filter(Boolean).map(p => p?.category || 'Genel'))).sort().map((cat: any) => (
                     <button 
@@ -578,7 +572,6 @@ export default function BusinessPanel() {
                       {cat} <Edit3 className="w-3 h-3 opacity-50" />
                     </button>
                   ))}
-                  {products.length === 0 && <span className="text-xs text-slate-500">Henüz başlık oluşturmadınız. Ürün ekledikçe burada listelenecektir.</span>}
                 </div>
               </div>
 
@@ -587,16 +580,12 @@ export default function BusinessPanel() {
                 <div className="fixed inset-0 bg-[#0a192f]/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
                   <form onSubmit={handleRenameCategory} className="bg-[#112240] w-full max-w-md p-8 rounded-[40px] border border-[#64ffda]/20 shadow-2xl space-y-6">
                     <h3 className="text-2xl font-black text-white">Başlığı Düzenle</h3>
-                    <p className="text-xs text-slate-400">"{editingCategoryName.old}" başlığı altındaki tüm ürünler otomatik olarak yeni başlığa taşınacaktır.</p>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-500 uppercase">Yeni Başlık İsmi</label>
-                      <input 
-                        required
-                        value={editingCategoryName.new} 
-                        onChange={(e) => setEditingCategoryName({...editingCategoryName, new: e.target.value})} 
-                        className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" 
-                      />
-                    </div>
+                    <input 
+                      required
+                      value={editingCategoryName.new} 
+                      onChange={(e) => setEditingCategoryName({...editingCategoryName, new: e.target.value})} 
+                      className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" 
+                    />
                     <div className="flex gap-4 pt-4">
                       <button type="button" onClick={() => setEditingCategoryName(null)} className="flex-1 py-4 border border-white/10 rounded-2xl text-slate-400 font-bold hover:bg-white/5">İptal</button>
                       <button type="submit" disabled={updating} className="flex-1 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest">Kaydet</button>
@@ -605,7 +594,7 @@ export default function BusinessPanel() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between mb-6">
+<div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-xl bg-[#64ffda]/10 flex items-center justify-center">
                       <Plus className="w-5 h-5 text-[#64ffda]" />
@@ -702,8 +691,6 @@ export default function BusinessPanel() {
                 </div>
               ) : (
                 <form onSubmit={handleAddProduct} className="bg-white/5 p-10 rounded-[48px] border border-white/5 space-y-8 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 rounded-full blur-3xl" />
-                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Adı *</label>
@@ -757,33 +744,44 @@ export default function BusinessPanel() {
                   </div>
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Görseli</label>
-                    <input 
-                      type="file"
-                      ref={productImageInputRef}
-                      onChange={(e) => e.target.files?.[0] && handleProductImageUpload(e.target.files[0])}
-                      className="hidden"
-                      accept="image/*"
-                    />
-                    {newProduct.image_url ? (
-                      <div className="relative w-full h-14 bg-white/5 rounded-2xl flex items-center justify-between px-4 border border-white/10 overflow-hidden">
-                        <span className="text-xs font-bold text-[#64ffda] truncate">Görsel Yüklendi</span>
-                        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
-                          <img src={newProduct.image_url} className="w-full h-full object-cover" />
+                    <div className="flex flex-col gap-2">
+                      <input 
+                        type="file"
+                        ref={productImageInputRef}
+                        onChange={(e) => e.target.files?.[0] && handleProductImageUpload(e.target.files[0])}
+                        className="hidden"
+                        accept="image/*"
+                      />
+                      {newProduct.image_url ? (
+                        <div className="relative w-full h-14 bg-white/5 rounded-2xl flex items-center justify-between px-4 border border-white/10 overflow-hidden">
+                          <span className="text-[10px] font-bold text-[#64ffda] truncate">Görsel Atandı</span>
+                          <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-white/10">
+                            <img src={newProduct.image_url} className="w-full h-full object-cover" />
+                          </div>
+                          <button type="button" onClick={() => setNewProduct({...newProduct, image_url: ''})} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/40">
+                             <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button type="button" onClick={() => setNewProduct({...newProduct, image_url: ''})} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/40">
-                           <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button 
-                        type="button"
-                        onClick={() => productImageInputRef.current?.click()}
-                        disabled={uploading}
-                        className="w-full bg-[#0a192f] border border-dashed border-white/20 rounded-2xl p-4 text-slate-400 hover:text-[#64ffda] hover:border-[#64ffda]/50 transition-all flex items-center justify-center gap-2"
-                      >
-                        {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Upload className="w-5 h-5" /> Görsel Seç</>}
-                      </button>
-                    )}
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          <button 
+                            type="button"
+                            onClick={() => productImageInputRef.current?.click()}
+                            disabled={uploading}
+                            className="bg-[#0a192f] border border-dashed border-white/20 rounded-2xl py-3 text-slate-400 hover:text-[#64ffda] hover:border-[#64ffda]/50 transition-all flex items-center justify-center gap-2 text-[10px] font-bold"
+                          >
+                            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Upload className="w-4 h-4" /> YENİ YÜKLE</>}
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => setShowGalleryModal({ isOpen: true, target: 'new' })}
+                            className="bg-[#64ffda]/5 border border-[#64ffda]/20 rounded-2xl py-3 text-[#64ffda] hover:bg-[#64ffda]/10 transition-all flex items-center justify-center gap-2 text-[10px] font-bold"
+                          >
+                            <ImageIcon className="w-4 h-4" /> GALERİDEN SEÇ
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="md:col-span-2 space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Ürün Açıklaması</label>
@@ -845,11 +843,28 @@ export default function BusinessPanel() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase">Görsel Değiştir</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase">Ürün Görseli</label>
                         <input type="file" ref={editProductImageInputRef} onChange={(e) => e.target.files?.[0] && handleProductImageUpload(e.target.files[0], true)} className="hidden" accept="image/*" />
-                        <button type="button" onClick={() => editProductImageInputRef.current?.click()} className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-[#64ffda] font-bold flex items-center gap-2 justify-center hover:bg-white/5">
-                          <Upload className="w-4 h-4" /> Yeni Görsel Yükle
-                        </button>
+                        
+                        {editingProduct.image_url ? (
+                          <div className="relative w-full h-14 bg-[#0a192f] rounded-2xl flex items-center justify-between px-4 border border-white/5">
+                            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-white/10">
+                              <img src={editingProduct.image_url} className="w-full h-full object-cover" />
+                            </div>
+                            <button type="button" onClick={() => setEditingProduct({...editingProduct, image_url: ''})} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/40 transition-colors">
+                               <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-2">
+                            <button type="button" onClick={() => editProductImageInputRef.current?.click()} className="py-4 bg-[#0a192f] border border-white/5 rounded-2xl text-slate-400 font-bold flex items-center gap-2 justify-center hover:bg-white/5 text-[10px] uppercase">
+                              <Upload className="w-4 h-4" /> Yeni Yükle
+                            </button>
+                            <button type="button" onClick={() => setShowGalleryModal({ isOpen: true, target: 'edit' })} className="py-4 bg-[#64ffda]/5 border border-[#64ffda]/20 rounded-2xl text-[#64ffda] font-bold flex items-center gap-2 justify-center hover:bg-[#64ffda]/10 text-[10px] uppercase">
+                              <ImageIcon className="w-4 h-4" /> Galeriden Seç
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-4 pt-4">
@@ -1092,6 +1107,71 @@ export default function BusinessPanel() {
 
         </div>
       </main>
+      {/* Image Library Modal */}
+      {showGalleryModal.isOpen && (
+        <div className="fixed inset-0 z-[200] bg-[#0a192f]/95 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="bg-[#112240] w-full max-w-4xl max-h-[80vh] rounded-[40px] border border-white/10 overflow-hidden flex flex-col shadow-2xl">
+            <div className="p-8 border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda]">
+                  <ImageIcon className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white italic uppercase tracking-tighter">İşletme Görsel Kütüphanesi</h3>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Kullanmak istediğiniz görsele tıklayın</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowGalleryModal({ isOpen: false, target: 'new' })}
+                className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-white transition-all"
+              >
+                <Plus className="w-6 h-6 rotate-45" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8 no-scrollbar">
+              {gallery.length === 0 ? (
+                <div className="text-center py-20">
+                  <Camera className="w-16 h-16 text-slate-800 mx-auto mb-6" />
+                  <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Henüz galeride fotoğraf yok.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                  {gallery.map((img) => (
+                    <button
+                      key={img.id}
+                      onClick={() => {
+                        if (showGalleryModal.target === 'new') {
+                          setNewProduct({ ...newProduct, image_url: img.image_url })
+                        } else {
+                          setEditingProduct({ ...editingProduct, image_url: img.image_url })
+                        }
+                        setShowGalleryModal({ isOpen: false, target: 'new' })
+                        toast.success('Görsel seçildi!')
+                      }}
+                      className="aspect-square rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#64ffda] transition-all group relative"
+                    >
+                      <Image 
+                        src={img.image_url} 
+                        alt="Gallery" 
+                        fill 
+                        className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                      />
+                      <div className="absolute inset-0 bg-[#64ffda]/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Plus className="w-8 h-8 text-white" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="p-6 bg-black/20 text-center">
+              <p className="text-[9px] text-slate-600 font-black uppercase tracking-[0.3em]">Profil sayfanızdan yeni fotoğraflar ekleyebilirsiniz</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
