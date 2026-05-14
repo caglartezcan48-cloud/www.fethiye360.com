@@ -77,11 +77,6 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
   const handleCheckout = () => {
     if (cart.length === 0 || !whatsappNumber) return
-
-    let message = `*YENİ SİPARİŞ - ${businessName}*\n\n`
-    cart.forEach(item => {
-      message += `• ${item.quantity} x ${item.name} - ${item.price * item.quantity} TL\n`
-    if (cart.length === 0) return
     const message = `Merhaba, sipariş vermek istiyorum:\n\n${cart.map(item => `- ${item.quantity}x ${item.name}${item.note ? ` (${item.note})` : ''} - ${item.price * item.quantity} TL`).join('\n')}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}\n\nİşletme: ${businessName}`
     window.open(`https://wa.me/${whatsappNumber?.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
   }
