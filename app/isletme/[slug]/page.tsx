@@ -60,6 +60,7 @@ async function getBusiness(slug: string) {
 export default async function BusinessDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const business = await getBusiness(slug)
+  if (!business) return notFound()
 
   const cookieStore = await cookies()
   const supabase = createServerClient(
@@ -90,8 +91,6 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
 
   // Satis Odakli Sayfa Kontrolu (Paket Servis bilgisine gore - case insensitive)
   const isSalesOriented = business.services?.some((s: string) => s.toLowerCase().includes('paket')) || false;
-
-  if (!business) return notFound()
 
   return (
     <main className="min-h-screen bg-[#0a192f] selection:bg-[#64ffda] selection:text-[#0a192f]">
