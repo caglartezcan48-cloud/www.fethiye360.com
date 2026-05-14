@@ -16,12 +16,11 @@ interface MenuSectionProps {
   products: Product[]
   businessName: string
   whatsappNumber?: string
-  onAddToCart?: (product: Product) => void
-  onRemoveFromCart?: (productId: string) => void
+  onProductClick?: (product: Product) => void
   cartItems?: { id: string, quantity: number }[]
 }
 
-export function MenuSection({ products, businessName, whatsappNumber, onAddToCart, onRemoveFromCart, cartItems }: MenuSectionProps) {
+export function MenuSection({ products, businessName, whatsappNumber, onProductClick, cartItems }: MenuSectionProps) {
   const [activeCategory, setActiveCategory] = useState('Tümü')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -117,7 +116,8 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
                     return (
                       <div 
                         key={product.id}
-                        className="flex gap-4 p-4 rounded-2xl bg-[#112240] border border-white/5 hover:border-white/10 transition-colors group"
+                        onClick={() => onProductClick?.(product)}
+                        className="flex gap-4 p-4 rounded-2xl bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98]"
                       >
                         {/* Görsel */}
                         <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-white/5">
@@ -133,7 +133,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
                         {/* Detaylar */}
                         <div className="flex-1 flex flex-col justify-between py-1">
                           <div>
-                            <h4 className="text-white font-bold text-sm leading-tight">{product.name}</h4>
+                            <h4 className="text-white font-bold text-sm leading-tight group-hover:text-[#64ffda] transition-colors">{product.name}</h4>
                             {product.description && (
                               <p className="text-slate-400 text-xs mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
                             )}
@@ -142,31 +142,16 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
                           <div className="flex items-center justify-between mt-3">
                             <span className="text-[#64ffda] font-black text-sm">{product.price} TL</span>
                             
-                            {/* Sepet Kontrolleri */}
-                            {quantity > 0 ? (
-                              <div className="flex items-center gap-3 bg-white/5 rounded-full p-1 border border-white/10">
-                                <button 
-                                  onClick={() => onRemoveFromCart?.(product.id)}
-                                  className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-                                >
-                                  <Minus className="w-3 h-3" />
-                                </button>
-                                <span className="text-white font-bold text-xs w-4 text-center">{quantity}</span>
-                                <button 
-                                  onClick={() => onAddToCart?.(product)}
-                                  className="w-7 h-7 rounded-full bg-[#64ffda] flex items-center justify-center text-[#0a192f] hover:bg-[#52e0c4] transition-colors"
-                                >
-                                  <Plus className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ) : (
-                              <button 
-                                onClick={() => onAddToCart?.(product)}
-                                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#64ffda] hover:bg-[#64ffda] hover:text-[#0a192f] transition-all"
-                              >
+                            <div className="flex items-center gap-2">
+                              {quantity > 0 && (
+                                <span className="text-[10px] font-black bg-[#64ffda]/10 text-[#64ffda] px-2 py-1 rounded-lg uppercase tracking-widest">
+                                  {quantity} Adet
+                                </span>
+                              )}
+                              <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
                                 <Plus className="w-4 h-4" />
-                              </button>
-                            )}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>

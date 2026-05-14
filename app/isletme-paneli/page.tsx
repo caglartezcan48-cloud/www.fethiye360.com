@@ -24,13 +24,16 @@ import {
   MapPin,
   Globe,
   Phone,
-  Edit3
+  Edit3,
+  QrCode,
+  Download,
+  ExternalLink
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 
 export default function BusinessPanel() {
-  const [activeTab, setActiveTab] = useState<'general' | 'products' | 'photos' | 'reviews'>('general')
+  const [activeTab, setActiveTab] = useState<'general' | 'products' | 'photos' | 'reviews' | 'qr'>('general')
   const [user, setUser] = useState<any>(null)
   const [business, setBusiness] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
@@ -305,6 +308,7 @@ export default function BusinessPanel() {
             {[
               { id: 'general', label: 'Genel Bilgiler', icon: Settings },
               { id: 'products', label: 'Menü / Ürünler', icon: Package },
+              { id: 'qr', label: 'QR Menü', icon: QrCode },
               { id: 'photos', label: 'Fotoğraf Galerisi', icon: ImageIcon },
               { id: 'reviews', label: 'Müşteri Yorumları', icon: MessageSquare },
             ].map((tab) => (

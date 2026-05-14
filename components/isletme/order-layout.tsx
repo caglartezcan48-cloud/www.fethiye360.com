@@ -2,7 +2,9 @@
 
 import { useState, useMemo } from 'react'
 import { MenuSection } from './menu-section'
+import { ProductModal } from './product-modal'
 import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface Product {
   id: string
@@ -14,7 +16,9 @@ interface Product {
 }
 
 interface CartItem extends Product {
+  cartItemId: string
   quantity: number
+  note?: string
 }
 
 interface OrderLayoutProps {
@@ -27,24 +31,41 @@ export function OrderLayout({ products, businessName, whatsappNumber }: OrderLay
   const [cart, setCart] = useState<CartItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
 
-  const addToCart = (product: Product) => {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+
+  const addToCart = (product: Product, quantity: number = 1, note: string = '') => {
     setCart(prev => {
-      const existing = prev.find(item => item.id === product.id)
-      if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
+      const existingIndex = prev.findIndex(item => item.id === product.id && item.note === note)
+      if (existingIndex > -1) {
+        const newCart = [...prev]
+        newCart[existingIndex] = { 
+          ...newCart[existingIndex], 
+          quantity: newCart[existingIndex].quantity + quantity 
+        }
+        return newCart
       }
-      return [...prev, { ...product, quantity: 1 }]
+      return [...prev, { 
+        ...product, 
+        cartItemId: Math.random().toString(36).substr(2, 9),
+        quantity, 
+        note 
+      }]
+    })
+    toast.success(`${product.name} sepete eklendi`)
+  }
+
+  const removeFromCart = (cartItemId: string) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.cartItemId === cartItemId)
+      if (existing?.quantity === 1) {
+        return prev.filter(item => item.cartItemId !== cartItemId)
+      }
+      return prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity - 1 } : item)
     })
   }
 
-  const removeFromCart = (productId: string) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === productId)
-      if (existing?.quantity === 1) {
-        return prev.filter(item => item.id !== productId)
-      }
-      return prev.map(item => item.id === productId ? { ...item, quantity: item.quantity - 1 } : item)
-    })
+  const addOneMore = (cartItemId: string) => {
+    setCart(prev => prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + 1 } : item))
   }
 
   const clearCart = () => setCart([])
@@ -57,6 +78,9 @@ export function OrderLayout({ products, businessName, whatsappNumber }: OrderLay
     let message = `*YENİ SİPARİŞ - ${businessName}*\n\n`
     cart.forEach(item => {
       message += `• ${item.quantity} x ${item.name} - ${item.price * item.quantity} TL\n`
+      if (item.note) {
+        message += `  _Not: ${item.note}_\n`
+      }
     })
     message += `\n*TOPLAM TUTAR:* ${total} TL`
     message += `\n*ÖDEME YÖNTEMİ:* Kapıda ${paymentMethod}`
@@ -72,11 +96,17 @@ export function OrderLayout({ products, businessName, whatsappNumber }: OrderLay
         <MenuSection 
           products={products} 
           businessName={businessName} 
-          onAddToCart={addToCart}
-          onRemoveFromCart={removeFromCart}
+          onProductClick={(product) => setSelectedProduct(product)}
           cartItems={cart}
         />
       </div>
+
+      <ProductModal 
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onAddToCart={addToCart}
+      />
 
       {/* Sağ Taraf: Canlı Sepet (Yemeksepeti Style) */}
       <div className="lg:col-span-4">
@@ -98,16 +128,24 @@ export function OrderLayout({ products, businessName, whatsappNumber }: OrderLay
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
               {cart.map((item) => (
-                <div key={item.id} className="flex items-center justify-between group">
-                  <div className="flex-1">
-                    <p className="text-white text-[11px] font-bold uppercase tracking-tight line-clamp-1">{item.name}</p>
-                    <p className="text-[#64ffda] text-[10px] font-black mt-0.5">{item.price * item.quantity} TL</p>
+                <div key={item.cartItemId} className="flex flex-col gap-2 p-3 bg-white/5 rounded-2xl border border-white/5 group">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-white text-[11px] font-bold uppercase tracking-tight line-clamp-1">{item.name}</p>
+                      <p className="text-[#64ffda] text-[10px] font-black mt-0.5">{item.price * item.quantity} TL</p>
+                    </div>
+                    <div className="flex items-center gap-3 bg-[#0a192f] rounded-xl px-2 py-1 border border-white/5">
+                      <button onClick={() => removeFromCart(item.cartItemId)} className="text-slate-500 hover:text-white"><Minus className="w-3 h-3" /></button>
+                      <span className="text-white text-[10px] font-black w-4 text-center">{item.quantity}</span>
+                      <button onClick={() => addOneMore(item.cartItemId)} className="text-[#64ffda] hover:scale-110"><Plus className="w-3 h-3" /></button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3 bg-[#0a192f] rounded-xl px-2 py-1 border border-white/5">
-                    <button onClick={() => removeFromCart(item.id)} className="text-slate-500 hover:text-white"><Minus className="w-3 h-3" /></button>
-                    <span className="text-white text-[10px] font-black w-4 text-center">{item.quantity}</span>
-                    <button onClick={() => addToCart(item)} className="text-[#64ffda] hover:scale-110"><Plus className="w-3 h-3" /></button>
-                  </div>
+                  {item.note && (
+                    <div className="flex items-start gap-2 text-[9px] text-slate-500 bg-black/20 p-2 rounded-lg italic">
+                      <MessageCircle className="w-3 h-3 shrink-0 mt-0.5" />
+                      {item.note}
+                    </div>
+                  )}
                 </div>
               ))}
 
