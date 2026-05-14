@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { MenuSection } from './menu-section'
 import { ProductModal } from './product-modal'
 import { Header as SiteHeader } from '@/components/fethiye/header'
-import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote, X, ChevronRight, Store, MapPin, Phone, Clock } from 'lucide-react'
+import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote, X, ChevronRight, Store, MapPin, Phone, Clock, Star, Info } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Product {
@@ -29,6 +29,10 @@ interface OrderLayoutProps {
   isFullMenuOpen?: boolean
   onCloseMenu?: () => void
   onlyOverlay?: boolean
+  businessImage?: string
+  description?: string
+  avgRating?: string
+  reviewCount?: number
 }
 
 const WhatsappIcon = ({ className }: { className?: string }) => (
@@ -37,7 +41,7 @@ const WhatsappIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-export function OrderLayout({ products, businessName, whatsappNumber, isFullMenuOpen: initialFullMenuOpen, onCloseMenu, onlyOverlay }: OrderLayoutProps) {
+export function OrderLayout({ products, businessName, whatsappNumber, isFullMenuOpen: initialFullMenuOpen, onCloseMenu, onlyOverlay, businessImage, description, avgRating, reviewCount }: OrderLayoutProps) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
   const [isFullMenuOpen, setIsFullMenuOpen] = useState(initialFullMenuOpen || false)
@@ -125,42 +129,73 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
       <div className="max-w-[1600px] mx-auto px-4 md:px-10 mt-28 mb-20 relative">
         
-        {/* TİCARİ BİLGİ PANELİ (Premium Restaurant Header) */}
+        {/* PREMIUM İŞLETME HEADER (Fotoğraflı & Detaylı) */}
         {!isFullMenuOpen && (
           <div className="mb-12 animate-in fade-in slide-in-from-top-10 duration-700">
-            <div className="bg-[#112240] rounded-[48px] p-8 md:p-12 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden group">
-               {/* Arkaplan Efekti */}
-               <div className="absolute top-0 right-0 w-64 h-64 bg-[#64ffda] opacity-[0.03] blur-[100px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
-               
-               <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left relative z-10">
-                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-[40px] bg-gradient-to-br from-[#64ffda] to-[#00d2ff] p-1 shadow-2xl shadow-[#64ffda]/20">
-                   <div className="w-full h-full rounded-[38px] bg-[#112240] flex items-center justify-center">
-                     <Store className="w-12 h-12 text-[#64ffda]" />
-                   </div>
-                 </div>
-                 <div className="space-y-3">
-                   <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter italic">{businessName}</h1>
-                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                     <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                       <MapPin className="w-3 h-3 text-[#64ffda]" /> FETHİYE / MUĞLA
-                     </div>
-                     <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                       <Clock className="w-3 h-3 text-[#64ffda]" /> 09:00 - 22:00
-                     </div>
-                   </div>
-                 </div>
+            <div className="bg-[#112240] rounded-[48px] border border-white/5 shadow-2xl relative overflow-hidden group">
+               {/* Arka Plan Görseli / Banner */}
+               <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity">
+                  <img 
+                    src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=90"} 
+                    alt={businessName} 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#112240] via-[#112240]/80 to-transparent" />
                </div>
+               
+               <div className="p-8 md:p-12 flex flex-col lg:flex-row items-center lg:items-end justify-between gap-10 relative z-10">
+                 <div className="flex flex-col md:flex-row items-center md:items-end gap-8 text-center md:text-left">
+                   {/* İşletme Logosu/Fotoğrafı */}
+                   <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] bg-white/5 p-1 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden shrink-0">
+                     <img 
+                       src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=90"} 
+                       alt={businessName} 
+                       className="w-full h-full object-cover rounded-[46px]"
+                     />
+                   </div>
+                   
+                   <div className="space-y-4">
+                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                       <span className="px-4 py-1.5 bg-[#64ffda] text-[#0a192f] rounded-full text-[10px] font-black uppercase tracking-widest">Açık</span>
+                       <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-full text-[#64ffda] text-xs font-bold border border-[#64ffda]/20">
+                         <Star className="w-3.5 h-3.5 fill-[#64ffda]" /> {avgRating || "5.0"}
+                         <span className="text-slate-500 text-[10px]">({reviewCount || 0}+ Yorum)</span>
+                       </div>
+                     </div>
+                     
+                     <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">{businessName}</h1>
+                     
+                     {/* Hakkında Metni */}
+                     <p className="text-slate-400 text-sm md:text-base font-medium max-w-2xl italic leading-relaxed">
+                        {description || "Fethiye'nin kalbinde, eşsiz lezzetler ve unutulmaz anılar için kapılarımızı açıyoruz."}
+                     </p>
 
-               {/* MENÜ GÖR BUTONU - BURADA */}
-               <button 
-                 onClick={() => setIsFullMenuOpen(true)}
-                 className="shrink-0 bg-gradient-to-r from-[#ea580c] to-[#ff7e33] text-white px-10 py-6 rounded-[32px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-orange-500/20 hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-4 group border-4 border-white/10"
-               >
-                 <span>MENÜ KATALOĞUNU GÖR</span>
-                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-               </button>
+                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
+                       <div className="flex items-center gap-2 text-slate-300 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                         <MapPin className="w-3.5 h-3.5 text-[#64ffda]" /> FETHİYE / MUĞLA
+                       </div>
+                       <div className="flex items-center gap-2 text-slate-300 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                         <Clock className="w-3.5 h-3.5 text-[#64ffda]" /> 09:00 - 22:00
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* MENÜ GÖR BUTONU */}
+                 <div className="flex flex-col items-center gap-4 shrink-0">
+                    <button 
+                      onClick={() => setIsFullMenuOpen(true)}
+                      className="bg-gradient-to-r from-[#ea580c] to-[#ff7e33] text-white px-12 py-7 rounded-[40px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-orange-500/30 hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-4 group border-b-4 border-orange-700"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>MENÜ KATALOĞUNU GÖR</span>
+                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest animate-pulse">Katalog Moduna Geç</p>
+                 </div>
             </div>
           </div>
+        </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -220,7 +255,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
             )}
           </div>
 
-          {/* SAĞ TARAF: HAREKETLİ VE İDEAL BOYUTTA SEPET */}
+          {/* SAĞ TARAF: SEPET & SİPARİŞ TUTARI */}
           <div className="lg:col-span-4 sticky top-32 animate-bounce-slow">
             <div className="bg-[#112240] rounded-[40px] border border-white/10 p-8 shadow-2xl shadow-black/50">
               <div className="flex items-center justify-between mb-8">
@@ -263,7 +298,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto opacity-10">
                             <ShoppingCart className="w-10 h-10 text-white" />
                        </div>
-                       <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Lezzet Seçmeye Başlayın</p>
+                       <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic">Lezzet Seçmeye Başlayın</p>
                     </div>
                   )}
               </div>
@@ -290,7 +325,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                     </div>
 
                     <div className="flex items-center justify-between px-2">
-                       <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Ödenecek Tutar</span>
+                       <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Sipariş Tutarı</span>
                        <span className="text-[#64ffda] text-3xl font-black italic tracking-tighter">{total} TL</span>
                     </div>
 

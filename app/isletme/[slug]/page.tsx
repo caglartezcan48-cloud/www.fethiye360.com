@@ -193,6 +193,10 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
                 products={products} 
                 businessName={business.name} 
                 whatsappNumber={business.whatsapp || business.phone}
+                businessImage={business.main_image}
+                description={business.description}
+                avgRating={avgRating}
+                reviewCount={reviews.length}
               />
               
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 pt-8 border-t border-white/5">
