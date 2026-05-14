@@ -27,7 +27,9 @@ import {
   Edit3,
   QrCode,
   Download,
-  ExternalLink
+  ExternalLink,
+  Database,
+  CheckCircle2
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
