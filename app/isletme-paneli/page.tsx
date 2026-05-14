@@ -713,6 +713,90 @@ export default function BusinessPanel() {
             </div>
           )}
 
+          {/* TAB: QR Menu */}
+          {activeTab === 'qr' && (
+            <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-500">
+              <header className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-4xl font-black text-white mb-2 tracking-tighter italic uppercase">QR Menü Yönetimi</h2>
+                  <p className="text-slate-400">Masalarınıza koymak için işletmenize özel QR kod oluşturun.</p>
+                </div>
+                <div className="w-16 h-16 bg-[#64ffda]/10 rounded-full flex items-center justify-center border border-[#64ffda]/20 shadow-[0_0_30px_rgba(100,255,218,0.1)]">
+                  <QrCode className="w-8 h-8 text-[#64ffda]" />
+                </div>
+              </header>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div className="space-y-8">
+                  <div className="bg-white/5 p-8 rounded-[40px] border border-white/10 space-y-6">
+                    <h3 className="text-xl font-black text-white flex items-center gap-3 italic uppercase">
+                      <Sparkles className="w-5 h-5 text-[#64ffda]" /> QR Menü Avantajları
+                    </h3>
+                    <ul className="space-y-4">
+                      {[
+                        'Baskı maliyetinden tasarruf edin.',
+                        'Menünüzü anında güncelleyin.',
+                        'WhatsApp üzerinden masadan sipariş alın.',
+                        'Hijyenik ve modern bir deneyim sunun.'
+                      ].map((text, i) => (
+                        <li key={i} className="flex items-center gap-3 text-slate-400 text-sm font-medium">
+                          <div className="w-1.5 h-1.5 bg-[#64ffda] rounded-full shadow-[0_0_10px_#64ffda]" />
+                          {text}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Menü Bağlantınız</p>
+                    <div className="flex items-center gap-3 bg-[#0a192f] p-4 rounded-2xl border border-white/5 group">
+                      <input 
+                        readOnly
+                        value={`https://fethiye360.com/isletme/${business.slug}`}
+                        className="flex-1 bg-transparent text-slate-300 text-sm font-medium outline-none"
+                      />
+                      <a 
+                        href={`/isletme/${business.slug}`} 
+                        target="_blank" 
+                        className="text-[#64ffda] hover:scale-110 transition-transform"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-8">
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-[#64ffda]/20 rounded-[48px] blur-[40px] group-hover:blur-[60px] transition-all opacity-50" />
+                    <div className="relative bg-white p-10 rounded-[48px] shadow-2xl overflow-hidden">
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://fethiye360.com/isletme/${business.slug}&bgcolor=ffffff&color=0a192f&margin=1`}
+                        alt="QR Code"
+                        className="w-48 h-48 md:w-64 md:h-64"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col w-full gap-4">
+                    <button 
+                      onClick={() => {
+                        const url = `https://api.qrserver.com/v1/create-qr-code/?size=1000x1000&data=https://fethiye360.com/isletme/${business.slug}&bgcolor=ffffff&color=0a192f&margin=1`
+                        window.open(url, '_blank')
+                      }}
+                      className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-[24px] font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-[#64ffda]/20 flex items-center justify-center gap-3"
+                    >
+                      <Download className="w-5 h-5" /> QR KODU YÜKSEK KALİTE İNDİR
+                    </button>
+                    <p className="text-center text-slate-500 text-[10px] font-bold uppercase tracking-widest">
+                      Bu kodu masalarınıza bastırıp koyabilirsiniz.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB: Photos */}
           {activeTab === 'photos' && (
             <div className="space-y-12">
