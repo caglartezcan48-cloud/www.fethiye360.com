@@ -120,8 +120,8 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
       <div className="max-w-[1600px] mx-auto px-4 md:px-10 mt-32 mb-20 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* SOL TARAF: KATALOG VEYA STANDART LİSTE */}
-          <div className="lg:col-span-8 transition-all duration-500">
+          {/* SOL TARAF: KATALOG VEYA STANDART LİSTE - DARALTILDI */}
+          <div className="lg:col-span-7 transition-all duration-500">
             {isFullMenuOpen ? (
               /* BEYAZ KATALOG GÖRÜNÜMÜ */
               <div className="bg-[#fdfaf5] rounded-[48px] shadow-2xl overflow-hidden relative min-h-screen border border-orange-100/50">
@@ -173,8 +173,8 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
             )}
           </div>
 
-          {/* SAĞ TARAF: HAREKETLİ VE ORTAK SEPET */}
-          <div className="lg:col-span-4 sticky top-32 animate-bounce-slow">
+          {/* SAĞ TARAF: HAREKETLİ VE GENİŞLETİLMİŞ SEPET */}
+          <div className="lg:col-span-5 sticky top-32 animate-bounce-slow">
             <div className="bg-[#112240] rounded-[40px] border border-white/10 p-8 shadow-2xl shadow-black/50">
               <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-4">
@@ -198,6 +198,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                     <div key={item.cartItemId} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group transition-all hover:bg-white/10">
                        <div className="flex-1">
                           <p className="text-white text-[11px] font-black uppercase tracking-tight line-clamp-1">{item.name}</p>
+                          {item.note && <p className="text-orange-400 text-[9px] font-bold italic mt-0.5">"{item.note}"</p>}
                           <p className="text-[#64ffda] text-[10px] font-black mt-0.5">
                             {(parseFloat(String(item.price || 0).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL
                           </p>

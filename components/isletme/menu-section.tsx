@@ -41,9 +41,9 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
 
   return (
     <div className="space-y-2">
-      {/* Kategori Navigasyonu ve Arama */}
-      <div className={`sticky top-[80px] z-30 py-4 -mx-6 px-6 border-b flex items-center gap-4 transition-colors ${
-        theme === 'light' ? 'bg-[#fdfaf5]/80 backdrop-blur-md border-orange-100' : 'bg-[#0a192f] border-white/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)]'
+      {/* Kategori Navigasyonu ve Arama - SABİT VE OKUNABİLİR */}
+      <div className={`sticky top-0 z-40 py-6 -mx-6 px-6 border-b flex items-center gap-4 shadow-sm ${
+        theme === 'light' ? 'bg-[#fdfaf5] border-orange-100' : 'bg-[#0a192f] border-white/10'
       }`}>
         {/* Arama Çubuğu */}
         <div className="relative shrink-0 w-28 md:w-48">
