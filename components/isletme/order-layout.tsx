@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { MenuSection } from './menu-section'
 import { ProductModal } from './product-modal'
 import { Header as SiteHeader } from '@/components/fethiye/header'
-import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote, X, ChevronRight } from 'lucide-react'
+import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote, X, ChevronRight, Store, MapPin, Phone, Clock } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Product {
@@ -37,13 +37,21 @@ const WhatsappIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-export function OrderLayout({ products, businessName, whatsappNumber, isFullMenuOpen, onCloseMenu, onlyOverlay }: OrderLayoutProps) {
+export function OrderLayout({ products, businessName, whatsappNumber, isFullMenuOpen: initialFullMenuOpen, onCloseMenu, onlyOverlay }: OrderLayoutProps) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
+  const [isFullMenuOpen, setIsFullMenuOpen] = useState(initialFullMenuOpen || false)
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
-  // --- SEPETİ HAFIZADA TUT (LocalStorage Entegrasyonu) ---
+  // Sync with prop
+  useEffect(() => {
+    if (initialFullMenuOpen !== undefined) {
+      setIsFullMenuOpen(initialFullMenuOpen)
+    }
+  }, [initialFullMenuOpen])
+
+  // --- SEPETİ HAFIZADA TUT ---
   useEffect(() => {
     const saved = localStorage.getItem(`cart_${businessName}`)
     if (saved) {
@@ -110,21 +118,58 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
     window.open(`https://wa.me/${whatsappNumber?.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
   }
 
-  // --- NEW UI RENDERING (Unified Hybrid Style) ---
-  
   return (
     <div className="fixed inset-0 z-[150] bg-[#0a192f] animate-in fade-in slide-in-from-bottom duration-700 overflow-y-auto no-scrollbar selection:bg-orange-200">
       {/* Site Navbar */}
       <SiteHeader />
 
-      <div className="max-w-[1600px] mx-auto px-4 md:px-10 mt-32 mb-20 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-10 mt-28 mb-20 relative">
+        
+        {/* TİCARİ BİLGİ PANELİ (Premium Restaurant Header) */}
+        {!isFullMenuOpen && (
+          <div className="mb-12 animate-in fade-in slide-in-from-top-10 duration-700">
+            <div className="bg-[#112240] rounded-[48px] p-8 md:p-12 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl relative overflow-hidden group">
+               {/* Arkaplan Efekti */}
+               <div className="absolute top-0 right-0 w-64 h-64 bg-[#64ffda] opacity-[0.03] blur-[100px] rounded-full group-hover:opacity-[0.05] transition-opacity" />
+               
+               <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left relative z-10">
+                 <div className="w-24 h-24 md:w-32 md:h-32 rounded-[40px] bg-gradient-to-br from-[#64ffda] to-[#00d2ff] p-1 shadow-2xl shadow-[#64ffda]/20">
+                   <div className="w-full h-full rounded-[38px] bg-[#112240] flex items-center justify-center">
+                     <Store className="w-12 h-12 text-[#64ffda]" />
+                   </div>
+                 </div>
+                 <div className="space-y-3">
+                   <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter italic">{businessName}</h1>
+                   <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                     <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                       <MapPin className="w-3 h-3 text-[#64ffda]" /> FETHİYE / MUĞLA
+                     </div>
+                     <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                       <Clock className="w-3 h-3 text-[#64ffda]" /> 09:00 - 22:00
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
+               {/* MENÜ GÖR BUTONU - BURADA */}
+               <button 
+                 onClick={() => setIsFullMenuOpen(true)}
+                 className="shrink-0 bg-gradient-to-r from-[#ea580c] to-[#ff7e33] text-white px-10 py-6 rounded-[32px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-orange-500/20 hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-4 group border-4 border-white/10"
+               >
+                 <span>MENÜ KATALOĞUNU GÖR</span>
+                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+               </button>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           
-          {/* SOL TARAF: KATALOG VEYA STANDART LİSTE - DARALTILDI */}
-          <div className="lg:col-span-7 transition-all duration-500">
+          {/* SOL TARAF: KATALOG VEYA STANDART LİSTE */}
+          <div className="lg:col-span-8 transition-all duration-500">
             {isFullMenuOpen ? (
               /* BEYAZ KATALOG GÖRÜNÜMÜ */
-              <div className="bg-[#fdfaf5] rounded-[48px] shadow-2xl overflow-hidden relative min-h-screen border border-orange-100/50">
+              <div className="bg-[#fdfaf5] rounded-[48px] shadow-2xl overflow-hidden relative min-h-screen border border-orange-100/50 animate-in zoom-in-95 duration-500">
                 {/* Flu Desen */}
                 <div className="absolute inset-0 opacity-[0.06] pointer-events-none -z-10" 
                   style={{ 
@@ -138,7 +183,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                 <div className="px-6 py-8 space-y-12 relative">
                   <div className="flex items-center justify-between">
                      <h2 className="text-[#1a1a1a] text-2xl font-black uppercase tracking-tighter">PREMIUM MENÜ KATALOĞU</h2>
-                     <button onClick={onCloseMenu} className="p-4 bg-orange-50 text-[#ea580c] rounded-2xl hover:bg-orange-100 transition-colors">
+                     <button onClick={() => setIsFullMenuOpen(false)} className="p-4 bg-orange-50 text-[#ea580c] rounded-2xl hover:bg-orange-100 transition-colors">
                        <X className="w-6 h-6" />
                      </button>
                   </div>
@@ -162,19 +207,21 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
               </div>
             ) : (
               /* STANDART KOYU LİSTE GÖRÜNÜMÜ */
-              <MenuSection 
-                products={products} 
-                businessName={businessName} 
-                onProductClick={(product) => setSelectedProduct(product)}
-                onAddToCart={addToCart}
-                cartItems={cart}
-                theme="dark"
-              />
+              <div className="animate-in fade-in slide-in-from-left-10 duration-700">
+                <MenuSection 
+                  products={products} 
+                  businessName={businessName} 
+                  onProductClick={(product) => setSelectedProduct(product)}
+                  onAddToCart={addToCart}
+                  cartItems={cart}
+                  theme="dark"
+                />
+              </div>
             )}
           </div>
 
-          {/* SAĞ TARAF: HAREKETLİ VE GENİŞLETİLMİŞ SEPET */}
-          <div className="lg:col-span-5 sticky top-32 animate-bounce-slow">
+          {/* SAĞ TARAF: HAREKETLİ VE İDEAL BOYUTTA SEPET */}
+          <div className="lg:col-span-4 sticky top-32 animate-bounce-slow">
             <div className="bg-[#112240] rounded-[40px] border border-white/10 p-8 shadow-2xl shadow-black/50">
               <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-4">
@@ -193,7 +240,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                   )}
               </div>
 
-              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 no-scrollbar mb-8">
+              <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 no-scrollbar mb-8">
                   {cart.map((item) => (
                     <div key={item.cartItemId} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group transition-all hover:bg-white/10">
                        <div className="flex-1">
@@ -214,7 +261,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                   {cart.length === 0 && (
                     <div className="py-20 text-center space-y-6">
                        <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto opacity-10">
-                          <ShoppingCart className="w-10 h-10 text-white" />
+                            <ShoppingCart className="w-10 h-10 text-white" />
                        </div>
                        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Lezzet Seçmeye Başlayın</p>
                     </div>
