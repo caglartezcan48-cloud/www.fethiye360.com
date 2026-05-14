@@ -23,7 +23,8 @@ import {
   Sparkles,
   MapPin,
   Globe,
-  Phone
+  Phone,
+  Edit3
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
