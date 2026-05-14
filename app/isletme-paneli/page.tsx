@@ -393,27 +393,6 @@ export default function BusinessPanel() {
                     className="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
                   />
                 </div>
-
-                <div className="space-y-3">
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Enlem (Latitude)</label>
-                  <input 
-                    type="text"
-                    value={business.location_lat || ''}
-                    onChange={(e) => setBusiness({...business, location_lat: e.target.value})}
-                    className="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Boylam (Longitude)</label>
-                  <input 
-                    type="text"
-                    value={business.location_lng || ''}
-                    onChange={(e) => setBusiness({...business, location_lng: e.target.value})}
-                    className="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
-                  />
-                </div>
-
                 <div className="md:col-span-2 space-y-3">
                   <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-2">
                     <Settings className="w-3 h-3 text-[#64ffda]" /> Sayfa Düzeni Seçimi
