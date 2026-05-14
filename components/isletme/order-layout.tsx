@@ -90,45 +90,17 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
       <>
         {isFullMenuOpen && (
           <div className="fixed inset-0 z-[150] bg-[#fdfaf5] animate-in fade-in slide-in-from-bottom duration-700 overflow-y-auto no-scrollbar selection:bg-orange-200">
+            {/* Antetli Desen (Subtle Ornamental Pattern) */}
+            <div className="absolute inset-0 opacity-[0.04] pointer-events-none -z-10" 
+              style={{ 
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 86c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm66-3c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-46-45c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm37 2c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM61 5c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM33 35c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-5 5c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM52 80c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm28-20c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM19 15c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM67 13c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-9 33c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm15 24c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-49 8c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm24-46c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-5 54c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-28-41c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm23 20c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-10-10c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm58 2c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-3-18c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-20 80c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm10-20c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-8-10c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-44-4c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm16-11c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z' fill='%23ea580c' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")` 
+              }} 
+            />
+            
             {/* Site Navbar Entegrasyonu */}
             <SiteHeader />
 
-            {/* Katalog Header (Navbar'ın altında kalması için pt-32 eklendi) */}
-            <div className="sticky top-24 z-50 bg-[#fdfaf5]/80 backdrop-blur-2xl border-b border-orange-100 px-8 py-6 flex items-center justify-between">
-               <div className="flex items-center justify-between w-full">
-                 <div className="flex items-center gap-4">
-                    {/* İşletme Logosu - Bordo Alan */}
-                    <div className="w-16 h-16 rounded-2xl bg-white border border-orange-100 flex items-center justify-center overflow-hidden shadow-lg shadow-orange-100">
-                      {businessName === 'DNER' ? (
-                        <img src="/logolar/dner-logo.png" alt="Logo" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-[#ea580c] flex items-center justify-center text-white font-black text-2xl uppercase">
-                           {businessName?.[0]}
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h1 className="text-lg font-black text-[#1a1a1a] uppercase tracking-tighter">{businessName}</h1>
-                      <p className="text-[10px] text-[#ea580c] font-black uppercase tracking-[0.3em]">GÜNCEL DİJİTAL KATALOG</p>
-                    </div>
-                 </div>
-
-                 <div className="flex items-center gap-6">
-                    {/* Fethiye360 Logosu - Yeşil/Sarı Alan */}
-                    <img src="/logolar/fethiye360-logo-dark.png" alt="Fethiye360" className="h-8 md:h-10 object-contain opacity-80" />
-                    <button 
-                      onClick={onCloseMenu}
-                      className="w-14 h-14 rounded-full bg-white border border-orange-100 flex items-center justify-center text-[#ea580c] hover:bg-[#ea580c] hover:text-white transition-all shadow-xl shadow-orange-200/20 group"
-                    >
-                      <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
-                    </button>
-                 </div>
-               </div>
-            </div>
-
-            <div className="max-w-6xl mx-auto px-6 py-16 space-y-20 relative">
-               {/* Background Texture Placeholder */}
-               <div className="absolute inset-0 opacity-[0.03] pointer-events-none -z-10" style={{ backgroundImage: 'radial-gradient(#ea580c 0.5px, transparent 0.5px)', backgroundSize: '20px 20px' }} />
+            <div className="max-w-6xl mx-auto px-6 py-32 space-y-20 relative">
 
                {/* Category Nav for Catalog */}
                <div className="flex flex-wrap justify-center gap-3">
