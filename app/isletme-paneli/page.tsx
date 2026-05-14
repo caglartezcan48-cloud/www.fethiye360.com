@@ -704,9 +704,9 @@ export default function BusinessPanel() {
                   YENİ ÜRÜNÜ MENÜYE EKLE
                 </button>
               </form>
+            )}
 
-              {/* Edit Modal (Inline) */}
-              {editingProduct && (
+            {editingProduct && (
                 <div className="fixed inset-0 bg-[#0a192f]/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
                   <form onSubmit={handleUpdateProduct} className="bg-[#112240] w-full max-w-2xl p-8 rounded-[40px] border border-[#64ffda]/20 shadow-2xl space-y-6">
                     <h3 className="text-2xl font-black text-white">Ürünü Düzenle</h3>
