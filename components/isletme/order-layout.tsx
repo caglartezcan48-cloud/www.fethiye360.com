@@ -91,38 +91,40 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
           <div className="fixed inset-0 z-[150] bg-[#fdfaf5] animate-in fade-in slide-in-from-bottom duration-700 overflow-y-auto no-scrollbar selection:bg-orange-200">
             {/* Header */}
             <div className="sticky top-0 z-50 bg-[#fdfaf5]/80 backdrop-blur-2xl border-b border-orange-100 px-8 py-6 flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                  <div className="w-12 h-12 rounded-2xl bg-[#ea580c] flex items-center justify-center text-white font-black text-xl shadow-lg shadow-orange-200">
-                    {businessName[0]}
-                  </div>
-                  <div>
-                    <h2 className="text-[#1a1a1a] font-black uppercase tracking-[0.3em] text-[11px] italic leading-tight">{businessName}</h2>
-                    <p className="text-[#ea580c] text-[9px] font-black uppercase tracking-[0.4em] opacity-80">GÜNCEL DİJİTAL KATALOG</p>
-                  </div>
-              </div>
-              <button 
-                onClick={onCloseMenu}
-                className="w-14 h-14 rounded-3xl bg-white border border-orange-100 flex items-center justify-center text-slate-400 hover:bg-orange-50 hover:border-orange-200 hover:text-[#ea580c] transition-all group shadow-sm"
-              >
-                <X className="w-6 h-6 rotate-45 group-hover:scale-110 transition-transform" />
-              </button>
+               <div className="flex items-center justify-between w-full">
+                 <div className="flex items-center gap-4">
+                    {/* İşletme Logosu - Bordo Alan */}
+                    <div className="w-16 h-16 rounded-2xl bg-white border border-orange-100 flex items-center justify-center overflow-hidden shadow-lg shadow-orange-100">
+                      {businessName === 'DNER' ? (
+                        <img src="/logolar/dner-logo.png" alt="Logo" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-[#ea580c] flex items-center justify-center text-white font-black text-2xl uppercase">
+                           {businessName?.[0]}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h1 className="text-lg font-black text-[#1a1a1a] uppercase tracking-tighter">{businessName}</h1>
+                      <p className="text-[10px] text-[#ea580c] font-black uppercase tracking-[0.3em]">GÜNCEL DİJİTAL KATALOG</p>
+                    </div>
+                 </div>
+
+                 <div className="flex items-center gap-6">
+                    {/* Fethiye360 Logosu - Yeşil/Sarı Alan */}
+                    <img src="/logolar/fethiye360-logo-dark.png" alt="Fethiye360" className="h-8 md:h-10 object-contain opacity-80" />
+                    <button 
+                      onClick={onCloseMenu}
+                      className="w-14 h-14 rounded-full bg-white border border-orange-100 flex items-center justify-center text-[#ea580c] hover:bg-[#ea580c] hover:text-white transition-all shadow-xl shadow-orange-200/20 group"
+                    >
+                      <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+                    </button>
+                 </div>
+               </div>
             </div>
 
             <div className="max-w-6xl mx-auto px-6 py-16 space-y-20 relative">
                {/* Background Texture Placeholder */}
                <div className="absolute inset-0 opacity-[0.03] pointer-events-none -z-10" style={{ backgroundImage: 'radial-gradient(#ea580c 0.5px, transparent 0.5px)', backgroundSize: '20px 20px' }} />
-
-               {/* Hero Header */}
-               <div className="text-center space-y-6">
-                  <div className="inline-block px-4 py-1.5 bg-orange-100 border border-orange-200 rounded-full text-[#ea580c] text-[8px] font-black uppercase tracking-[0.5em] mb-4">
-                    Hoş Geldiniz
-                  </div>
-                  <h1 className="text-5xl md:text-8xl font-black text-[#1a1a1a] italic tracking-tighter uppercase leading-[0.85] flex flex-col items-center">
-                    <span>LEZZET</span>
-                    <span className="text-[#ea580c] -mt-2">DOLU</span>
-                    <span className="text-4xl md:text-6xl text-slate-200 -mt-2">DENEYİM</span>
-                  </h1>
-               </div>
 
                {/* Category Nav for Catalog */}
                <div className="flex flex-wrap justify-center gap-3">
@@ -148,25 +150,21 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                  />
                </div>
 
+               {/* Sepete Dön Butonu - Sayfanın Sağına Alındı (Floating) */}
+               <div className="fixed bottom-10 right-10 z-[60]">
+                  <button 
+                    onClick={onCloseMenu}
+                    className="bg-[#ea580c] text-white px-8 py-5 rounded-[32px] font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-orange-400/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-6 border-4 border-white"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xs">{cart.length}</div>
+                    SEPETE DÖN
+                    <span className="text-white/60">{total} TL</span>
+                  </button>
+               </div>
+
                <div className="py-20 text-center border-t border-orange-100">
                   <p className="text-slate-300 text-[9px] font-black uppercase tracking-[0.8em]">FETHIYE360 DİJİTAL MENÜ SİSTEMİ</p>
                </div>
-            </div>
-
-            {/* Bottom Floating Bar */}
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-6">
-               <button 
-                 onClick={onCloseMenu}
-                 className="w-full bg-[#ea580c] text-white p-6 rounded-[32px] font-black uppercase tracking-[0.3em] text-[11px] shadow-2xl shadow-orange-300/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-between"
-               >
-                 <span className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-white text-[#ea580c] flex items-center justify-center text-[10px]">
-                      {cart.length}
-                    </div>
-                    SEPETE DÖN
-                 </span>
-                 <span className="text-base italic tracking-tighter">{total} TL</span>
-               </button>
             </div>
           </div>
         )}

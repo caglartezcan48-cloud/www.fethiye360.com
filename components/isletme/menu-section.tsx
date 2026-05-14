@@ -123,7 +123,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                   }`}>{categoryProducts.length} Ürün</span>
                 </h2>
                 
-                <div className={viewMode === 'catalog' ? "grid grid-cols-2 md:grid-cols-3 gap-6" : "grid grid-cols-1 lg:grid-cols-2 gap-4"}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {categoryProducts.map((product) => {
                     const quantity = getProductQuantity(product.id)
                     
@@ -131,20 +131,12 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                       <div 
                         key={product.id}
                         onClick={() => onProductClick?.(product)}
-                        className={viewMode === 'catalog' 
-                          ? theme === 'light' 
-                            ? "flex flex-col rounded-[32px] bg-white border border-orange-100 hover:border-orange-300 transition-all group cursor-pointer active:scale-[0.98] overflow-hidden shadow-sm hover:shadow-xl hover:shadow-orange-200/20" 
-                            : "flex flex-col rounded-[32px] bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98] overflow-hidden shadow-2xl"
-                          : theme === 'light'
-                            ? "flex gap-4 p-4 rounded-2xl bg-white border border-orange-100 hover:border-orange-300 transition-all group cursor-pointer active:scale-[0.98] shadow-sm"
-                            : "flex gap-4 p-4 rounded-2xl bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98]"
-                        }
+                        className={`flex gap-4 p-4 rounded-[32px] bg-white border border-orange-100 hover:border-orange-300 transition-all group cursor-pointer active:scale-[0.98] shadow-sm hover:shadow-xl hover:shadow-orange-200/20 ${
+                          theme === 'dark' ? 'bg-[#112240] border-white/5 hover:border-[#64ffda]/30' : ''
+                        }`}
                       >
-                        {/* Görsel */}
-                        <div className={viewMode === 'catalog' 
-                          ? theme === 'light' ? "w-full aspect-square overflow-hidden bg-orange-50/50 relative" : "w-full aspect-square overflow-hidden bg-white/5 relative"
-                          : theme === 'light' ? "w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-orange-50/50" : "w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-white/5"
-                        }>
+                        {/* Görsel - Solda */}
+                        <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl overflow-hidden shrink-0 bg-orange-50/50 relative">
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                           ) : (
@@ -152,26 +144,20 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                               <Package className="w-8 h-8" />
                             </div>
                           )}
-                          {viewMode === 'catalog' && (
-                            <div className="absolute top-4 right-4 z-10">
-                               <div className={`w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center transition-all shadow-sm ${
-                                 theme === 'light' 
-                                   ? 'bg-white/80 border-orange-100 text-[#ea580c] group-hover:bg-[#ea580c] group-hover:text-white' 
-                                   : 'bg-[#0a192f]/60 border-white/10 text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f]'
-                               }`}>
-                                  <Plus className="w-5 h-5" />
-                               </div>
+                          {/* Badge (Örn: Popüler) */}
+                          {product.price > 200 && (
+                            <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded-lg text-[8px] font-black text-white uppercase tracking-widest">
+                              Popüler
                             </div>
                           )}
                         </div>
 
-                        {/* Detaylar */}
-                        <div className={viewMode === 'catalog' ? "p-6 space-y-4" : "flex-1 flex flex-col justify-between py-1"}>
+                        {/* Detaylar - Sağda */}
+                        <div className="flex-1 flex flex-col justify-between py-1 relative">
                           <div className="space-y-1">
-                            <h4 className={viewMode === 'catalog' 
-                              ? theme === 'light' ? "text-[#1a1a1a] font-black text-lg italic uppercase tracking-tighter group-hover:text-[#ea580c] transition-colors" : "text-white font-black text-lg italic uppercase tracking-tighter group-hover:text-[#64ffda] transition-colors"
-                              : theme === 'light' ? "text-[#1a1a1a] font-bold text-sm group-hover:text-[#ea580c] transition-colors" : "text-white font-bold text-sm group-hover:text-[#64ffda] transition-colors"
-                            }>
+                            <h4 className={`font-black text-base md:text-lg italic uppercase tracking-tighter transition-colors ${
+                              theme === 'light' ? 'text-[#1a1a1a] group-hover:text-[#ea580c]' : 'text-white group-hover:text-[#64ffda]'
+                            }`}>
                               {product.name}
                             </h4>
                             {product.description && (
@@ -179,36 +165,28 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                             )}
                           </div>
                           
-                          <div className="flex items-center justify-between mt-auto pt-2">
-                            <span className={viewMode === 'catalog' 
-                              ? theme === 'light' ? "text-[#ea580c] font-black text-xl italic tracking-tighter" : "text-[#64ffda] font-black text-xl italic tracking-tighter"
-                              : theme === 'light' ? "text-[#ea580c] font-black text-sm" : "text-[#64ffda] font-black text-sm"
-                            }>
-                              {product.price} TL
+                          <div className="flex items-end justify-between">
+                            <span className={`font-black text-xl md:text-2xl italic tracking-tighter ${
+                              theme === 'light' ? 'text-[#1a1a1a]' : 'text-[#64ffda]'
+                            }`}>
+                              {product.price} <span className="text-[10px] opacity-60">TL</span>
                             </span>
                             
-                            {quantity > 0 && (
-                              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${
-                                theme === 'light' ? 'bg-orange-100' : 'bg-[#64ffda]/10'
-                              }`}>
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${
-                                  theme === 'light' ? 'text-[#ea580c]' : 'text-[#64ffda]'
-                                }`}>
-                                  {quantity}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {viewMode !== 'catalog' && (
-                              <div className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${
-                                theme === 'light' 
-                                  ? 'bg-orange-50 border-orange-100 text-[#ea580c] group-hover:bg-[#ea580c] group-hover:text-white' 
-                                  : 'bg-white/5 border-white/10 text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f]'
-                              }`}>
-                                <Plus className="w-4 h-4" />
-                              </div>
-                            )}
+                            {/* Orange Plus Button - Bottom Right */}
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-all shadow-lg ${
+                              theme === 'light' ? 'bg-[#ea580c] shadow-orange-200' : 'bg-[#64ffda] text-[#0a192f] shadow-[#64ffda]/20'
+                            }`}>
+                              <Plus className="w-5 h-5" />
+                            </div>
                           </div>
+
+                          {quantity > 0 && (
+                            <div className={`absolute -top-1 -right-1 flex items-center gap-1.5 px-2 py-0.5 rounded-full border-2 border-white shadow-sm ${
+                              theme === 'light' ? 'bg-[#ea580c] text-white' : 'bg-[#64ffda] text-[#0a192f]'
+                            }`}>
+                              <span className="text-[9px] font-black">{quantity}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )
