@@ -105,13 +105,18 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
 
           <div className="flex flex-col md:flex-row gap-8 items-start">
             {/* Logo / Square Image */}
-            <div className="w-32 h-32 md:w-40 md:h-40 shrink-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-white/5">
+            <a 
+              href={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=90"} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block w-32 h-32 md:w-40 md:h-40 shrink-0 rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-white/5 cursor-pointer"
+            >
               <img 
                 src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=90"} 
                 alt={business.name} 
                 className="w-full h-full object-cover hover:scale-105 transition-transform"
               />
-            </div>
+            </a>
 
             {/* Restoran Bilgileri */}
             <div className="flex-1 space-y-4">
@@ -213,11 +218,64 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
       <section className={`max-w-7xl mx-auto px-6 py-8 ${isSalesOriented ? 'border-t border-white/5' : 'md:py-24'}`}>
         {isSalesOriented ? (
           /* SALES ORIENTED LAYOUT (Order Panel) */
-          <OrderLayout 
-            products={products} 
-            businessName={business.name} 
-            whatsappNumber={business.whatsapp || business.phone} 
-          />
+          <div className="space-y-16">
+            <OrderLayout 
+              products={products} 
+              businessName={business.name} 
+              whatsappNumber={business.whatsapp || business.phone} 
+            />
+            
+            {/* Sales Oriented için Hakkında ve Yorumlar */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 pt-8 border-t border-white/5">
+              <div className="lg:col-span-8 space-y-16">
+                <div id="hakkinda" className="space-y-6 scroll-mt-32">
+                    <div className="flex items-center gap-4">
+                        <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">MEKAN HAKKINDA</h3>
+                        <div className="h-px w-full bg-white/5" />
+                    </div>
+                    <p className="text-lg md:text-xl text-white font-medium leading-relaxed italic opacity-95">
+                        {business.description || "Fethiye'nin kalbinde, eşsiz lezzetler ve unutulmaz anılar için kapılarımızı açıyoruz."}
+                    </p>
+                </div>
+
+                <div id="yorumlar" className="space-y-8 scroll-mt-32">
+                    <div className="flex items-center gap-4">
+                        <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">YORUMLAR</h3>
+                        <div className="h-px w-full bg-white/5" />
+                    </div>
+                    {reviews.length > 0 ? (
+                      <div className="grid gap-4">
+                        {reviews.map((review: any) => (
+                          <div key={review.id} className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                             <div className="flex items-center justify-between mb-4">
+                               <div className="flex items-center gap-3">
+                                 <div className="w-10 h-10 bg-[#64ffda]/10 rounded-full flex items-center justify-center font-bold text-[#64ffda]">
+                                   {review.user_name ? review.user_name.charAt(0).toUpperCase() : 'A'}
+                                 </div>
+                                 <div>
+                                   <p className="text-white font-bold text-sm">{review.user_name || 'Anonim'}</p>
+                                   <div className="flex gap-1 mt-1">
+                                     {Array.from({ length: 5 }).map((_, i) => (
+                                       <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-600'}`} />
+                                     ))}
+                                   </div>
+                                 </div>
+                               </div>
+                               <span className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('tr-TR')}</span>
+                             </div>
+                             <p className="text-slate-300 text-sm leading-relaxed">{review.comment}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-12 bg-white/5 rounded-3xl border border-white/10">
+                        <p className="text-slate-400 text-sm italic">Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+                      </div>
+                    )}
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           /* STANDARD INFORMATIONAL LAYOUT */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">

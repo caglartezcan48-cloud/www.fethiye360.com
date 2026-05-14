@@ -39,14 +39,14 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
       {/* Kategori Navigasyonu ve Arama - Sticky Yemeksepeti Style */}
       <div className="sticky top-[80px] z-30 bg-[#0a192f] py-4 -mx-6 px-6 border-b border-white/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] flex items-center gap-4">
         {/* Arama Çubuğu */}
-        <div className="relative shrink-0 w-48 hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="relative shrink-0 w-28 md:w-48">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
           <input 
             type="text" 
-            placeholder="Menüde Ara" 
+            placeholder="Ara..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#112240] border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-[#64ffda] transition-colors placeholder:text-slate-500"
+            className="w-full bg-[#112240] border border-white/10 rounded-full py-2 pl-9 pr-3 text-xs md:text-sm text-white focus:outline-none focus:border-[#64ffda] transition-colors placeholder:text-slate-500"
           />
         </div>
 
@@ -91,8 +91,8 @@ export function MenuSection({ products, businessName, whatsappNumber, onAddToCar
         {products.length === 0 ? (
           <div className="py-32 text-center bg-[#112240] rounded-3xl border border-dashed border-white/10 flex flex-col items-center justify-center">
             <Package className="w-16 h-16 text-slate-600 mb-6" />
-            <h3 className="text-2xl font-black text-white mb-2">Menü Henüz Eklenmedi</h3>
-            <p className="text-slate-400">Bu işletme henüz satışa sunduğu ürünleri sisteme yüklememiş.</p>
+            <h3 className="text-2xl font-black text-white mb-2">İçerik Yükleniyor...</h3>
+            <p className="text-slate-400">Bu işletme henüz satışa sunduğu ürünleri sisteme yüklememiş veya menü güncelleniyor.</p>
           </div>
         ) : (
           (activeCategory === 'Tümü' ? categories.filter(c => c !== 'Tümü') : [activeCategory]).map(category => {
