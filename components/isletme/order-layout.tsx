@@ -178,21 +178,6 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
   return (
     <div className="min-h-screen bg-[#0a192f]">
-      {/* Horizontal Sticky Categories */}
-      <div className="sticky top-[80px] z-[40] bg-[#0a192f]/80 backdrop-blur-xl border-b border-white/5 py-4 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 overflow-x-auto no-scrollbar flex items-center gap-2">
-           {Array.from(new Set(products.map(p => p.category))).map((cat) => (
-             <button 
-               key={cat}
-               onClick={() => document.getElementById(`cat-${cat}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-               className="px-6 py-2 bg-white/5 border border-white/10 rounded-full text-[10px] font-black text-white uppercase tracking-widest hover:bg-[#64ffda] hover:text-[#0a192f] transition-all whitespace-nowrap"
-             >
-               {cat}
-             </button>
-           ))}
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Main Menu Section */}
