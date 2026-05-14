@@ -89,37 +89,84 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
   // --- NEW UI RENDERING (Lovable Style) ---
   
   if (onlyOverlay) {
-    // Mobile/Full-screen Catalog Mode
+    // --- PREMIUM CATALOG MODE (Lovable Style) ---
     return (
       <>
         {isFullMenuOpen && (
-          <div className="fixed inset-0 z-[150] bg-[#0a192f] animate-in fade-in slide-in-from-bottom duration-500 overflow-y-auto no-scrollbar">
+          <div className="fixed inset-0 z-[150] bg-[#0a192f] animate-in fade-in slide-in-from-bottom duration-700 overflow-y-auto no-scrollbar">
             {/* Header */}
-            <div className="sticky top-0 z-20 bg-[#0a192f]/80 backdrop-blur-xl border-b border-white/5 px-6 py-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#64ffda] flex items-center justify-center text-[#0a192f] font-black">
+            <div className="sticky top-0 z-50 bg-[#0a192f]/60 backdrop-blur-2xl border-b border-white/5 px-8 py-8 flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                  <div className="w-12 h-12 rounded-2xl bg-[#64ffda] flex items-center justify-center text-[#0a192f] font-black text-xl shadow-lg shadow-[#64ffda]/20">
                     {businessName[0]}
                   </div>
                   <div>
-                    <h2 className="text-white font-black uppercase tracking-widest text-[10px] italic">{businessName}</h2>
-                    <p className="text-[#64ffda] text-[8px] font-bold uppercase tracking-widest">DİJİTAL KATALOG</p>
+                    <h2 className="text-white font-black uppercase tracking-[0.3em] text-[11px] italic leading-tight">{businessName}</h2>
+                    <p className="text-[#64ffda] text-[9px] font-black uppercase tracking-[0.4em] opacity-80">GÜNCEL DİJİTAL KATALOG</p>
                   </div>
               </div>
               <button 
                 onClick={onCloseMenu}
-                className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white"
+                className="w-14 h-14 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-[#64ffda]/50 hover:text-[#64ffda] transition-all group"
               >
-                <Trash2 className="w-4 h-4 rotate-45" />
+                <Trash2 className="w-6 h-6 rotate-45 group-hover:scale-110 transition-transform" />
               </button>
             </div>
 
-            <div className="max-w-3xl mx-auto px-4 py-8 space-y-12">
-               <MenuSection 
-                 products={products} 
-                 businessName={businessName} 
-                 onProductClick={(product) => setSelectedProduct(product)}
-                 cartItems={cart}
-               />
+            <div className="max-w-4xl mx-auto px-6 py-16 space-y-20">
+               {/* Hero Header */}
+               <div className="text-center space-y-6">
+                  <div className="inline-block px-4 py-1.5 bg-[#64ffda]/10 border border-[#64ffda]/20 rounded-full text-[#64ffda] text-[8px] font-black uppercase tracking-[0.5em] mb-4">
+                    Hoş Geldiniz
+                  </div>
+                  <h1 className="text-5xl md:text-8xl font-black text-white italic tracking-tighter uppercase leading-[0.85] flex flex-col items-center">
+                    <span>LEZZET</span>
+                    <span className="text-[#64ffda] -mt-2">DOLU</span>
+                    <span className="text-4xl md:text-6xl text-white/20 -mt-2">DENEYİM</span>
+                  </h1>
+               </div>
+
+               {/* Category Nav for Catalog */}
+               <div className="flex flex-wrap justify-center gap-3">
+                  {Array.from(new Set(products.map(p => p.category))).map((cat) => (
+                    <button 
+                      key={cat}
+                      onClick={() => document.getElementById(`cat-${cat}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                      className="px-6 py-3 bg-white/5 border border-white/5 rounded-2xl text-[9px] font-black text-slate-400 uppercase tracking-widest hover:bg-[#64ffda] hover:text-[#0a192f] hover:border-[#64ffda] transition-all"
+                    >
+                      {cat}
+                    </button>
+                  ))}
+               </div>
+
+               <div className="space-y-24">
+                 <MenuSection 
+                   products={products} 
+                   businessName={businessName} 
+                   onProductClick={(product) => setSelectedProduct(product)}
+                   cartItems={cart}
+                 />
+               </div>
+
+               <div className="py-20 text-center border-t border-white/5">
+                  <p className="text-slate-700 text-[9px] font-black uppercase tracking-[0.8em]">FETHIYE360 DİJİTAL MENÜ SİSTEMİ</p>
+               </div>
+            </div>
+
+            {/* Bottom Floating Bar */}
+            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-6">
+               <button 
+                 onClick={onCloseMenu}
+                 className="w-full bg-[#64ffda] text-[#0a192f] p-6 rounded-[32px] font-black uppercase tracking-[0.3em] text-[11px] shadow-2xl shadow-[#64ffda]/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-between"
+               >
+                 <span className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#0a192f] text-[#64ffda] flex items-center justify-center text-[10px]">
+                      {cart.length}
+                    </div>
+                    SEPETE DÖN
+                 </span>
+                 <span className="text-base italic tracking-tighter">{total} TL</span>
+               </button>
             </div>
           </div>
         )}
