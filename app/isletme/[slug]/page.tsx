@@ -186,9 +186,9 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
           </div>
         )}
 
-        <section className={`max-w-7xl mx-auto px-6 py-8 ${isSalesOriented ? 'border-t border-white/5' : 'md:py-24'}`}>
+        <section className={`max-w-7xl mx-auto px-6 py-4 ${isSalesOriented ? 'border-t border-white/5' : 'md:py-24'}`}>
           {isSalesOriented ? (
-            <div className="space-y-16">
+            <div className="space-y-4">
               <OrderLayout 
                 products={products} 
                 businessName={business.name} 
