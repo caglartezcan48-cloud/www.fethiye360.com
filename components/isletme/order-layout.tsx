@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { MenuSection } from './menu-section'
 import { ProductModal } from './product-modal'
+import { Header as SiteHeader } from '@/components/fethiye/header'
 import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote, X, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -89,8 +90,11 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
       <>
         {isFullMenuOpen && (
           <div className="fixed inset-0 z-[150] bg-[#fdfaf5] animate-in fade-in slide-in-from-bottom duration-700 overflow-y-auto no-scrollbar selection:bg-orange-200">
-            {/* Header */}
-            <div className="sticky top-0 z-50 bg-[#fdfaf5]/80 backdrop-blur-2xl border-b border-orange-100 px-8 py-6 flex items-center justify-between">
+            {/* Site Navbar Entegrasyonu */}
+            <SiteHeader />
+
+            {/* Katalog Header (Navbar'ın altında kalması için pt-32 eklendi) */}
+            <div className="sticky top-24 z-50 bg-[#fdfaf5]/80 backdrop-blur-2xl border-b border-orange-100 px-8 py-6 flex items-center justify-between">
                <div className="flex items-center justify-between w-full">
                  <div className="flex items-center gap-4">
                     {/* İşletme Logosu - Bordo Alan */}
