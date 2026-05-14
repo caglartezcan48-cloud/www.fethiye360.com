@@ -144,6 +144,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                    onProductClick={(product) => setSelectedProduct(product)}
                    cartItems={cart}
                    viewMode="catalog"
+                   theme="light"
                  />
                </div>
 
@@ -175,40 +176,44 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
           isOpen={!!selectedProduct}
           onClose={() => setSelectedProduct(null)}
           onAddToCart={addToCart}
+          theme="light"
         />
       </>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#fdfaf5]">
+    <div className="min-h-screen bg-[#0a192f]">
       <div className="max-w-7xl mx-auto px-6 pt-11 pb-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Main Menu Section */}
           <div className="lg:col-span-8">
-            <MenuSection 
-              products={products} 
-              businessName={businessName} 
-              onProductClick={(product) => setSelectedProduct(product)}
-              cartItems={cart}
-            />
+            <div className="pt-20"> {/* Header boşluğu */}
+              <MenuSection 
+                products={products} 
+                businessName={businessName} 
+                onProductClick={(product) => setSelectedProduct(product)}
+                cartItems={cart}
+                theme="dark"
+              />
+            </div>
           </div>
 
           {/* Premium Floating/Sidebar Cart */}
           <div className="lg:col-span-4">
-            <div className="sticky top-[160px] bg-white rounded-[40px] border border-orange-100 p-8 shadow-2xl shadow-orange-200/20">
+            <div className="sticky top-[160px] bg-[#112240] rounded-[40px] border border-white/10 p-8 shadow-2xl shadow-black/50">
                <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-[#ea580c]">
+                    <div className="w-12 h-12 rounded-2xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda]">
                        <ShoppingCart className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="text-[#1a1a1a] font-black uppercase tracking-widest text-xs">Sepetim</h4>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{cart.length} Ürün</p>
+                      <h4 className="text-white font-black uppercase tracking-widest text-xs">Sepetim</h4>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{cart.length} Ürün</p>
                     </div>
                   </div>
                   {cart.length > 0 && (
-                    <button onClick={clearCart} className="text-slate-400 hover:text-red-400 transition-colors">
+                    <button onClick={clearCart} className="text-slate-500 hover:text-red-400 transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   )}
@@ -216,36 +221,36 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 no-scrollbar mb-8">
                   {cart.map((item) => (
-                    <div key={item.cartItemId} className="flex items-center justify-between p-4 bg-orange-50/30 rounded-2xl border border-orange-50 group transition-all hover:bg-orange-50/50">
+                    <div key={item.cartItemId} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group transition-all hover:bg-white/10">
                        <div className="flex-1">
-                          <p className="text-[#1a1a1a] text-[11px] font-black uppercase tracking-tight line-clamp-1">{item.name}</p>
-                          <p className="text-[#ea580c] text-[10px] font-black mt-0.5">{item.price * item.quantity} TL</p>
+                          <p className="text-white text-[11px] font-black uppercase tracking-tight line-clamp-1">{item.name}</p>
+                          <p className="text-[#64ffda] text-[10px] font-black mt-0.5">{item.price * item.quantity} TL</p>
                        </div>
-                       <div className="flex items-center gap-3 bg-white rounded-xl px-3 py-1.5 border border-orange-100 shadow-sm">
-                          <button onClick={() => removeFromCart(item.cartItemId)} className="text-slate-400 hover:text-[#ea580c]"><Minus className="w-3 h-3" /></button>
-                          <span className="text-[#1a1a1a] text-[10px] font-black w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => addOneMore(item.cartItemId)} className="text-[#ea580c] hover:scale-110"><Plus className="w-3 h-3" /></button>
+                       <div className="flex items-center gap-3 bg-[#0a192f] rounded-xl px-3 py-1.5 border border-white/10">
+                          <button onClick={() => removeFromCart(item.cartItemId)} className="text-slate-500 hover:text-white"><Minus className="w-3 h-3" /></button>
+                          <span className="text-white text-[10px] font-black w-4 text-center">{item.quantity}</span>
+                          <button onClick={() => addOneMore(item.cartItemId)} className="text-[#64ffda] hover:scale-110"><Plus className="w-3 h-3" /></button>
                        </div>
                     </div>
                   ))}
 
                   {cart.length === 0 && (
                     <div className="py-20 text-center space-y-6">
-                       <div className="w-20 h-20 bg-orange-50/50 rounded-full flex items-center justify-center mx-auto opacity-40">
-                          <ShoppingCart className="w-10 h-10 text-orange-200" />
+                       <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto opacity-10">
+                          <ShoppingCart className="w-10 h-10 text-white" />
                        </div>
-                       <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Lezzet Seçmeye Başlayın</p>
+                       <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Lezzet Seçmeye Başlayın</p>
                     </div>
                   )}
                </div>
 
                {cart.length > 0 && (
-                 <div className="space-y-6 border-t border-orange-50 pt-8">
+                 <div className="space-y-6 border-t border-white/5 pt-8">
                     <div className="grid grid-cols-2 gap-3">
                       <button 
                         onClick={() => setPaymentMethod('Nakit')}
                         className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                          paymentMethod === 'Nakit' ? 'bg-[#ea580c] text-white border-[#ea580c]' : 'bg-white text-slate-400 border-orange-100'
+                          paymentMethod === 'Nakit' ? 'bg-[#64ffda] text-[#0a192f] border-[#64ffda]' : 'bg-white/5 text-slate-500 border-white/5'
                         }`}
                       >
                         <Banknote className="w-4 h-4" /> Nakit
@@ -253,7 +258,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                       <button 
                         onClick={() => setPaymentMethod('Kart')}
                         className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                          paymentMethod === 'Kart' ? 'bg-[#ea580c] text-white border-[#ea580c]' : 'bg-white text-slate-400 border-orange-100'
+                          paymentMethod === 'Kart' ? 'bg-[#64ffda] text-[#0a192f] border-[#64ffda]' : 'bg-white/5 text-slate-500 border-white/5'
                         }`}
                       >
                         <CreditCard className="w-4 h-4" /> K. Kartı
@@ -262,12 +267,12 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
                     <div className="flex items-center justify-between px-2">
                        <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Ödenecek Tutar</span>
-                       <span className="text-[#ea580c] text-3xl font-black italic tracking-tighter">{total} TL</span>
+                       <span className="text-[#64ffda] text-3xl font-black italic tracking-tighter">{total} TL</span>
                     </div>
 
                     <button 
                       onClick={handleCheckout}
-                      className="w-full py-6 bg-[#ea580c] text-white rounded-[32px] font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-orange-300/30 flex items-center justify-center gap-3"
+                      className="w-full py-6 bg-[#64ffda] text-[#0a192f] rounded-[32px] font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-[#64ffda]/20 flex items-center justify-center gap-3"
                     >
                       SİPARİŞİ TAMAMLA <Plus className="w-4 h-4" />
                     </button>
@@ -283,6 +288,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={addToCart}
+        theme="dark"
       />
     </div>
   )

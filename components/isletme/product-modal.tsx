@@ -17,9 +17,10 @@ interface ProductModalProps {
   isOpen: boolean
   onClose: () => void
   onAddToCart: (product: Product, quantity: number, note: string) => void
+  theme?: 'dark' | 'light'
 }
 
-export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductModalProps) {
+export function ProductModal({ product, isOpen, onClose, onAddToCart, theme = 'dark' }: ProductModalProps) {
   const [quantity, setQuantity] = useState(1)
   const [note, setNote] = useState('')
 
@@ -41,7 +42,9 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
       />
       
       {/* Modal Content */}
-      <div className="relative w-full max-w-xl bg-white rounded-t-[40px] md:rounded-[48px] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full duration-500">
+      <div className={`relative w-full max-w-xl rounded-t-[40px] md:rounded-[48px] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-full duration-500 ${
+        theme === 'light' ? 'bg-white' : 'bg-[#112240]'
+      }`}>
         {/* Close Button */}
         <button 
           onClick={onClose}
@@ -51,7 +54,7 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
         </button>
 
         {/* Product Image */}
-        <div className="relative w-full aspect-video md:aspect-[16/9] bg-orange-50">
+        <div className={`relative w-full aspect-video md:aspect-[16/9] ${theme === 'light' ? 'bg-orange-50' : 'bg-[#0a192f]'}`}>
           {product.image_url ? (
             <img 
               src={product.image_url} 
@@ -59,26 +62,34 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-orange-200">
-              <ShoppingBag className="w-16 h-16 mb-2 opacity-40" />
+            <div className={`w-full h-full flex flex-col items-center justify-center ${theme === 'light' ? 'text-orange-200' : 'text-slate-700'}`}>
+              <ShoppingBag className={`w-16 h-16 mb-2 ${theme === 'light' ? 'opacity-40' : 'opacity-20'}`} />
               <span className="text-xs font-bold uppercase tracking-widest opacity-40">Görsel Yok</span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
+          <div className={`absolute inset-0 bg-gradient-to-t via-transparent to-transparent ${
+            theme === 'light' ? 'from-white' : 'from-[#112240]'
+          }`} />
         </div>
 
         <div className="px-8 pb-10 -mt-8 relative z-10 space-y-8">
           {/* Header */}
           <div className="space-y-2">
-            <h2 className="text-3xl font-black text-[#1a1a1a] italic tracking-tight uppercase leading-tight">
+            <h2 className={`text-3xl font-black italic tracking-tight uppercase leading-tight ${
+              theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'
+            }`}>
               {product.name}
             </h2>
             <div className="flex items-center gap-3">
-              <span className="text-[#ea580c] text-2xl font-black italic tracking-tighter">
+              <span className={`text-2xl font-black italic tracking-tighter ${
+                theme === 'light' ? 'text-[#ea580c]' : 'text-[#64ffda]'
+              }`}>
                 {product.price} <span className="text-xs opacity-60">TL</span>
               </span>
               {product.category && (
-                <span className="px-3 py-1 bg-orange-50 rounded-full text-[10px] font-black text-[#ea580c] uppercase tracking-widest border border-orange-100">
+                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                  theme === 'light' ? 'bg-orange-50 text-[#ea580c] border-orange-100' : 'bg-white/5 text-slate-500 border-white/5'
+                }`}>
                   {product.category}
                 </span>
               )}
@@ -87,8 +98,12 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
 
           {/* Description */}
           {product.description && (
-            <div className="bg-orange-50/50 rounded-3xl p-6 border border-orange-50">
-              <p className="text-slate-500 text-sm leading-relaxed italic">
+            <div className={`rounded-3xl p-6 border ${
+              theme === 'light' ? 'bg-orange-50/50 border-orange-50' : 'bg-white/5 border-white/5'
+            }`}>
+              <p className={`text-sm leading-relaxed italic ${
+                theme === 'light' ? 'text-slate-500' : 'text-slate-400'
+              }`}>
                 "{product.description}"
               </p>
             </div>
@@ -97,29 +112,43 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
           {/* Note Area */}
           <div className="space-y-3">
             <label className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">
-              <MessageSquare className="w-3 h-3 text-[#ea580c]" /> İşletmeye Notunuz
+              <MessageSquare className={`w-3 h-3 ${theme === 'light' ? 'text-[#ea580c]' : 'text-[#64ffda]'}`} /> İşletmeye Notunuz
             </label>
             <textarea 
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Örn: Bol acılı olsun, domates istemiyorum..."
-              className="w-full bg-slate-50 border border-slate-100 rounded-3xl p-6 text-[#1a1a1a] text-sm focus:ring-2 focus:ring-orange-200 outline-none transition-all h-28 resize-none placeholder:text-slate-400"
+              className={`w-full border rounded-3xl p-6 text-sm outline-none transition-all h-28 resize-none placeholder:text-slate-400 ${
+                theme === 'light' 
+                  ? 'bg-slate-50 border-slate-100 text-[#1a1a1a] focus:ring-2 focus:ring-orange-200' 
+                  : 'bg-[#0a192f] border-white/5 text-white focus:ring-2 focus:ring-[#64ffda]'
+              }`}
             />
           </div>
 
           {/* Controls & Add to Cart */}
           <div className="flex items-center gap-6 pt-4">
-            <div className="flex items-center gap-5 bg-slate-50 rounded-3xl p-2 border border-slate-100 shadow-inner">
+            <div className={`flex items-center gap-5 rounded-3xl p-2 border shadow-inner ${
+              theme === 'light' ? 'bg-slate-50 border-slate-100' : 'bg-[#0a192f] border-white/5'
+            }`}>
               <button 
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-[#ea580c] active:scale-90 transition-all shadow-sm"
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm ${
+                  theme === 'light' 
+                    ? 'bg-white border border-slate-100 text-slate-400 hover:text-[#ea580c]' 
+                    : 'bg-white/5 text-white hover:bg-white/10'
+                } active:scale-90`}
               >
                 <Minus className="w-5 h-5" />
               </button>
-              <span className="text-[#1a1a1a] font-black text-xl w-6 text-center">{quantity}</span>
+              <span className={`font-black text-xl w-6 text-center ${theme === 'light' ? 'text-[#1a1a1a]' : 'text-white'}`}>{quantity}</span>
               <button 
                 onClick={() => setQuantity(quantity + 1)}
-                className="w-12 h-12 rounded-2xl bg-[#ea580c] flex items-center justify-center text-white hover:scale-105 active:scale-90 transition-all shadow-lg shadow-orange-200"
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-lg ${
+                  theme === 'light' 
+                    ? 'bg-[#ea580c] text-white shadow-orange-200' 
+                    : 'bg-[#64ffda] text-[#0a192f]'
+                } hover:scale-105 active:scale-90`}
               >
                 <Plus className="w-5 h-5" />
               </button>
@@ -127,10 +156,14 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
 
             <button 
               onClick={handleAdd}
-              className="flex-1 h-16 bg-[#ea580c] text-white rounded-[32px] font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-orange-300/30"
+              className={`flex-1 h-16 rounded-[32px] font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl ${
+                theme === 'light' 
+                  ? 'bg-[#ea580c] text-white shadow-orange-300/30' 
+                  : 'bg-[#64ffda] text-[#0a192f] shadow-[#64ffda]/20'
+              }`}
             >
               SEPETE EKLE 
-              <div className="w-px h-4 bg-white/20 mx-1" />
+              <div className={`w-px h-4 mx-1 ${theme === 'light' ? 'bg-white/20' : 'bg-[#0a192f]/20'}`} />
               {product.price * quantity} TL
             </button>
           </div>
