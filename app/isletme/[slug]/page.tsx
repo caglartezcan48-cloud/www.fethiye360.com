@@ -150,11 +150,11 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
               <div className="flex flex-wrap gap-3 pt-2">
                 <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-bold text-white">
                   <Clock className="w-3.5 h-3.5 text-[#64ffda]" />
-                  25-35 dk
+                  {business.services?.find((s: string) => s.startsWith('DELIVERY_TIME:'))?.split(':')[1] || '25-35 dk'}
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-bold text-white">
                   <Package className="w-3.5 h-3.5 text-[#64ffda]" />
-                  Min. 200 TL
+                  {business.services?.find((s: string) => s.startsWith('MIN_ORDER:'))?.split(':')[1] || 'Min. 200 TL'}
                 </div>
               </div>
             </div>

@@ -26,6 +26,7 @@ import {
   Phone
 } from 'lucide-react'
 import Image from 'next/image'
+import { toast } from 'sonner'
 
 export default function BusinessPanel() {
   const [activeTab, setActiveTab] = useState<'general' | 'products' | 'photos' | 'reviews'>('general')
@@ -98,8 +99,12 @@ export default function BusinessPanel() {
       })
       .eq('id', business.id)
 
-    if (!error) alert('Bilgiler güncellendi!')
-    else console.error(error)
+    if (!error) {
+      toast.success('Bilgiler güncellendi!')
+    } else {
+      console.error(error)
+      toast.error('Hata: ' + error.message)
+    }
     setUpdating(false)
   }
 
@@ -122,6 +127,9 @@ export default function BusinessPanel() {
     if (!error && data) {
       setProducts([...products, data[0]])
       setNewProduct({ name: '', price: '', description: '', category: '', image_url: '' })
+      toast.success('Ürün eklendi!')
+    } else {
+      toast.error('Ürün eklenemedi: ' + (error?.message || 'Bilinmeyen hata'))
     }
     setUpdating(false)
   }
@@ -144,6 +152,9 @@ export default function BusinessPanel() {
     if (!error) {
       setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p))
       setEditingProduct(null)
+      toast.success('Ürün güncellendi!')
+    } else {
+      toast.error('Güncelleme hatası: ' + error.message)
     }
     setUpdating(false)
   }
@@ -162,8 +173,9 @@ export default function BusinessPanel() {
     if (!error) {
       setProducts(products.map(p => (p.category || 'Genel') === editingCategoryName.old ? { ...p, category: editingCategoryName.new } : p))
       setEditingCategoryName(null)
+      toast.success('Kategori güncellendi!')
     } else {
-      alert('Kategori güncellenirken hata oluştu.')
+      toast.error('Kategori güncellenirken hata oluştu: ' + error.message)
     }
     setUpdating(false)
   }
@@ -190,9 +202,9 @@ export default function BusinessPanel() {
       } else {
         setNewProduct(prev => ({ ...prev, image_url: publicUrl }))
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert('Görsel yüklenemedi')
+      toast.error('Görsel yüklenemedi: ' + err.message)
     } finally {
       setUploading(false)
     }
@@ -201,7 +213,12 @@ export default function BusinessPanel() {
   const handleDeleteProduct = async (id: string) => {
     if (!confirm('Silmek istediğinize emin misiniz?')) return
     const { error } = await supabase.from('business_products').delete().eq('id', id)
-    if (!error) setProducts(products.filter(p => p.id !== id))
+    if (!error) {
+      setProducts(products.filter(p => p.id !== id))
+      toast.success('Ürün silindi!')
+    } else {
+      toast.error('Silinirken hata oluştu: ' + error.message)
+    }
   }
 
   const handleUploadImage = async (file: File) => {
@@ -226,10 +243,13 @@ export default function BusinessPanel() {
         .insert([{ business_id: business.id, image_url: publicUrl }])
         .select()
 
-      if (!dbError && newImg) setImages([...images, newImg[0]])
-    } catch (err) {
+      if (!dbError && newImg) {
+        setImages([...images, newImg[0]])
+        toast.success('Fotoğraf yüklendi!')
+      }
+    } catch (err: any) {
       console.error(err)
-      alert('Yükleme başarısız')
+      toast.error('Yükleme başarısız: ' + err.message)
     } finally {
       setUploading(false)
     }
@@ -244,6 +264,9 @@ export default function BusinessPanel() {
 
     if (!error) {
       setReviews(reviews.map(r => r.id === reviewId ? { ...r, reply: replyText[reviewId] } : r))
+      toast.success('Yanıt gönderildi!')
+    } else {
+      toast.error('Yanıt gönderilemedi: ' + error.message)
     }
     setUpdating(false)
   }
@@ -412,6 +435,41 @@ export default function BusinessPanel() {
                     <option value="vitrin">Sadece Tanıtım ve Vitrin Düzeni</option>
                   </select>
                 </div>
+
+                {(business.services || []).includes('Paket Servis') && (
+                  <>
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-[#64ffda] uppercase tracking-widest ml-1">Teslimat Süresi</label>
+                      <input 
+                        type="text"
+                        value={business.services?.find((s: string) => s.startsWith('DELIVERY_TIME:'))?.split(':')[1] || '25-35 dk'}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          let newServices = [...(business.services || [])].filter((s: string) => !s.startsWith('DELIVERY_TIME:'));
+                          if (val) newServices.push(`DELIVERY_TIME:${val}`);
+                          setBusiness({...business, services: newServices});
+                        }}
+                        className="w-full bg-[#0a192f] border border-[#64ffda]/30 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-medium"
+                        placeholder="Örn: 30-45 dk"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-[#64ffda] uppercase tracking-widest ml-1">Minimum Paket Tutarı</label>
+                      <input 
+                        type="text"
+                        value={business.services?.find((s: string) => s.startsWith('MIN_ORDER:'))?.split(':')[1] || 'Min. 200 TL'}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          let newServices = [...(business.services || [])].filter((s: string) => !s.startsWith('MIN_ORDER:'));
+                          if (val) newServices.push(`MIN_ORDER:${val}`);
+                          setBusiness({...business, services: newServices});
+                        }}
+                        className="w-full bg-[#0a192f] border border-[#64ffda]/30 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-medium"
+                        placeholder="Örn: Min. 150 TL"
+                      />
+                    </div>
+                  </>
+                )}
                 
                 <div className="md:col-span-2 pt-6">
                   <button 
