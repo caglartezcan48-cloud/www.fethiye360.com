@@ -548,12 +548,19 @@ export default function BusinessPanel() {
                   <div className="space-y-3">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Kategori</label>
                     <div className="flex flex-wrap gap-2 mb-2">
-                      {Array.from(new Set(products.map(p => p.category || 'Genel'))).sort().map(cat => (
+                      {Array.from(new Set([
+                        'Ana Yemekler', 'Atıştırmalıklar', 'İçecekler', 'Tatlılar', 'Popüler',
+                        ...products.map(p => p.category || 'Genel')
+                      ])).sort().map(cat => (
                         <button 
                           key={cat} 
                           type="button" 
                           onClick={() => setNewProduct({...newProduct, category: cat})}
-                          className="px-3 py-1 bg-[#0a192f] border border-white/10 text-[10px] text-slate-400 font-bold rounded-lg hover:border-[#64ffda]/50 hover:text-[#64ffda] transition-colors"
+                          className={`px-3 py-1 border text-[10px] font-bold rounded-lg transition-colors ${
+                            newProduct.category === cat 
+                              ? 'bg-[#64ffda]/10 border-[#64ffda] text-[#64ffda]' 
+                              : 'bg-[#0a192f] border-white/10 text-slate-400 hover:border-[#64ffda]/50 hover:text-[#64ffda]'
+                          }`}
                         >
                           {cat}
                         </button>
@@ -564,7 +571,7 @@ export default function BusinessPanel() {
                       value={newProduct.category}
                       onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
                       className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none"
-                      placeholder="Yeni başlık yazın veya yukarıdan seçin..."
+                      placeholder="Farklı bir başlık eklemek için buraya yazın..."
                     />
                   </div>
                   <div className="space-y-3">
@@ -630,12 +637,19 @@ export default function BusinessPanel() {
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase">Kategori</label>
                         <div className="flex flex-wrap gap-2 mb-2">
-                          {Array.from(new Set(products.map(p => p.category || 'Genel'))).sort().map(cat => (
+                          {Array.from(new Set([
+                            'Ana Yemekler', 'Atıştırmalıklar', 'İçecekler', 'Tatlılar', 'Popüler',
+                            ...products.map(p => p.category || 'Genel')
+                          ])).sort().map(cat => (
                             <button 
                               key={cat} 
                               type="button" 
                               onClick={() => setEditingProduct({...editingProduct, category: cat})}
-                              className="px-3 py-1 bg-[#0a192f] border border-white/10 text-[10px] text-slate-400 font-bold rounded-lg hover:border-[#64ffda]/50 hover:text-[#64ffda] transition-colors"
+                              className={`px-3 py-1 border text-[10px] font-bold rounded-lg transition-colors ${
+                                editingProduct.category === cat 
+                                  ? 'bg-[#64ffda]/10 border-[#64ffda] text-[#64ffda]' 
+                                  : 'bg-[#0a192f] border-white/10 text-slate-400 hover:border-[#64ffda]/50 hover:text-[#64ffda]'
+                              }`}
                             >
                               {cat}
                             </button>
@@ -646,7 +660,7 @@ export default function BusinessPanel() {
                           value={editingProduct.category} 
                           onChange={(e) => setEditingProduct({...editingProduct, category: e.target.value})} 
                           className="w-full bg-[#0a192f] border border-white/5 rounded-2xl p-4 text-white focus:ring-2 focus:ring-[#64ffda]" 
-                          placeholder="Yeni başlık yazın..."
+                          placeholder="Farklı bir başlık yazın..."
                         />
                       </div>
                       <div className="space-y-2">
