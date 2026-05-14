@@ -616,7 +616,13 @@ export default function BusinessPanel() {
                   type="button"
                   onClick={() => setShowBulkMode(!showBulkMode)}
                   className="px-6 py-2 bg-[#64ffda]/10 border border-[#64ffda]/20 rounded-xl text-[10px] font-black text-[#64ffda] uppercase tracking-widest hover:bg-[#64ffda]/20 transition-all flex items-center gap-2"
-                              {showBulkMode ? (
+                >
+                  <Database className="w-3 h-3" />
+                  {showBulkMode ? 'Tekli Ürün Ekle' : 'Toplu Excel Yükle'}
+                </button>
+              </div>
+
+              {showBulkMode ? (
                 <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
                   {bulkPreview.length === 0 ? (
                     <div className="bg-white/5 p-12 rounded-[48px] border-2 border-dashed border-[#64ffda]/20 text-center space-y-8">
