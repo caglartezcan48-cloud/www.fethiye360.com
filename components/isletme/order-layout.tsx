@@ -149,6 +149,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                <div className="py-20 text-center border-t border-orange-100">
                   <p className="text-slate-300 text-[9px] font-black uppercase tracking-[0.8em]">FETHIYE360 DİJİTAL MENÜ SİSTEMİ</p>
                </div>
+                </div>
               </div>
             </div>
           </div>
