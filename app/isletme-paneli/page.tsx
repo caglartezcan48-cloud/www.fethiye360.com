@@ -124,7 +124,7 @@ export default function BusinessPanel() {
       }])
       .select()
 
-    if (!error && data) {
+    if (!error && data && data.length > 0) {
       setProducts([...products, data[0]])
       setNewProduct({ name: '', price: '', description: '', category: '', image_url: '' })
       toast.success('Ürün eklendi!')
@@ -484,7 +484,7 @@ export default function BusinessPanel() {
                 <p className="text-xs text-slate-400">Ürün eklerken otomatik oluşan başlıkları buradan yeniden adlandırabilirsiniz. Başlıkları sıralamak için isimlerinin başına numara ekleyebilirsiniz (Örn: "1. Çorbalar", "2. Ana Yemekler").</p>
                 
                 <div className="flex flex-wrap gap-3">
-                  {Array.from(new Set(products.map(p => p.category || 'Genel'))).sort().map(cat => (
+                  {Array.from(new Set(products.filter(Boolean).map(p => p?.category || 'Genel'))).sort().map((cat: any) => (
                     <button 
                       key={cat}
                       onClick={() => setEditingCategoryName({ old: cat, new: cat })}
@@ -550,8 +550,8 @@ export default function BusinessPanel() {
                     <div className="flex flex-wrap gap-2 mb-2">
                       {Array.from(new Set([
                         'Ana Yemekler', 'Atıştırmalıklar', 'İçecekler', 'Tatlılar', 'Popüler',
-                        ...products.map(p => p.category || 'Genel')
-                      ])).sort().map(cat => (
+                        ...products.filter(Boolean).map(p => p?.category || 'Genel')
+                      ])).sort().map((cat: any) => (
                         <button 
                           key={cat} 
                           type="button" 
@@ -639,8 +639,8 @@ export default function BusinessPanel() {
                         <div className="flex flex-wrap gap-2 mb-2">
                           {Array.from(new Set([
                             'Ana Yemekler', 'Atıştırmalıklar', 'İçecekler', 'Tatlılar', 'Popüler',
-                            ...products.map(p => p.category || 'Genel')
-                          ])).sort().map(cat => (
+                            ...products.filter(Boolean).map(p => p?.category || 'Genel')
+                          ])).sort().map((cat: any) => (
                             <button 
                               key={cat} 
                               type="button" 
