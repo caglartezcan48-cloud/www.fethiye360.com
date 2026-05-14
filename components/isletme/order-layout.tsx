@@ -97,10 +97,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
               }} 
             />
             
-            {/* Site Navbar Entegrasyonu */}
-            <SiteHeader />
-
-            <div className="max-w-6xl mx-auto px-6 py-32 space-y-20 relative">
+            <div className="max-w-6xl mx-auto px-6 py-16 space-y-20 relative">
 
                {/* Category Nav for Catalog */}
                <div className="flex flex-wrap justify-center gap-3">
@@ -120,14 +117,15 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                    products={products} 
                    businessName={businessName} 
                    onProductClick={(product) => setSelectedProduct(product)}
+                   onAddToCart={addToCart}
                    cartItems={cart}
                    viewMode="catalog"
                    theme="light"
                  />
                </div>
 
-               {/* Sepete Dön Butonu - Sayfanın Sağına Alındı (Floating) */}
-               <div className="fixed bottom-10 right-10 z-[60]">
+               {/* Sepete Dön Butonu - Hareketli (Bobbing) Efekt Eklendi */}
+               <div className="fixed bottom-10 right-10 z-[60] animate-bounce-slow">
                   <button 
                     onClick={onCloseMenu}
                     className="bg-[#ea580c] text-white px-8 py-5 rounded-[32px] font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-orange-400/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-6 border-4 border-white"
@@ -166,6 +164,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
               products={products} 
               businessName={businessName} 
               onProductClick={(product) => setSelectedProduct(product)}
+              onAddToCart={addToCart}
               cartItems={cart}
               theme="dark"
             />
