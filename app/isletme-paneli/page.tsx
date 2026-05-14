@@ -41,11 +41,12 @@ export default function BusinessPanel() {
   const [reviews, setReviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
-  const [uploading, setUploading] = useState(false)
   
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: '', image_url: '' })
   const [bulkText, setBulkText] = useState('')
   const [showBulkMode, setShowBulkMode] = useState(false)
+  const [bulkPreview, setBulkPreview] = useState<any[]>([])
+  const [uploading, setUploading] = useState(false)
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({})
   
   const supabase = createClient()
@@ -179,25 +180,40 @@ export default function BusinessPanel() {
         }).filter(p => p.name && p.price > 0)
 
         if (result.length === 0) throw new Error('Yüklenecek geçerli ürün bulunamadı.')
-
-        const { data, error } = await supabase
-          .from('business_products')
-          .insert(result)
-          .select()
-
-        if (!error && data) {
-          setProducts([...products, ...data])
-          toast.success(`${data.length} ürün başarıyla yüklendi!`)
-        } else {
-          throw error
-        }
+        
+        setBulkPreview(result)
+        toast.info(`${result.length} ürün hazır. Lütfen kontrol edip onaylayın.`)
       } catch (err: any) {
-        toast.error('Yükleme hatası: ' + err.message)
+        toast.error('Dosya okuma hatası: ' + err.message)
       } finally {
         setUpdating(false)
       }
     }
     reader.readAsText(file)
+  }
+
+  const handleConfirmBulkUpload = async () => {
+    if (bulkPreview.length === 0) return
+    setUpdating(true)
+    try {
+      const { data, error } = await supabase
+        .from('business_products')
+        .insert(bulkPreview)
+        .select()
+
+      if (!error && data) {
+        setProducts([...products, ...data])
+        setBulkPreview([])
+        setShowBulkMode(false)
+        toast.success(`${data.length} ürün başarıyla menüye eklendi!`)
+      } else {
+        throw error
+      }
+    } catch (err: any) {
+      toast.error('Kayıt hatası: ' + err.message)
+    } finally {
+      setUpdating(false)
+    }
   }
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
@@ -598,45 +614,79 @@ export default function BusinessPanel() {
                   type="button"
                   onClick={() => setShowBulkMode(!showBulkMode)}
                   className="px-6 py-2 bg-[#64ffda]/10 border border-[#64ffda]/20 rounded-xl text-[10px] font-black text-[#64ffda] uppercase tracking-widest hover:bg-[#64ffda]/20 transition-all flex items-center gap-2"
-                >
-                  <Database className="w-3 h-3" />
-                  {showBulkMode ? 'Tekli Ürün Ekle' : 'Toplu Excel Yükle'}
-                </button>
-              </div>
+                              {showBulkMode ? (
+                <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                  {bulkPreview.length === 0 ? (
+                    <div className="bg-white/5 p-12 rounded-[48px] border-2 border-dashed border-[#64ffda]/20 text-center space-y-8">
+                      <div className="space-y-2">
+                        <div className="w-20 h-20 bg-[#64ffda]/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                          <Upload className="w-10 h-10 text-[#64ffda]" />
+                        </div>
+                        <h4 className="text-2xl font-black text-white italic uppercase tracking-tighter">Excel ile Menü Yükle</h4>
+                        <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                          Yüzlerce ürünü saniyeler içinde yüklemek için hazırladığımız şablonu kullanın.
+                        </p>
+                      </div>
 
-              {showBulkMode ? (
-                <div className="bg-white/5 p-12 rounded-[48px] border-2 border-dashed border-[#64ffda]/20 text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                  <div className="space-y-2">
-                    <div className="w-20 h-20 bg-[#64ffda]/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                      <Upload className="w-10 h-10 text-[#64ffda]" />
+                      <div className="flex flex-col md:flex-row items-center justify-center gap-4 pt-4">
+                        <button 
+                          onClick={downloadProductTemplate}
+                          className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-3"
+                        >
+                          <Download className="w-4 h-4 text-[#64ffda]" /> Şablonu İndir
+                        </button>
+                        
+                        <label className="cursor-pointer px-10 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#64ffda]/20 flex items-center gap-3">
+                          <Plus className="w-4 h-4" /> Dosya Seç ve Yükle
+                          <input 
+                            type="file" 
+                            className="hidden" 
+                            accept=".csv" 
+                            onChange={handleProductFileUpload} 
+                            disabled={updating}
+                          />
+                        </label>
+                      </div>
                     </div>
-                    <h4 className="text-2xl font-black text-white italic uppercase tracking-tighter">Excel ile Menü Yükle</h4>
-                    <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
-                      Yüzlerce ürünü saniyeler içinde yüklemek için hazırladığımız şablonu kullanın.
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="bg-[#112240] p-8 rounded-[40px] border border-[#64ffda]/20 space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xl font-black text-white uppercase italic tracking-tighter">Yükleme Önizlemesi ({bulkPreview.length} Ürün)</h4>
+                        <button onClick={() => setBulkPreview([])} className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-widest">İptal Et</button>
+                      </div>
+                      
+                      <div className="max-h-[300px] overflow-y-auto no-scrollbar rounded-2xl border border-white/5">
+                        <table className="w-full text-left text-xs">
+                          <thead className="bg-[#0a192f] text-slate-500 font-black uppercase tracking-widest sticky top-0">
+                            <tr>
+                              <th className="px-6 py-4">Ürün Adı</th>
+                              <th className="px-6 py-4">Fiyat</th>
+                              <th className="px-6 py-4">Kategori</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5">
+                            {bulkPreview.map((p, i) => (
+                              <tr key={i} className="hover:bg-white/5 transition-colors">
+                                <td className="px-6 py-4 text-white font-bold">{p.name}</td>
+                                <td className="px-6 py-4 text-[#64ffda] font-black">{p.price} TL</td>
+                                <td className="px-6 py-4 text-slate-400">{p.category}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
 
-                  <div className="flex flex-col md:flex-row items-center justify-center gap-4 pt-4">
-                    <button 
-                      onClick={downloadProductTemplate}
-                      className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[11px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-3"
-                    >
-                      <Download className="w-4 h-4 text-[#64ffda]" /> Şablonu İndir
-                    </button>
-                    
-                    <label className="cursor-pointer px-10 py-4 bg-[#64ffda] text-[#0a192f] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#64ffda]/20 flex items-center gap-3">
-                       <Plus className="w-4 h-4" /> Dosya Seç ve Yükle
-                       <input 
-                         type="file" 
-                         className="hidden" 
-                         accept=".csv" 
-                         onChange={handleProductFileUpload} 
-                         disabled={updating}
-                       />
-                    </label>
-                  </div>
+                      <button 
+                        onClick={handleConfirmBulkUpload}
+                        disabled={updating}
+                        className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-[#64ffda]/20 flex items-center justify-center gap-3"
+                      >
+                        {updating ? <Loader2 className="w-5 h-5 animate-spin" /> : <><CheckCircle2 className="w-5 h-5" /> KAYITLARI ONAYLA VE MENÜYE EKLE</>}
+                      </button>
+                    </div>
+                  )}
 
-                  {updating && (
+                  {updating && bulkPreview.length === 0 && (
                     <div className="flex items-center justify-center gap-3 text-[#64ffda] font-bold text-xs uppercase tracking-widest animate-pulse">
                       <Loader2 className="w-4 h-4 animate-spin" /> Dosya İşleniyor...
                     </div>
