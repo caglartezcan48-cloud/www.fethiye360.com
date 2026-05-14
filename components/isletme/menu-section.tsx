@@ -18,7 +18,7 @@ interface MenuSectionProps {
   whatsappNumber?: string
   onProductClick?: (product: Product) => void
   cartItems?: { id: string, quantity: number }[]
-  onAddToCart?: (product: Product, note?: string) => void
+  onAddToCart?: (product: Product, quantity?: number, note?: string) => void
   viewMode?: 'list' | 'catalog'
   theme?: 'dark' | 'light'
 }
@@ -28,6 +28,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
   const [searchQuery, setSearchQuery] = useState('')
   const [noteProduct, setNoteProduct] = useState<string | null>(null)
   const [quickNote, setQuickNote] = useState('')
+  const [quickQuantity, setQuickQuantity] = useState(1)
 
   const defaultCategories = ['Tümü', 'Popüler', 'Ana Yemekler', 'Atıştırmalıklar', 'İçecekler']
   const categories = products.length > 0 
@@ -181,6 +182,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                                 e.stopPropagation()
                                 setNoteProduct(product.id)
                                 setQuickNote('')
+                                setQuickQuantity(1)
                               }}
                               className={`w-10 h-10 rounded-full flex items-center justify-center text-white transition-all shadow-lg cursor-pointer hover:scale-110 active:scale-90 ${
                               theme === 'light' ? 'bg-[#ea580c] shadow-orange-200' : 'bg-[#64ffda] text-[#0a192f] shadow-[#64ffda]/20'
@@ -203,6 +205,24 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                                     placeholder="Örn: Soğansız olsun..."
                                     className="w-full bg-orange-50/50 border-none rounded-xl p-3 text-xs focus:ring-1 focus:ring-orange-200 min-h-[60px] resize-none outline-none text-slate-800"
                                   />
+                                  <div className="flex items-center justify-between py-2 border-t border-orange-50">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Adet</p>
+                                    <div className="flex items-center gap-4 bg-orange-50/50 rounded-xl px-3 py-1">
+                                      <button 
+                                        onClick={() => setQuickQuantity(Math.max(1, quickQuantity - 1))}
+                                        className="text-[#ea580c] hover:scale-125 transition-transform"
+                                      >
+                                        <Minus className="w-3 h-3" />
+                                      </button>
+                                      <span className="text-xs font-black text-[#1a1a1a] w-4 text-center">{quickQuantity}</span>
+                                      <button 
+                                        onClick={() => setQuickQuantity(quickQuantity + 1)}
+                                        className="text-[#ea580c] hover:scale-125 transition-transform"
+                                      >
+                                        <Plus className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  </div>
                                   <div className="flex gap-2">
                                     <button 
                                       onClick={() => setNoteProduct(null)}
@@ -212,12 +232,15 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                                     </button>
                                     <button 
                                       onClick={() => {
-                                        onAddToCart?.(product, quickNote)
+                                        onAddToCart?.(product, quickQuantity, quickNote)
                                         setNoteProduct(null)
                                       }}
-                                      className="flex-[2] py-2 bg-[#ea580c] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-200"
+                                      className="flex-[2] py-2 bg-[#ea580c] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-200 flex items-center justify-center gap-2"
                                     >
-                                      EKLE
+                                      <span>EKLE</span>
+                                      <span className="opacity-50 text-[8px] font-bold">
+                                        {(product.price || 0) * quickQuantity} TL
+                                      </span>
                                     </button>
                                   </div>
                                 </div>
