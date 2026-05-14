@@ -74,7 +74,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
   const clearCart = () => setCart([])
 
-  const total = useMemo(() => cart.reduce((acc, item) => acc + (item.price * item.quantity), 0), [cart])
+  const total = useMemo(() => cart.reduce((acc, item) => acc + (Number(item.price || 0) * item.quantity), 0), [cart])
 
   const handleCheckout = () => {
     if (cart.length === 0 || !whatsappNumber) return
@@ -133,6 +133,27 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                    theme="light"
                  />
                </div>
+
+               {/* Sepet Özet Listesi (Katalog İçinde Görünür Yapıldı) */}
+               {cart.length > 0 && (
+                 <div className="fixed bottom-32 right-10 z-[60] w-72 animate-in slide-in-from-bottom-10 duration-500">
+                    <div className="bg-white/80 backdrop-blur-2xl rounded-[32px] p-6 shadow-2xl border border-orange-100/50 space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">
+                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ea580c] mb-2">SEPETİNİZDEKİLER</p>
+                       {cart.map((item) => (
+                         <div key={item.cartItemId} className="flex items-center justify-between gap-3 animate-in fade-in slide-in-from-right-4">
+                            <div className="flex-1">
+                               <p className="text-[#1a1a1a] text-[11px] font-black uppercase tracking-tight">{item.name}</p>
+                               {item.note && <p className="text-[#ea580c] text-[8px] font-medium italic">"{item.note}"</p>}
+                            </div>
+                            <div className="flex items-center gap-2">
+                               <span className="text-[10px] font-bold text-slate-400">{item.quantity}x</span>
+                               <span className="text-[11px] font-black text-[#1a1a1a]">{item.price * item.quantity} TL</span>
+                            </div>
+                         </div>
+                       ))}
+                    </div>
+                 </div>
+               )}
 
                {/* Sepete Dön Butonu - Hareketli (Bobbing) Efekt Eklendi */}
                <div className="fixed bottom-10 right-10 z-[60] animate-bounce-slow">
