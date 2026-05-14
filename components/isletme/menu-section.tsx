@@ -18,9 +18,10 @@ interface MenuSectionProps {
   whatsappNumber?: string
   onProductClick?: (product: Product) => void
   cartItems?: { id: string, quantity: number }[]
+  viewMode?: 'list' | 'catalog' // Yeni: Görünüm modu seçeneği
 }
 
-export function MenuSection({ products, businessName, whatsappNumber, onProductClick, cartItems }: MenuSectionProps) {
+export function MenuSection({ products, businessName, whatsappNumber, onProductClick, cartItems, viewMode = 'list' }: MenuSectionProps) {
   const [activeCategory, setActiveCategory] = useState('Tümü')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -109,7 +110,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                   <span className="text-sm font-medium text-slate-500 bg-white/5 px-3 py-1 rounded-full">{categoryProducts.length} Ürün</span>
                 </h2>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className={viewMode === 'catalog' ? "grid grid-cols-2 md:grid-cols-3 gap-6" : "grid grid-cols-1 lg:grid-cols-2 gap-4"}>
                   {categoryProducts.map((product) => {
                     const quantity = getProductQuantity(product.id)
                     
@@ -117,41 +118,52 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                       <div 
                         key={product.id}
                         onClick={() => onProductClick?.(product)}
-                        className="flex gap-4 p-4 rounded-2xl bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98]"
+                        className={viewMode === 'catalog' 
+                          ? "flex flex-col rounded-[32px] bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98] overflow-hidden shadow-2xl" 
+                          : "flex gap-4 p-4 rounded-2xl bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98]"
+                        }
                       >
                         {/* Görsel */}
-                        <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-white/5">
+                        <div className={viewMode === 'catalog' ? "w-full aspect-square overflow-hidden bg-white/5 relative" : "w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-white/5"}>
                           {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-500">
                               <Package className="w-8 h-8" />
                             </div>
                           )}
+                          {viewMode === 'catalog' && (
+                            <div className="absolute top-4 right-4 z-10">
+                               <div className="w-10 h-10 rounded-full bg-[#0a192f]/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
+                                  <Plus className="w-5 h-5" />
+                               </div>
+                            </div>
+                          )}
                         </div>
 
                         {/* Detaylar */}
-                        <div className="flex-1 flex flex-col justify-between py-1">
-                          <div>
-                            <h4 className="text-white font-bold text-sm leading-tight group-hover:text-[#64ffda] transition-colors">{product.name}</h4>
+                        <div className={viewMode === 'catalog' ? "p-6 space-y-4" : "flex-1 flex flex-col justify-between py-1"}>
+                          <div className="space-y-1">
+                            <h4 className={viewMode === 'catalog' ? "text-white font-black text-lg leading-tight group-hover:text-[#64ffda] transition-colors italic uppercase tracking-tighter" : "text-white font-bold text-sm leading-tight group-hover:text-[#64ffda] transition-colors"}>
+                              {product.name}
+                            </h4>
                             {product.description && (
-                              <p className="text-slate-400 text-xs mt-1 line-clamp-2 leading-relaxed">{product.description}</p>
+                              <p className="text-slate-400 text-[10px] md:text-xs mt-1 line-clamp-2 leading-relaxed font-medium">{product.description}</p>
                             )}
                           </div>
                           
-                          <div className="flex items-center justify-between mt-3">
-                            <span className="text-[#64ffda] font-black text-sm">{product.price} TL</span>
+                          <div className="flex items-center justify-between mt-auto pt-2">
+                            <span className={viewMode === 'catalog' ? "text-[#64ffda] font-black text-xl italic tracking-tighter" : "text-[#64ffda] font-black text-sm"}>
+                              {product.price} TL
+                            </span>
                             
-                            <div className="flex items-center gap-2">
-                              {quantity > 0 && (
-                                <span className="text-[10px] font-black bg-[#64ffda]/10 text-[#64ffda] px-2 py-1 rounded-lg uppercase tracking-widest">
-                                  {quantity} Adet
+                            {quantity > 0 && (
+                              <div className="flex items-center gap-1.5 bg-[#64ffda]/10 px-2.5 py-1 rounded-lg">
+                                <span className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest">
+                                  {quantity}
                                 </span>
-                              )}
-                              <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
-                                <Plus className="w-4 h-4" />
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -108,7 +108,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
               </button>
             </div>
 
-            <div className="max-w-4xl mx-auto px-6 py-16 space-y-20">
+            <div className="max-w-6xl mx-auto px-6 py-16 space-y-20">
                {/* Hero Header */}
                <div className="text-center space-y-6">
                   <div className="inline-block px-4 py-1.5 bg-[#64ffda]/10 border border-[#64ffda]/20 rounded-full text-[#64ffda] text-[8px] font-black uppercase tracking-[0.5em] mb-4">
@@ -140,6 +140,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                    businessName={businessName} 
                    onProductClick={(product) => setSelectedProduct(product)}
                    cartItems={cart}
+                   viewMode="catalog"
                  />
                </div>
 
