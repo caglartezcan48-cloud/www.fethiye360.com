@@ -44,6 +44,8 @@ export default function BusinessPanel() {
   const [uploading, setUploading] = useState(false)
   
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: '', image_url: '' })
+  const [bulkText, setBulkText] = useState('')
+  const [showBulkMode, setShowBulkMode] = useState(false)
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({})
   
   const supabase = createClient()
@@ -130,10 +132,51 @@ export default function BusinessPanel() {
 
     if (!error && data && data.length > 0) {
       setProducts([...products, data[0]])
-      setNewProduct({ name: '', price: '', description: '', category: '', image_url: '' })
+      // Kategori silinmesin (Sticky Category) - İşletme sahibi arka arkaya ürün eklerken kolaylık sağlar
+      setNewProduct({ ...newProduct, name: '', price: '', description: '', image_url: '' })
       toast.success('Ürün eklendi!')
     } else {
       toast.error('Ürün eklenemedi: ' + (error?.message || 'Bilinmeyen hata'))
+    }
+    setUpdating(false)
+  }
+
+  const handleBulkUpload = async () => {
+    if (!bulkText.trim()) return
+    setUpdating(true)
+    
+    const lines = bulkText.split('\n').filter(l => l.trim())
+    const productsToInsert = lines.map(line => {
+      // Formats: "Ürün Adı, Fiyat, Kategori" or "Ürün Adı - Fiyat - Kategori"
+      const parts = line.includes(',') ? line.split(',') : line.split('-')
+      return {
+        business_id: business.id,
+        name: parts[0]?.trim(),
+        price: parseFloat(parts[1]?.trim() || '0'),
+        category: parts[2]?.trim() || newProduct.category || 'Genel',
+        description: '',
+        image_url: null
+      }
+    }).filter(p => p.name && p.price > 0)
+
+    if (productsToInsert.length === 0) {
+      toast.error('Geçerli bir ürün listesi bulunamadı. Format: Ad, Fiyat, Kategori')
+      setUpdating(false)
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('business_products')
+      .insert(productsToInsert)
+      .select()
+
+    if (!error && data) {
+      setProducts([...products, ...data])
+      setBulkText('')
+      setShowBulkMode(false)
+      toast.success(`${data.length} ürün başarıyla eklendi!`)
+    } else {
+      toast.error('Toplu yükleme başarısız: ' + (error?.message || 'Bilinmeyen hata'))
     }
     setUpdating(false)
   }
@@ -525,7 +568,44 @@ export default function BusinessPanel() {
                 </div>
               )}
 
-              <form onSubmit={handleAddProduct} className="bg-white/5 p-10 rounded-[48px] border border-white/5 space-y-8 relative overflow-hidden">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-xl bg-[#64ffda]/10 flex items-center justify-center">
+                      <Plus className="w-5 h-5 text-[#64ffda]" />
+                   </div>
+                   <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Yeni Ürün Ekle</h3>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setShowBulkMode(!showBulkMode)}
+                  className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-[#64ffda] uppercase tracking-widest hover:bg-[#64ffda]/10 transition-all"
+                >
+                  {showBulkMode ? 'Tekli Ekleme Modu' : 'Toplu Liste Yükle (Hızlı)'}
+                </button>
+              </div>
+
+              {showBulkMode ? (
+                <div className="bg-white/5 p-10 rounded-[48px] border border-[#64ffda]/30 space-y-6 animate-in fade-in zoom-in-95 duration-500">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest ml-1">Toplu Ürün Listesi</label>
+                    <p className="text-[10px] text-slate-500 ml-1">Her satıra bir ürün yazın: <span className="text-slate-300">İsim, Fiyat, Kategori</span></p>
+                    <textarea 
+                      value={bulkText}
+                      onChange={(e) => setBulkText(e.target.value)}
+                      placeholder="Örn:&#10;Adana Kebap, 350, Ana Yemekler&#10;Lahmacun, 120, Ana Yemekler&#10;Ayran, 45, İçecekler"
+                      className="w-full h-64 bg-[#0a192f] border border-white/5 rounded-3xl p-6 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none font-mono text-sm"
+                    />
+                  </div>
+                  <button 
+                    onClick={handleBulkUpload}
+                    disabled={updating}
+                    className="w-full py-5 bg-[#64ffda] text-[#0a192f] rounded-[24px] font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.01] active:scale-[0.98] transition-all shadow-2xl shadow-[#64ffda]/20 flex items-center justify-center gap-3"
+                  >
+                    {updating ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5" /> LİSTEYİ SİSTEME YÜKLE</>}
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleAddProduct} className="bg-white/5 p-10 rounded-[48px] border border-white/5 space-y-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#64ffda]/5 rounded-full blur-3xl" />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
