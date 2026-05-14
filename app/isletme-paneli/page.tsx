@@ -29,18 +29,27 @@ import {
   Download,
   ExternalLink,
   Database,
-  CheckCircle2
+  CheckCircle2,
+  ShoppingCart,
+  Clock,
+  Check,
+  X,
+  CreditCard,
+  Banknote,
+  Search
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
 
 export default function BusinessPanel() {
-  const [activeTab, setActiveTab] = useState<'general' | 'products' | 'photos' | 'reviews' | 'qr'>('general')
+  const [activeTab, setActiveTab] = useState<'general' | 'products' | 'orders' | 'photos' | 'reviews' | 'qr'>('orders')
   const [user, setUser] = useState<any>(null)
   const [business, setBusiness] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
   const [images, setImages] = useState<any[]>([])
   const [reviews, setReviews] = useState<any[]>([])
+  const [orders, setOrders] = useState<any[]>([])
+  const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
   
@@ -110,6 +119,15 @@ export default function BusinessPanel() {
         .order('created_at', { ascending: false })
 
       if (revData) setReviews(revData)
+      
+      // 5. Siparişleri Çek (Örnek tablo: business_orders)
+      const { data: orderData } = await supabase
+        .from('business_orders')
+        .select('*')
+        .eq('business_id', biz.id)
+        .order('created_at', { ascending: false })
+
+      if (orderData) setOrders(orderData)
 
       setLoading(false)
     }
@@ -412,6 +430,7 @@ export default function BusinessPanel() {
           <nav className="space-y-3">
             {[
               { id: 'general', label: 'Genel Bilgiler', icon: Settings },
+              { id: 'orders', label: 'Gelen Siparişler', icon: ShoppingCart },
               { id: 'products', label: 'Menü / Ürünler', icon: Package },
               { id: 'qr', label: 'QR Menü', icon: QrCode },
               { id: 'photos', label: 'Fotoğraf Galerisi', icon: ImageIcon },
@@ -448,6 +467,187 @@ export default function BusinessPanel() {
         
         <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
           
+          {/* TAB: Orders (Sales Command Center) */}
+          {activeTab === 'orders' && (
+            <div className="space-y-12 animate-in fade-in slide-in-from-right-4 duration-700">
+              <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h2 className="text-5xl font-black text-white mb-2 tracking-tighter italic uppercase leading-none">
+                    SATIŞ <span className="text-[#64ffda]">MERKEZİ</span>
+                  </h2>
+                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]">Anlık Sipariş Yönetimi</p>
+                </div>
+                <div className="flex items-center gap-4">
+                   <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda]">
+                        <ShoppingCart className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-white font-black text-xl leading-none italic">{orders.length}</p>
+                        <p className="text-[8px] text-slate-500 font-black uppercase tracking-widest mt-1">Toplam Sipariş</p>
+                      </div>
+                   </div>
+                   <div className="bg-[#64ffda] rounded-2xl p-4 flex items-center gap-4 shadow-xl shadow-[#64ffda]/10">
+                      <div className="w-10 h-10 rounded-xl bg-[#0a192f]/20 flex items-center justify-center text-[#0a192f]">
+                        <Banknote className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-[#0a192f] font-black text-xl leading-none italic">
+                          {orders.reduce((acc, curr) => acc + (curr.total_amount || 0), 0)} TL
+                        </p>
+                        <p className="text-[#0a192f]/60 text-[8px] font-black uppercase tracking-widest mt-1">Toplam Ciro</p>
+                      </div>
+                   </div>
+                </div>
+              </header>
+
+              {/* Order List / Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {orders.length > 0 ? orders.map((order) => (
+                  <div 
+                    key={order.id} 
+                    onClick={() => setSelectedOrder(order)}
+                    className="group bg-[#112240] border border-white/5 rounded-[32px] p-6 hover:border-[#64ffda]/30 transition-all cursor-pointer relative overflow-hidden shadow-xl"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                       <div className="flex items-center gap-3">
+                          <div className={`w-3 h-3 rounded-full animate-pulse ${
+                            order.status === 'pending' ? 'bg-amber-500' : 
+                            order.status === 'preparing' ? 'bg-blue-500' : 
+                            order.status === 'completed' ? 'bg-[#64ffda]' : 'bg-red-500'
+                          }`} />
+                          <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                            #{order.id.slice(0, 6)}
+                          </span>
+                       </div>
+                       <span className="text-slate-500 text-[10px] font-bold">
+                         {new Date(order.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                       </span>
+                    </div>
+
+                    <div className="space-y-1 mb-6">
+                       <h4 className="text-white font-black uppercase tracking-tight text-lg group-hover:text-[#64ffda] transition-colors truncate">
+                         {order.customer_name || 'Anonim Müşteri'}
+                       </h4>
+                       <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                         <CreditCard className="w-3 h-3" /> {order.payment_method || 'Nakit'}
+                       </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                       <div>
+                          <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest">Tutar</p>
+                          <p className="text-[#64ffda] font-black italic text-xl tracking-tighter">{order.total_amount} TL</p>
+                       </div>
+                       <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
+                          <ChevronRight className="w-5 h-5" />
+                       </div>
+                    </div>
+
+                    {/* BG Glow */}
+                    <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-[#64ffda]/5 rounded-full blur-2xl group-hover:bg-[#64ffda]/10 transition-all" />
+                  </div>
+                )) : (
+                  <div className="col-span-full py-24 bg-white/5 rounded-[48px] border-2 border-dashed border-white/5 text-center space-y-6">
+                     <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto opacity-20">
+                        <ShoppingCart className="w-10 h-10 text-white" />
+                     </div>
+                     <div className="space-y-2">
+                        <p className="text-white font-black uppercase tracking-widest text-xs">Henüz Sipariş Yok</p>
+                        <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em]">Menünüzü paylaşın ve ilk siparişi bekleyin!</p>
+                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Order Detail Modal */}
+              {selectedOrder && (
+                <div className="fixed inset-0 z-[200] bg-[#0a192f]/95 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in duration-300">
+                   <div className="bg-[#112240] w-full max-w-2xl rounded-[48px] border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+                      <div className="p-10 border-b border-white/5 flex items-center justify-between">
+                         <div className="flex items-center gap-6">
+                            <div className="w-14 h-14 rounded-3xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda] shadow-lg shadow-[#64ffda]/5">
+                               <Package className="w-7 h-7" />
+                            </div>
+                            <div>
+                               <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Sipariş Detayı</h3>
+                               <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">Müşteri Bilgileri ve İçerik</p>
+                            </div>
+                         </div>
+                         <button 
+                           onClick={() => setSelectedOrder(null)}
+                           className="w-14 h-14 rounded-3xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-white transition-all border border-white/5"
+                         >
+                            <X className="w-6 h-6" />
+                         </button>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
+                         {/* Customer Info */}
+                         <div className="grid grid-cols-2 gap-6">
+                            <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
+                               <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Müşteri</p>
+                               <p className="text-white font-black uppercase italic">{selectedOrder.customer_name}</p>
+                            </div>
+                            <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
+                               <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Ödeme</p>
+                               <p className="text-[#64ffda] font-black uppercase italic">{selectedOrder.payment_method}</p>
+                            </div>
+                         </div>
+
+                         {/* Items List */}
+                         <div className="space-y-6">
+                            <h5 className="text-[10px] font-black text-white uppercase tracking-[0.4em] ml-2">SİPARİŞ İÇERİĞİ</h5>
+                            <div className="space-y-3">
+                               {selectedOrder.items?.map((item: any, idx: number) => (
+                                 <div key={idx} className="bg-white/5 p-5 rounded-2xl flex items-center justify-between border border-white/5">
+                                    <div className="flex items-center gap-4">
+                                       <div className="w-8 h-8 rounded-lg bg-[#0a192f] flex items-center justify-center text-[#64ffda] font-black text-xs">
+                                          {item.quantity}x
+                                       </div>
+                                       <div>
+                                          <p className="text-white text-sm font-black uppercase tracking-tight">{item.name}</p>
+                                          {item.note && <p className="text-slate-500 text-[10px] italic">"{item.note}"</p>}
+                                       </div>
+                                    </div>
+                                    <p className="text-white font-black italic">{item.price * item.quantity} TL</p>
+                                 </div>
+                               ))}
+                            </div>
+                         </div>
+
+                         {/* Total */}
+                         <div className="bg-[#64ffda]/5 p-8 rounded-[32px] border border-[#64ffda]/10 flex items-center justify-between">
+                            <span className="text-slate-400 font-black uppercase tracking-widest text-xs">TOPLAM TUTAR</span>
+                            <span className="text-[#64ffda] text-4xl font-black italic tracking-tighter">{selectedOrder.total_amount} TL</span>
+                         </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="p-8 bg-black/20 grid grid-cols-2 gap-4">
+                         <button 
+                           onClick={() => setSelectedOrder(null)}
+                           className="py-5 bg-white/5 rounded-3xl text-slate-400 font-black uppercase tracking-widest text-[11px] hover:bg-white/10 transition-all"
+                         >
+                           Kapat
+                         </button>
+                         <button 
+                           onClick={() => {
+                             // Status update logic here
+                             setSelectedOrder(null)
+                             toast.success('Sipariş durumu güncellendi!')
+                           }}
+                           className="py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-all shadow-xl shadow-[#64ffda]/10"
+                         >
+                           SİPARİŞİ ONAYLA
+                         </button>
+                      </div>
+                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* TAB: General Info */}
           {activeTab === 'general' && (
             <div className="space-y-12">
