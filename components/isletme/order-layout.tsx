@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { MenuSection } from './menu-section'
 import { ProductModal } from './product-modal'
-import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote } from 'lucide-react'
+import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote, X, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Product {
@@ -184,19 +184,17 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
 
   return (
     <div className="min-h-screen bg-[#0a192f]">
-      <div className="max-w-7xl mx-auto px-6 pt-11 pb-0">
+      <div className="max-w-7xl mx-auto px-6 pt-2 pb-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Main Menu Section */}
           <div className="lg:col-span-8">
-            <div className="pt-20"> {/* Header boşluğu */}
-              <MenuSection 
-                products={products} 
-                businessName={businessName} 
-                onProductClick={(product) => setSelectedProduct(product)}
-                cartItems={cart}
-                theme="dark"
-              />
-            </div>
+            <MenuSection 
+              products={products} 
+              businessName={businessName} 
+              onProductClick={(product) => setSelectedProduct(product)}
+              cartItems={cart}
+              theme="dark"
+            />
           </div>
 
           {/* Premium Floating/Sidebar Cart */}
