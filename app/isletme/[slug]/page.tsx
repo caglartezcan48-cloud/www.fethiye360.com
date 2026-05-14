@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MenuSection } from '@/components/isletme/menu-section'
 import { OrderLayout } from '@/components/isletme/order-layout'
+import { BusinessActionButtons } from '@/components/isletme/business-action-buttons'
 import { 
   MapPin, 
   Phone, 
@@ -127,17 +128,17 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
               </div>
 
               <div className="flex flex-wrap items-center gap-6 text-sm">
-                <div className="flex items-center gap-1.5 cursor-pointer hover:bg-white/5 px-2 py-1 -ml-2 rounded-lg transition-colors">
+                <a href="#yorumlar" className="flex items-center gap-1.5 cursor-pointer hover:bg-white/5 px-2 py-1 -ml-2 rounded-lg transition-colors">
                   <Star className="w-4 h-4 text-[#e0004d] fill-[#e0004d]" />
                   <span className="text-[#e0004d] font-bold">{avgRating}/5</span>
                   <span className="text-slate-400 text-xs">({reviews.length}+)</span>
                   <span className="text-white font-medium ml-1 underline decoration-white/30 underline-offset-4">Yorumları Gör</span>
-                </div>
+                </a>
                 
-                <div className="flex items-center gap-2 text-slate-300 font-medium cursor-pointer hover:bg-white/5 px-2 py-1 rounded-lg transition-colors">
+                <a href="#hakkinda" className="flex items-center gap-2 text-slate-300 font-medium cursor-pointer hover:bg-white/5 px-2 py-1 rounded-lg transition-colors">
                   <Info className="w-4 h-4" />
                   <span className="underline decoration-white/30 underline-offset-4">Hakkında</span>
-                </div>
+                </a>
               </div>
               
               {/* Yemeksepeti tarzı rozetler */}
@@ -186,29 +187,24 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
                   <span className="text-sm font-bold">{avgRating} <span className="opacity-60 text-xs font-normal">({reviews.length}+)</span></span>
                 </div>
                 
-                <div className="flex items-center gap-3 text-sm font-black uppercase tracking-widest bg-[#0a192f]/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/5">
+                <a href="#hakkinda" className="flex items-center gap-3 text-sm font-black uppercase tracking-widest bg-[#0a192f]/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors">
                   <MapPin className="w-4 h-4 text-[#64ffda]" />
                   {business.address?.split(',')[0] || 'FETHİYE Merkez'}
-                </div>
+                </a>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Quick Back */}
+      {/* Quick Back & Actions */}
       {!isSalesOriented && (
         <div className="absolute top-24 left-8 right-8 flex justify-between items-center z-20">
              <Link href="/isletmeler" className="p-4 bg-[#0a192f]/60 backdrop-blur-xl rounded-2xl text-white/70 hover:text-[#64ffda] border border-white/5 transition-all hover:scale-110">
                 <ArrowLeft className="w-5 h-5" />
              </Link>
              <div className="flex gap-3">
-                <button className="p-4 bg-[#0a192f]/60 backdrop-blur-xl rounded-2xl text-white/70 hover:text-[#64ffda] border border-white/5 transition-all hover:scale-110">
-                    <Share2 className="w-5 h-5" />
-                </button>
-                <button className="p-4 bg-[#0a192f]/60 backdrop-blur-xl rounded-2xl text-white/70 hover:text-[#64ffda] border border-white/5 transition-all hover:scale-110">
-                    <Heart className="w-5 h-5" />
-                </button>
+                <BusinessActionButtons title={business.name} />
              </div>
         </div>
       )}
@@ -226,7 +222,7 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
           /* STANDARD INFORMATIONAL LAYOUT */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-8 space-y-24">
-              <div className="space-y-6">
+              <div id="hakkinda" className="space-y-6 scroll-mt-32">
                   <div className="flex items-center gap-4">
                       <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">MEKAN HAKKINDA</h3>
                       <div className="h-px w-full bg-white/5" />
@@ -248,6 +244,43 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Yorumlar Bölümü */}
+              <div id="yorumlar" className="space-y-8 scroll-mt-32">
+                  <div className="flex items-center gap-4">
+                      <h3 className="text-[10px] font-black text-[#64ffda] uppercase tracking-[0.4em] whitespace-nowrap">YORUMLAR</h3>
+                      <div className="h-px w-full bg-white/5" />
+                  </div>
+                  {reviews.length > 0 ? (
+                    <div className="grid gap-4">
+                      {reviews.map((review: any) => (
+                        <div key={review.id} className="bg-white/5 p-6 rounded-2xl border border-white/10">
+                           <div className="flex items-center justify-between mb-4">
+                             <div className="flex items-center gap-3">
+                               <div className="w-10 h-10 bg-[#64ffda]/10 rounded-full flex items-center justify-center font-bold text-[#64ffda]">
+                                 {review.user_name ? review.user_name.charAt(0).toUpperCase() : 'A'}
+                               </div>
+                               <div>
+                                 <p className="text-white font-bold text-sm">{review.user_name || 'Anonim'}</p>
+                                 <div className="flex gap-1 mt-1">
+                                   {Array.from({ length: 5 }).map((_, i) => (
+                                     <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-600'}`} />
+                                   ))}
+                                 </div>
+                               </div>
+                             </div>
+                             <span className="text-xs text-slate-500">{new Date(review.created_at).toLocaleDateString('tr-TR')}</span>
+                           </div>
+                           <p className="text-slate-300 text-sm leading-relaxed">{review.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-white/5 rounded-3xl border border-white/10">
+                      <p className="text-slate-400 text-sm italic">Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+                    </div>
+                  )}
               </div>
             </div>
 

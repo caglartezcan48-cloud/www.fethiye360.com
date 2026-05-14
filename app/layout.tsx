@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SystemHealthProvider } from '@/components/providers/system-health-provider'
+import { Toaster } from 'sonner'
 import './globals.css'
 
 const inter = Inter({ 
@@ -82,6 +83,7 @@ export default function RootLayout({
         <SystemHealthProvider>
           {children}
         </SystemHealthProvider>
+        <Toaster position="top-center" richColors />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
