@@ -115,7 +115,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
             {/* Site Navbar */}
             <SiteHeader />
 
-            <div className="max-w-7xl mx-auto px-4 md:px-6 mt-32 mb-20 relative">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 mt-20 mb-20 relative">
               {/* Beyaz Menü Zemini - Desenli ve Sıcak (Flu Desen) */}
               <div className="bg-[#fdfaf5] rounded-[48px] shadow-2xl overflow-hidden relative min-h-screen border border-orange-100/50">
                 {/* Flu Desen (Subtle Warm Blurred Pattern) */}
@@ -129,20 +129,8 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                 {/* Secondary texture for 'antetli' feel */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none -z-10" style={{ backgroundImage: 'radial-gradient(#ea580c 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-                <div className="px-6 py-16 space-y-20 relative">
+                <div className="px-6 py-8 space-y-12 relative">
 
-               {/* Category Nav for Catalog */}
-               <div className="flex flex-wrap justify-center gap-3">
-                  {Array.from(new Set(products.map(p => p.category))).map((cat) => (
-                    <button 
-                      key={cat}
-                      onClick={() => document.getElementById(`cat-${cat}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                      className="px-6 py-3 bg-white border border-orange-100 rounded-2xl text-[9px] font-black text-slate-500 uppercase tracking-widest hover:bg-[#ea580c] hover:text-white hover:border-[#ea580c] transition-all shadow-sm"
-                    >
-                      {cat}
-                    </button>
-                  ))}
-               </div>
 
                <div className="space-y-24">
                  <MenuSection 
