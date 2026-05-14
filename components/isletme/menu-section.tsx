@@ -36,8 +36,8 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
 
   return (
     <div className="space-y-8">
-      {/* Kategori Navigasyonu ve Arama - Sticky Yemeksepeti Style */}
-      <div className="sticky top-[80px] z-30 bg-[#0a192f] py-4 -mx-6 px-6 border-b border-white/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] flex items-center gap-4">
+      {/* Kategori Navigasyonu ve Arama - Lovable Style */}
+      <div className="sticky top-[80px] z-30 bg-[#fdfaf5]/80 backdrop-blur-md py-4 -mx-6 px-6 border-b border-orange-100 flex items-center gap-4">
         {/* Arama Çubuğu */}
         <div className="relative shrink-0 w-28 md:w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
@@ -46,7 +46,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
             placeholder="Ara..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#112240] border border-white/10 rounded-full py-2 pl-9 pr-3 text-xs md:text-sm text-white focus:outline-none focus:border-[#64ffda] transition-colors placeholder:text-slate-500"
+            className="w-full bg-white border border-orange-100 rounded-full py-2 pl-9 pr-3 text-xs md:text-sm text-[#1a1a1a] focus:outline-none focus:border-[#ea580c] transition-colors placeholder:text-slate-400 shadow-sm"
           />
         </div>
 
@@ -72,13 +72,13 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                       }
                     }
                   }}
-                  className={`px-5 py-3 text-sm font-bold transition-all whitespace-nowrap flex items-center gap-2 border-b-2 ${
+                  className={`px-5 py-3 text-sm font-black transition-all whitespace-nowrap flex items-center gap-2 border-b-2 uppercase tracking-widest ${
                     activeCategory === cat
-                      ? 'border-[#64ffda] text-[#64ffda]'
-                      : 'border-transparent text-slate-400 hover:text-white'
+                      ? 'border-[#ea580c] text-[#ea580c]'
+                      : 'border-transparent text-slate-400 hover:text-slate-600'
                   }`}
                 >
-                  {cat} <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeCategory === cat ? 'bg-[#64ffda]/10 text-[#64ffda]' : 'bg-white/5 text-slate-500'}`}>{count}</span>
+                  {cat} <span className={`text-[10px] px-2 py-0.5 rounded-full ${activeCategory === cat ? 'bg-orange-100 text-[#ea580c]' : 'bg-slate-100 text-slate-500'}`}>{count}</span>
                 </button>
               );
             })}
@@ -89,10 +89,10 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
       {/* Kategorilere Göre Gruplanmış Ürün Listesi */}
       <div className="space-y-12">
         {products.length === 0 ? (
-          <div className="py-32 text-center bg-[#112240] rounded-3xl border border-dashed border-white/10 flex flex-col items-center justify-center">
-            <Package className="w-16 h-16 text-slate-600 mb-6" />
-            <h3 className="text-2xl font-black text-white mb-2">İçerik Yükleniyor...</h3>
-            <p className="text-slate-400">Bu işletme henüz satışa sunduğu ürünleri sisteme yüklememiş veya menü güncelleniyor.</p>
+          <div className="py-32 text-center bg-white rounded-[40px] border border-dashed border-orange-200 flex flex-col items-center justify-center">
+            <Package className="w-16 h-16 text-orange-200 mb-6" />
+            <h3 className="text-2xl font-black text-[#1a1a1a] mb-2 uppercase italic">İçerik Yükleniyor...</h3>
+            <p className="text-slate-400 max-w-xs mx-auto">Bu işletme henüz satışa sunduğu ürünleri sisteme yüklememiş veya menü güncelleniyor.</p>
           </div>
         ) : (
           (activeCategory === 'Tümü' ? categories.filter(c => c !== 'Tümü') : [activeCategory]).map(category => {
@@ -105,9 +105,9 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
 
             return (
               <div key={category} id={`category-${category}`} className="space-y-6 pt-4 scroll-mt-[150px]">
-                <h2 className="text-2xl font-black text-white flex items-center gap-3">
+                <h2 className="text-2xl font-black text-[#1a1a1a] flex items-center gap-3 italic uppercase tracking-tighter">
                   {category}
-                  <span className="text-sm font-medium text-slate-500 bg-white/5 px-3 py-1 rounded-full">{categoryProducts.length} Ürün</span>
+                  <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-widest">{categoryProducts.length} Ürün</span>
                 </h2>
                 
                 <div className={viewMode === 'catalog' ? "grid grid-cols-2 md:grid-cols-3 gap-6" : "grid grid-cols-1 lg:grid-cols-2 gap-4"}>
@@ -119,22 +119,22 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                         key={product.id}
                         onClick={() => onProductClick?.(product)}
                         className={viewMode === 'catalog' 
-                          ? "flex flex-col rounded-[32px] bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98] overflow-hidden shadow-2xl" 
-                          : "flex gap-4 p-4 rounded-2xl bg-[#112240] border border-white/5 hover:border-[#64ffda]/30 transition-all group cursor-pointer active:scale-[0.98]"
+                          ? "flex flex-col rounded-[32px] bg-white border border-orange-100 hover:border-orange-300 transition-all group cursor-pointer active:scale-[0.98] overflow-hidden shadow-sm hover:shadow-xl hover:shadow-orange-200/20" 
+                          : "flex gap-4 p-4 rounded-2xl bg-white border border-orange-100 hover:border-orange-300 transition-all group cursor-pointer active:scale-[0.98] shadow-sm"
                         }
                       >
                         {/* Görsel */}
-                        <div className={viewMode === 'catalog' ? "w-full aspect-square overflow-hidden bg-white/5 relative" : "w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-white/5"}>
+                        <div className={viewMode === 'catalog' ? "w-full aspect-square overflow-hidden bg-orange-50/50 relative" : "w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-orange-50/50"}>
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-500">
+                            <div className="w-full h-full flex items-center justify-center text-orange-200">
                               <Package className="w-8 h-8" />
                             </div>
                           )}
                           {viewMode === 'catalog' && (
                             <div className="absolute top-4 right-4 z-10">
-                               <div className="w-10 h-10 rounded-full bg-[#0a192f]/60 backdrop-blur-md border border-white/10 flex items-center justify-center text-white group-hover:bg-[#64ffda] group-hover:text-[#0a192f] transition-all">
+                               <div className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-orange-100 flex items-center justify-center text-[#ea580c] group-hover:bg-[#ea580c] group-hover:text-white transition-all shadow-sm">
                                   <Plus className="w-5 h-5" />
                                </div>
                             </div>
@@ -144,7 +144,7 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                         {/* Detaylar */}
                         <div className={viewMode === 'catalog' ? "p-6 space-y-4" : "flex-1 flex flex-col justify-between py-1"}>
                           <div className="space-y-1">
-                            <h4 className={viewMode === 'catalog' ? "text-white font-black text-lg leading-tight group-hover:text-[#64ffda] transition-colors italic uppercase tracking-tighter" : "text-white font-bold text-sm leading-tight group-hover:text-[#64ffda] transition-colors"}>
+                            <h4 className={viewMode === 'catalog' ? "text-[#1a1a1a] font-black text-lg leading-tight group-hover:text-[#ea580c] transition-colors italic uppercase tracking-tighter" : "text-[#1a1a1a] font-bold text-sm leading-tight group-hover:text-[#ea580c] transition-colors"}>
                               {product.name}
                             </h4>
                             {product.description && (
@@ -153,15 +153,21 @@ export function MenuSection({ products, businessName, whatsappNumber, onProductC
                           </div>
                           
                           <div className="flex items-center justify-between mt-auto pt-2">
-                            <span className={viewMode === 'catalog' ? "text-[#64ffda] font-black text-xl italic tracking-tighter" : "text-[#64ffda] font-black text-sm"}>
+                            <span className={viewMode === 'catalog' ? "text-[#ea580c] font-black text-xl italic tracking-tighter" : "text-[#ea580c] font-black text-sm"}>
                               {product.price} TL
                             </span>
                             
                             {quantity > 0 && (
-                              <div className="flex items-center gap-1.5 bg-[#64ffda]/10 px-2.5 py-1 rounded-lg">
-                                <span className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest">
+                              <div className="flex items-center gap-1.5 bg-orange-100 px-2.5 py-1 rounded-lg">
+                                <span className="text-[10px] font-black text-[#ea580c] uppercase tracking-widest">
                                   {quantity}
                                 </span>
+                              </div>
+                            )}
+                            
+                            {viewMode !== 'catalog' && (
+                              <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center text-[#ea580c] group-hover:bg-[#ea580c] group-hover:text-white transition-all">
+                                <Plus className="w-4 h-4" />
                               </div>
                             )}
                           </div>
