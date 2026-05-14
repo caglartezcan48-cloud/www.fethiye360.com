@@ -144,63 +144,14 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
                  />
                </div>
 
-               {/* Sepet Özet Listesi (Katalog İçinde Görünür Yapıldı) */}
-               {cart.length > 0 && (
-                 <div className="fixed bottom-32 right-10 z-[60] w-72 animate-in slide-in-from-bottom-10 duration-500">
-                    <div className="bg-white/80 backdrop-blur-2xl rounded-[32px] p-6 shadow-2xl border border-orange-100/50 space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">
-                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ea580c] mb-2">SEPETİNİZDEKİLER</p>
-                       {cart.map((item) => {
-                         const itemPrice = parseFloat(String(item.price || 0).replace(/[^0-9.-]+/g,"")) || 0
-                         const itemQuantity = parseInt(String(item.quantity)) || 1
-                         
-                         return (
-                           <div key={item.cartItemId} className="flex items-center justify-between gap-3 animate-in fade-in slide-in-from-right-4 group">
-                              <div className="flex-1">
-                                 <p className="text-[#1a1a1a] text-[11px] font-black uppercase tracking-tight">{item.name}</p>
-                                 {item.note && <p className="text-[#ea580c] text-[8px] font-medium italic">"{item.note}"</p>}
-                              </div>
-                              <div className="flex items-center gap-3">
-                                 <div className="flex items-center gap-2 bg-slate-50 rounded-full px-2 py-1 border border-slate-100">
-                                   <button 
-                                     onClick={(e) => { e.stopPropagation(); removeFromCart(item.cartItemId) }}
-                                     className="text-slate-400 hover:text-red-500 transition-colors"
-                                   >
-                                     <Minus className="w-3 h-3" />
-                                   </button>
-                                   <span className="text-[10px] font-black text-[#1a1a1a] w-4 text-center">{itemQuantity}</span>
-                                   <button 
-                                     onClick={(e) => { e.stopPropagation(); addOneMore(item.cartItemId) }}
-                                     className="text-[#ea580c] hover:scale-110 transition-transform"
-                                   >
-                                     <Plus className="w-3 h-3" />
-                                   </button>
-                                 </div>
-                                 <div className="text-right min-w-[60px]">
-                                   <p className="text-[11px] font-black text-[#1a1a1a]">{itemPrice * itemQuantity} TL</p>
-                                   <button 
-                                     onClick={(e) => { e.stopPropagation(); setCart(prev => prev.filter(i => i.cartItemId !== item.cartItemId)) }}
-                                     className="text-[8px] font-bold text-slate-300 hover:text-red-500 uppercase tracking-tighter"
-                                   >
-                                     SİL
-                                   </button>
-                                 </div>
-                              </div>
-                           </div>
-                         )
-                       })}
-                    </div>
-                 </div>
-               )}
-
-               {/* Sepete Dön Butonu - Hareketli (Bobbing) Efekt Eklendi */}
-               <div className="fixed bottom-10 right-10 z-[60] animate-bounce-slow">
+               {/* Katalog Kapatma Butonu */}
+               <div className="fixed top-8 right-8 z-[200]">
                   <button 
                     onClick={onCloseMenu}
-                    className="bg-[#ea580c] text-white px-8 py-5 rounded-[32px] font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-orange-400/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-6 border-4 border-white"
+                    className="bg-white/80 backdrop-blur-xl text-[#1a1a1a] px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl border border-orange-100 hover:bg-[#ea580c] hover:text-white transition-all flex items-center gap-3 group"
                   >
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xs">{cart.length}</div>
-                    SEPETE DÖN
-                    <span className="text-white/60">{total} TL</span>
+                    <span>MENÜYE DÖN</span>
+                    <X className="w-4 h-4 group-hover:rotate-90 transition-transform" />
                   </button>
                </div>
 
