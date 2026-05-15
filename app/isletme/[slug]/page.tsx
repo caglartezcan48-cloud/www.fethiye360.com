@@ -155,14 +155,16 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
           /* TANITIM ISLETMELERI - SHOWCASE SAYFASI */
           <>
             {/* Hero Section */}
-            <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
-              <Image 
-                src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&q=80"} 
-                alt={business.name} 
-                fill
-                className="object-cover"
-                priority
-              />
+            <section className="relative h-[40vh] md:h-[60vh] w-full overflow-hidden bg-gradient-to-br from-slate-900 to-cyan-900/20">
+              {business.main_image && (
+                <Image 
+                  src={business.main_image} 
+                  alt={business.name} 
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a]/50 to-transparent" />
               
               {/* Back Button */}
@@ -216,12 +218,14 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-12">
                   {/* About */}
-                  <div>
-                    <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-4">Hakkinda</h2>
-                    <p className="text-lg text-white/80 leading-relaxed">
-                      {business.description || "Fethiye'nin kalbinde, essiz lezzetler ve unutulmaz anilar icin kapilarimizi aciyoruz."}
-                    </p>
-                  </div>
+                  {business.description && (
+                    <div>
+                      <h2 className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-4">Hakkinda</h2>
+                      <p className="text-lg text-white/80 leading-relaxed">
+                        {business.description}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Reviews */}
                   <div>

@@ -146,15 +146,17 @@ export function OrderLayout({ products, businessName, whatsappNumber, businessIm
       {/* Premium Restaurant Header */}
       <div className="relative">
         {/* Background with gradient overlay */}
-        <div className="absolute inset-0 h-[320px] overflow-hidden">
+        <div className="absolute inset-0 h-[320px] overflow-hidden bg-gradient-to-br from-slate-900 to-cyan-900/20">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0f1a]/60 to-[#0a0f1a] z-10" />
-          <Image
-            src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80"}
-            alt={businessName}
-            fill
-            className="object-cover opacity-40 blur-sm scale-105"
-            priority
-          />
+          {businessImage && (
+            <Image
+              src={businessImage}
+              alt={businessName}
+              fill
+              className="object-cover opacity-40 blur-sm scale-105"
+              priority
+            />
+          )}
         </div>
 
         {/* Restaurant Info Card */}
@@ -162,13 +164,19 @@ export function OrderLayout({ products, businessName, whatsappNumber, businessIm
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6">
               {/* Logo/Image */}
-              <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-[#0a0f1a] shadow-2xl bg-white/5 shrink-0">
-                <Image
-                  src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80"}
-                  alt={businessName}
-                  fill
-                  className="object-cover"
-                />
+              <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-[#0a0f1a] shadow-2xl bg-white/5 shrink-0 flex items-center justify-center">
+                {businessImage ? (
+                  <Image
+                    src={businessImage}
+                    alt={businessName}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-1 opacity-20 text-white">
+                    <Store className="w-8 h-8" />
+                  </div>
+                )}
               </div>
 
               {/* Info */}
