@@ -19,7 +19,8 @@ import {
   Bike,
   CheckCircle2,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Store
 } from 'lucide-react'
 import { toast } from 'sonner'
 
