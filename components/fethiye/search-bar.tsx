@@ -104,20 +104,39 @@ function SearchBarContent() {
               <button
                 key={index}
                 onClick={() => {
-                  const url = result.type === 'category' 
-                    ? `/kesfet/${result.slug}` 
-                    : `/isletme/${result.slug}`;
+                  let url = '';
+                  switch(result.type) {
+                    case 'category': url = `/kesfet/${result.slug}`; break;
+                    case 'profile': url = `/profil/${result.slug}`; break;
+                    case 'post': url = `/sosyal/post/${result.slug}`; break;
+                    default: url = `/isletme/${result.slug}`;
+                  }
                   navigateTo(url);
                 }}
                 className="w-full flex items-center justify-between p-4 hover:bg-white/5 rounded-xl transition-colors group/item"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${result.type === 'category' ? 'bg-blue-500/10 text-blue-400' : 'bg-[#64ffda]/10 text-[#64ffda]'}`}>
-                    {result.type === 'category' ? <Tag className="w-5 h-5" /> : <Store className="w-5 h-5" />}
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center 
+                    ${result.type === 'category' ? 'bg-blue-500/10 text-blue-400' : 
+                      result.type === 'profile' ? 'bg-purple-500/10 text-purple-400' :
+                      result.type === 'post' ? 'bg-orange-500/10 text-orange-400' :
+                      'bg-[#64ffda]/10 text-[#64ffda]'}`}>
+                    {result.type === 'category' ? <Tag className="w-5 h-5" /> : 
+                     result.type === 'profile' ? <Search className="w-5 h-5" /> :
+                     result.type === 'post' ? <ArrowRight className="w-5 h-5" /> :
+                     <Store className="w-5 h-5" />}
                   </div>
                   <div className="text-left">
-                    <div className="text-white font-semibold group-hover/item:text-[#64ffda] transition-colors">{result.name}</div>
-                    <div className="text-slate-500 text-xs uppercase tracking-widest">{result.type === 'category' ? 'Kategori' : 'İşletme'}</div>
+                    <div className="text-white font-semibold group-hover/item:text-[#64ffda] transition-colors line-clamp-1">{result.name}</div>
+                    <div className="text-slate-500 text-[10px] uppercase tracking-widest flex items-center gap-2">
+                      <span>{
+                        result.type === 'category' ? 'Kategori' : 
+                        result.type === 'profile' ? 'Profil' :
+                        result.type === 'post' ? 'Gönderi' : 'İşletme'
+                      }</span>
+                      {result.subtitle && <span className="normal-case tracking-normal text-slate-600">• {result.subtitle}</span>}
+                      {result.category_name && <span className="normal-case tracking-normal text-slate-600">• {result.category_name}</span>}
+                    </div>
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-600 group-hover/item:text-[#64ffda] group-hover/item:translate-x-1 transition-all" />
@@ -125,8 +144,9 @@ function SearchBarContent() {
             ))}
             
             {results.length === 0 && !isSearching && (
-              <div className="p-8 text-center text-slate-500 text-sm">
-                Sonuç bulunamadı...
+              <div className="p-12 text-center space-y-3">
+                <Search className="w-10 h-10 text-slate-700 mx-auto opacity-20" />
+                <div className="text-slate-500 text-sm italic">Aradığınız kriterde sonuç bulunamadı...</div>
               </div>
             )}
           </div>
