@@ -65,7 +65,7 @@ export default async function DestinationDetailPage({ params }: Props) {
     title: dbDest?.title || enrichedData?.title || 'İsimsiz Konum',
     description: dbDest?.description && dbDest.description.length > 50 ? dbDest.description : (enrichedData?.description || ''),
     history: dbDest?.history && dbDest.history.length > 100 ? dbDest.history : (enrichedData?.description || ''),
-    main_image: dbDest?.main_image || enrichedData?.image || 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=800',
+    main_image: dbDest?.main_image || enrichedData?.image || 'https://images.unsplash.com/photo-1544833058-e70f9ca25c17?w=600&q=75&fm=webp&fit=crop',
     category: dbDest?.category || enrichedData?.category || 'Genel',
     gallery: dbDest?.gallery || [],
   }
@@ -91,6 +91,7 @@ export default async function DestinationDetailPage({ params }: Props) {
           src={dest.main_image} 
           alt={dest.title}
           fill
+          sizes="100vw"
           className="object-cover scale-105"
           priority
         />

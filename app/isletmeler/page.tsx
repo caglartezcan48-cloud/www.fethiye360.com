@@ -349,7 +349,7 @@ function BusinessesContent() {
                       {/* Cover Image */}
                       <div className="relative h-64 w-full overflow-hidden">
                         <Image 
-                          src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"} 
+                          src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=75&fm=webp&fit=crop"} 
                           alt={business.name || 'İşletme'} 
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
