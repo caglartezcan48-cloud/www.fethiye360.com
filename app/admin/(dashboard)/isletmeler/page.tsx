@@ -1,15 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { Plus, Building2, Pencil, Trash2, Star, CheckCircle2, Database } from 'lucide-react'
+import { Plus, Building2, Pencil, Trash2, Star, CheckCircle2, Database, ChevronLeft, ChevronRight } from 'lucide-react'
 import { BusinessFilters } from '@/components/admin/business-filters'
+
+const PAGE_SIZE = 50
 
 export default async function BusinessesPage({ 
   searchParams 
 }: { 
-  searchParams: Promise<{ category?: string, q?: string }> 
+  searchParams: Promise<{ category?: string, q?: string, page?: string }> 
 }) {
   const supabase = await createClient()
   const params = await searchParams
+  const currentPage = Number(params.page) || 1
   
   // Kategorileri cek (Filtre icin)
   const { data: categories } = await supabase
@@ -28,7 +31,7 @@ export default async function BusinessesPage({
       is_featured,
       created_at,
       business_categories (id, name)
-    `)
+    `, { count: 'exact' })
     .order('created_at', { ascending: false })
 
   // Filtreleri uygula
@@ -40,12 +43,22 @@ export default async function BusinessesPage({
     query = query.ilike('name', `%${params.q}%`)
   }
 
-  const { data: businesses } = await query
+  // Sayfalama uygula
+  const from = (currentPage - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+  const { data: businesses, count } = await query.range(from, to)
+
+  const totalPages = count ? Math.ceil(count / PAGE_SIZE) : 0
 
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-white">İşletmeler</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-white">İşletmeler</h1>
+          {count !== null && (
+            <p className="text-slate-500 text-sm mt-1">Toplam {count} kayıtlı işletme</p>
+          )}
+        </div>
         <div className="flex items-center gap-3">
           <Link
             href="/admin/isletmeler/toplu-yukle"
@@ -67,63 +80,88 @@ export default async function BusinessesPage({
       <BusinessFilters categories={categories || []} />
 
       {businesses && businesses.length > 0 ? (
-        <div className="bg-[#112240] rounded-xl border border-slate-700/50 overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-slate-700/30">
-              <tr>
-                <th className="text-left p-4 text-sm font-medium text-slate-300">İşletme</th>
-                <th className="text-left p-4 text-sm font-medium text-slate-300">Kategori</th>
-                <th className="text-center p-4 text-sm font-medium text-slate-300">Puan</th>
-                <th className="text-center p-4 text-sm font-medium text-slate-300">Durum</th>
-                <th className="text-right p-4 text-sm font-medium text-slate-300">İşlemler</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700/50">
-              {businesses.map((business) => (
-                <tr key={business.id} className="hover:bg-slate-700/20">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center text-[#64ffda]">
-                        <Building2 className="w-5 h-5" />
-                      </div>
-                      <span className="text-white font-medium">{business.name}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-slate-300">
-                    {business.business_categories?.name || '-'}
-                  </td>
-                  <td className="p-4 text-center">
-                    <div className="flex items-center justify-center gap-1 text-yellow-500">
-                      <Star className="w-4 h-4 fill-yellow-500" />
-                      {business.rating || 0}
-                    </div>
-                  </td>
-                  <td className="p-4 text-center">
-                    {business.is_featured ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#64ffda]/20 text-[#64ffda] text-xs font-medium">
-                        <CheckCircle2 className="w-3 h-3" /> Öne Çıkan
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 text-xs font-medium">Standart</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        href={`/admin/isletmeler/${business.id}`}
-                        className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Link>
-                      <button className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+        <div className="space-y-6">
+          <div className="bg-[#112240] rounded-xl border border-slate-700/50 overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-slate-700/30">
+                <tr>
+                  <th className="text-left p-4 text-sm font-medium text-slate-300">İşletme</th>
+                  <th className="text-left p-4 text-sm font-medium text-slate-300">Kategori</th>
+                  <th className="text-center p-4 text-sm font-medium text-slate-300">Puan</th>
+                  <th className="text-center p-4 text-sm font-medium text-slate-300">Durum</th>
+                  <th className="text-right p-4 text-sm font-medium text-slate-300">İşlemler</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-700/50">
+                {businesses.map((business) => (
+                  <tr key={business.id} className="hover:bg-slate-700/20">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-slate-700 flex items-center justify-center text-[#64ffda]">
+                          <Building2 className="w-5 h-5" />
+                        </div>
+                        <span className="text-white font-medium">{business.name}</span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-slate-300">
+                      {business.business_categories?.name || '-'}
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-1 text-yellow-500">
+                        <Star className="w-4 h-4 fill-yellow-500" />
+                        {business.rating || 0}
+                      </div>
+                    </td>
+                    <td className="p-4 text-center">
+                      {business.is_featured ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#64ffda]/20 text-[#64ffda] text-xs font-medium">
+                          <CheckCircle2 className="w-3 h-3" /> Öne Çıkan
+                        </span>
+                      ) : (
+                        <span className="text-slate-500 text-xs font-medium">Standart</span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/isletmeler/${business.id}`}
+                          className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Link>
+                        <button className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Sayfalama Kontrolleri */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 py-4">
+              <Link
+                href={`/admin/isletmeler?page=${currentPage - 1}${params.category ? `&category=${params.category}` : ''}${params.q ? `&q=${params.q}` : ''}`}
+                className={`p-2 rounded-lg border border-slate-700 text-white transition-colors ${currentPage <= 1 ? 'opacity-30 pointer-events-none' : 'hover:bg-slate-800'}`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Link>
+              
+              <span className="text-slate-400 text-sm font-medium">
+                Sayfa <span className="text-white">{currentPage}</span> / {totalPages}
+              </span>
+
+              <Link
+                href={`/admin/isletmeler?page=${currentPage + 1}${params.category ? `&category=${params.category}` : ''}${params.q ? `&q=${params.q}` : ''}`}
+                className={`p-2 rounded-lg border border-slate-700 text-white transition-colors ${currentPage >= totalPages ? 'opacity-30 pointer-events-none' : 'hover:bg-slate-800'}`}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Link>
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-[#112240] rounded-xl border border-slate-700/50 p-12 text-center">
@@ -157,4 +195,5 @@ export default async function BusinessesPage({
     </div>
   )
 }
+
 
