@@ -139,6 +139,7 @@ function BusinessesContent() {
   const searchQuery = searchParams.get('q') || ''
 
   const [businesses, setBusinesses] = useState<any[]>([])
+  const [hubCounts, setHubCounts] = useState<{ [key: string]: number }>({})
   const [loading, setLoading] = useState(false)
   const [searchInput, setSearchInput] = useState(searchQuery)
 
@@ -157,8 +158,21 @@ function BusinessesContent() {
       .order('is_featured', { ascending: false })
 
     if (allData) {
-      let filtered = allData
+      // Sayıları hesapla
+      const counts: { [key: string]: number } = {}
+      SERVICE_HUBS.forEach(hub => {
+        const targetKeywords = (hub.categories || []).map(k => k.toLowerCase())
+        const count = (allData || []).filter(biz => {
+          const bizCat = biz.business_categories?.name?.toLowerCase() || ''
+          const bizName = biz.name?.toLowerCase() || ''
+          return targetKeywords.some(key => bizCat.includes(key) || bizName.includes(key))
+        }).length
+        counts[hub.id] = count
+      })
+      setHubCounts(counts)
 
+      let filtered = allData
+      
       // Hub filtresi (Frontend tarafında daha esnek filtreleme)
       if (currentHubId) {
         const hub = SERVICE_HUBS.find(h => h.id === currentHubId)
@@ -265,6 +279,11 @@ function BusinessesContent() {
                     <div>
                       <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-md">{hub.title}</h3>
                       <p className="text-white/70 text-sm font-medium">{hub.subtitle}</p>
+                      <div className="mt-4 flex items-center gap-2">
+                        <span className="text-[10px] font-black text-[#64ffda] bg-[#64ffda]/10 px-3 py-1 rounded-full border border-[#64ffda]/20 tracking-widest uppercase italic">
+                          {hubCounts[hub.id] || 0} KAYITLI İŞLETME
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
