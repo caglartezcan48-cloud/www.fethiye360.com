@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Package, Plus, Minus, Search, Flame, Sparkles, ChefHat } from 'lucide-react'
+import { Package, Plus, Minus, Search, Flame, ChefHat } from 'lucide-react'
 import Image from 'next/image'
 
 interface Product {
@@ -210,8 +210,7 @@ function ProductCard({
   quickQuantity, 
   setQuickQuantity, 
   onConfirmAdd, 
-  onCancelAdd,
-  theme 
+  onCancelAdd
 }: ProductCardProps) {
   const isPopular = product.price > 150
 
@@ -219,14 +218,10 @@ function ProductCard({
     <div className="relative group">
       <div 
         onClick={onClick}
-        className={`flex gap-4 p-4 rounded-2xl cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] ${
-          theme === 'dark' 
-            ? 'bg-[#111827] border border-white/5 hover:border-white/10 hover:bg-[#1a2332]' 
-            : 'bg-white border border-slate-100 hover:border-slate-200 hover:shadow-lg'
-        }`}
+        className="flex gap-4 p-4 rounded-2xl cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] bg-[#0f172a] border border-white/[0.06] hover:border-cyan-500/20 hover:bg-[#131c2e]"
       >
         {/* Product Image */}
-        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-white/5">
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 bg-[#1e293b]">
           {product.image_url ? (
             <Image 
               src={product.image_url} 
@@ -253,25 +248,19 @@ function ProductCard({
         {/* Product Details */}
         <div className="flex-1 flex flex-col justify-between py-1 min-w-0">
           <div>
-            <h3 className={`font-semibold text-base truncate pr-8 ${
-              theme === 'dark' ? 'text-white' : 'text-slate-900'
-            }`}>
+            <h3 className="font-semibold text-base truncate pr-8 text-white">
               {product.name}
             </h3>
             {product.description && (
-              <p className={`text-xs mt-1 line-clamp-2 ${
-                theme === 'dark' ? 'text-white/40' : 'text-slate-500'
-              }`}>
+              <p className="text-xs mt-1 line-clamp-2 text-slate-400">
                 {product.description}
               </p>
             )}
           </div>
           
           <div className="flex items-end justify-between mt-2">
-            <span className={`text-lg font-bold ${
-              theme === 'dark' ? 'text-cyan-400' : 'text-emerald-600'
-            }`}>
-              {product.price} <span className="text-xs opacity-60">TL</span>
+            <span className="text-lg font-bold text-cyan-400">
+              {product.price} <span className="text-xs text-cyan-400/60">TL</span>
             </span>
           </div>
         </div>
@@ -290,11 +279,7 @@ function ProductCard({
           e.stopPropagation()
           onQuickAdd()
         }}
-        className={`absolute bottom-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-90 ${
-          theme === 'dark' 
-            ? 'bg-cyan-500 hover:bg-cyan-400 text-white shadow-cyan-500/25' 
-            : 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/25'
-        }`}
+        className="absolute bottom-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg active:scale-90 bg-cyan-500 hover:bg-cyan-400 text-white shadow-cyan-500/30"
       >
         <Plus className="w-5 h-5" />
       </button>
@@ -305,16 +290,10 @@ function ProductCard({
           className="absolute bottom-16 right-0 z-50 animate-in zoom-in-95 slide-in-from-bottom-2 duration-200"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={`w-72 p-4 rounded-2xl shadow-2xl border ${
-            theme === 'dark' 
-              ? 'bg-[#1a2332] border-white/10' 
-              : 'bg-white border-slate-200'
-          }`}>
+          <div className="w-72 p-4 rounded-2xl shadow-2xl border bg-[#131c2e] border-white/10">
             {/* Note Input */}
             <div className="mb-4">
-              <label className={`text-[10px] font-semibold uppercase tracking-wider mb-2 block ${
-                theme === 'dark' ? 'text-white/40' : 'text-slate-400'
-              }`}>
+              <label className="text-[10px] font-semibold uppercase tracking-wider mb-2 block text-slate-400">
                 Siparis Notu (Opsiyonel)
               </label>
               <textarea
@@ -322,43 +301,25 @@ function ProductCard({
                 value={quickNote}
                 onChange={(e) => setQuickNote(e.target.value)}
                 placeholder="Orn: Sogansiz, az acili..."
-                className={`w-full p-3 rounded-xl text-sm resize-none border transition-all ${
-                  theme === 'dark' 
-                    ? 'bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-cyan-500/50' 
-                    : 'bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-300 focus:border-emerald-500'
-                }`}
+                className="w-full p-3 rounded-xl text-sm resize-none border transition-all bg-[#0f172a] border-white/10 text-white placeholder:text-slate-500 focus:border-cyan-500/50 focus:outline-none"
                 rows={2}
               />
             </div>
 
             {/* Quantity */}
             <div className="flex items-center justify-between mb-4">
-              <span className={`text-xs font-semibold ${
-                theme === 'dark' ? 'text-white/60' : 'text-slate-500'
-              }`}>
-                Adet
-              </span>
-              <div className={`flex items-center gap-3 px-2 py-1 rounded-xl ${
-                theme === 'dark' ? 'bg-white/5' : 'bg-slate-100'
-              }`}>
+              <span className="text-xs font-semibold text-slate-400">Adet</span>
+              <div className="flex items-center gap-3 px-2 py-1 rounded-xl bg-[#0f172a]">
                 <button 
                   onClick={() => setQuickQuantity(Math.max(1, quickQuantity - 1))}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                    theme === 'dark' ? 'hover:bg-white/10 text-white/60' : 'hover:bg-slate-200 text-slate-500'
-                  }`}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/10 text-slate-400"
                 >
                   <Minus className="w-4 h-4" />
                 </button>
-                <span className={`w-8 text-center font-semibold ${
-                  theme === 'dark' ? 'text-white' : 'text-slate-900'
-                }`}>
-                  {quickQuantity}
-                </span>
+                <span className="w-8 text-center font-semibold text-white">{quickQuantity}</span>
                 <button 
                   onClick={() => setQuickQuantity(quickQuantity + 1)}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                    theme === 'dark' ? 'hover:bg-white/10 text-cyan-400' : 'hover:bg-slate-200 text-emerald-500'
-                  }`}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors hover:bg-white/10 text-cyan-400"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -369,19 +330,13 @@ function ProductCard({
             <div className="flex gap-2">
               <button
                 onClick={onCancelAdd}
-                className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-colors ${
-                  theme === 'dark' ? 'bg-white/5 text-white/60 hover:bg-white/10' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                }`}
+                className="flex-1 py-2.5 rounded-xl text-xs font-medium transition-colors bg-white/5 text-slate-400 hover:bg-white/10"
               >
                 Iptal
               </button>
               <button
                 onClick={onConfirmAdd}
-                className={`flex-[2] py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
-                  theme === 'dark' 
-                    ? 'bg-cyan-500 hover:bg-cyan-400 text-white' 
-                    : 'bg-emerald-500 hover:bg-emerald-400 text-white'
-                }`}
+                className="flex-[2] py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all bg-cyan-500 hover:bg-cyan-400 text-white"
               >
                 <span>Ekle</span>
                 <span className="opacity-60">({product.price * quickQuantity} TL)</span>
