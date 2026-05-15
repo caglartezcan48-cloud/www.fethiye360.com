@@ -1,33 +1,37 @@
 export async function getPharmacyData() {
   try {
-    // Ücretsiz ve güncel bir kaynak olan eczaneler.gen.tr'den veriyi çekiyoruz
-    // Not: Bu bir scraping örneğidir. Gerçek API kullanımı için ücretli servisler önerilir.
-    const res = await fetch('https://www.eczaneler.gen.tr/nobetci-mugla-fethiye', {
-      next: { revalidate: 3600 } // 1 saat önbellek
+    // Her zaman taze veri almak için cache-busting ekliyoruz ve revalidate süresini düşürüyoruz
+    const today = new Date().toISOString().split('T')[0];
+    const res = await fetch(`https://www.eczaneler.gen.tr/nobetci-mugla-fethiye?t=${today}`, {
+      next: { revalidate: 1800 } // 30 dakikada bir kontrol et
     });
+
+    if (!res.ok) throw new Error('Network response was not ok');
     const html = await res.text();
 
-    // Basit bir regex ile eczane isimlerini, adreslerini ve telefonlarını ayıklıyoruz
-    const pharmacyMatches = html.matchAll(/<span class="isim">(.*?)<\/span>.*?<div class="adres">(.*?)<\/div>.*?<div class="tel">(.*?)<\/div>/gs);
-    
+    // Regex'i daha esnek hale getiriyoruz
     const pharmacies = [];
-    for (const match of pharmacyMatches) {
-      pharmacies.push({
-        name: match[1].replace(/&nbsp;/g, ' ').trim(),
-        address: match[2].trim(),
-        phone: match[3].replace(/<.*?>/g, '').trim(),
-      });
+    const pharmacyRows = html.split('<div class="nobetci-eczane-kart">').slice(1);
+    
+    for (const row of pharmacyRows) {
+      const nameMatch = row.match(/<span class="isim">(.*?)<\/span>/);
+      const addressMatch = row.match(/<div class="adres">(.*?)<\/div>/);
+      const phoneMatch = row.match(/<div class="tel">(.*?)<\/div>/);
+
+      if (nameMatch && addressMatch && phoneMatch) {
+        pharmacies.push({
+          name: nameMatch[1].replace(/&nbsp;/g, ' ').replace(/<.*?>/g, '').trim(),
+          address: addressMatch[1].replace(/<.*?>/g, '').trim(),
+          phone: phoneMatch[1].replace(/<.*?>/g, '').trim(),
+        });
+      }
     }
 
-    // Eğer scraping başarısız olursa (kaynak değişirse) fallback verisi döndür
-    if (pharmacies.length === 0) {
-      return [
-        { name: 'Fethiye Merkez Eczanesi', address: 'Cumhuriyet Mah. Atatürk Cad.', phone: '0252 614 10 20' },
-        { name: 'Kordon Eczanesi', address: 'Kordon Boyu No:45', phone: '0252 612 11 22' }
-      ];
+    // Başarılı olursa döndür
+    if (pharmacies.length > 0) {
+      return pharmacies;
     }
 
-    return pharmacies;
   } catch (error) {
     console.error('Pharmacy data fetch error:', error);
     return null;
