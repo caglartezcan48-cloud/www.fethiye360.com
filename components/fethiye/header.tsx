@@ -47,7 +47,7 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-10 left-0 right-0 z-[100] transition-all duration-500">
+    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-500">
       <div className={`mx-auto transition-all duration-500 ${isScrolled ? 'max-w-7xl mt-4 px-4' : 'max-w-full mt-0 px-0'}`}>
         <nav className={`relative transition-all duration-500 ${
           isScrolled 
@@ -57,13 +57,10 @@ export function Header() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center group">
-              <Image 
+              <img 
                 src="/images/fethiye360-logo.png" 
-                alt="Fethiye360 - Fethiye'ye Dair Her Şey" 
-                width={160} 
-                height={60} 
+                alt="Fethiye360 Logo" 
                 className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
-                priority
               />
             </Link>
 
