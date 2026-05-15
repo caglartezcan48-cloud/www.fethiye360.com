@@ -1,7 +1,7 @@
 import { getPharmacyData } from './pharmacy-data'
 import { unstable_cache } from 'next/cache'
 
-// Cached version of getCityData - revalidates every hour
+// Cached version of getCityData - revalidates more frequently
 export const getCityData = unstable_cache(
   async () => {
     const [weather, pharmacies] = await Promise.all([
@@ -11,7 +11,7 @@ export const getCityData = unstable_cache(
     return { weather, pharmacies }
   },
   ['city-data'],
-  { revalidate: 3600 } // 1 hour cache
+  { revalidate: 900 } // 15 dakika önbellek
 )
 
 export async function getWeatherData() {
