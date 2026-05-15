@@ -1,10 +1,26 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { MenuSection } from './menu-section'
 import { ProductModal } from './product-modal'
-import { Header as SiteHeader } from '@/components/fethiye/header'
-import { ShoppingCart, Plus, Minus, Trash2, MessageCircle, CreditCard, Banknote, X, ChevronRight, Store, MapPin, Phone, Clock, Star, Info } from 'lucide-react'
+import Image from 'next/image'
+import { 
+  ShoppingCart, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  CreditCard, 
+  Banknote, 
+  X, 
+  ChevronRight, 
+  MapPin, 
+  Clock, 
+  Star,
+  Bike,
+  CheckCircle2,
+  Sparkles,
+  ArrowRight
+} from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Product {
@@ -41,21 +57,14 @@ const WhatsappIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-export function OrderLayout({ products, businessName, whatsappNumber, isFullMenuOpen: initialFullMenuOpen, onCloseMenu, onlyOverlay, businessImage, description, avgRating, reviewCount }: OrderLayoutProps) {
+export function OrderLayout({ products, businessName, whatsappNumber, businessImage, description, avgRating, reviewCount }: OrderLayoutProps) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
-  const [isFullMenuOpen, setIsFullMenuOpen] = useState(initialFullMenuOpen || false)
-
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Sync with prop
-  useEffect(() => {
-    if (initialFullMenuOpen !== undefined) {
-      setIsFullMenuOpen(initialFullMenuOpen)
-    }
-  }, [initialFullMenuOpen])
-
-  // --- SEPETİ HAFIZADA TUT ---
+  // Sepeti localStorage'dan yükle
   useEffect(() => {
     const saved = localStorage.getItem(`cart_${businessName}`)
     if (saved) {
@@ -67,6 +76,7 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
     }
   }, [businessName])
 
+  // Sepeti localStorage'a kaydet
   useEffect(() => {
     localStorage.setItem(`cart_${businessName}`, JSON.stringify(cart))
   }, [cart, businessName])
@@ -89,7 +99,10 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
         note 
       }]
     })
-    toast.success(`${product.name} sepete eklendi`)
+    toast.success(`${product.name} sepete eklendi`, {
+      icon: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
+      className: 'bg-slate-900 border border-white/10'
+    })
   }
 
   const removeFromCart = (cartItemId: string) => {
@@ -106,6 +119,10 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
     setCart(prev => prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + 1 } : item))
   }
 
+  const deleteFromCart = (cartItemId: string) => {
+    setCart(prev => prev.filter(item => item.cartItemId !== cartItemId))
+  }
+
   const clearCart = () => setCart([])
 
   const total = useMemo(() => {
@@ -116,6 +133,8 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
     }, 0)
   }, [cart])
 
+  const itemCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart])
+
   const handleCheckout = () => {
     if (cart.length === 0 || !whatsappNumber) return
     const message = `Merhaba, sipariş vermek istiyorum:\n\n${cart.map(item => `- ${item.quantity}x ${item.name}${item.note ? ` (${item.note})` : ''} - ${(parseFloat(String(item.price).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL`).join('\n')}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}\n\nİşletme: ${businessName}`
@@ -123,232 +142,368 @@ export function OrderLayout({ products, businessName, whatsappNumber, isFullMenu
   }
 
   return (
-    <div className="fixed inset-0 z-[150] bg-[#0a192f] animate-in fade-in slide-in-from-bottom duration-700 overflow-y-auto no-scrollbar selection:bg-orange-200">
-      {/* Site Navbar */}
-      <SiteHeader />
-
-      <div className="max-w-[1600px] mx-auto px-4 md:px-10 mt-28 mb-20 relative">
-        
-        {/* PREMIUM İŞLETME HEADER (Fotoğraflı & Detaylı) */}
-        {!isFullMenuOpen && (
-          <div className="mb-12 animate-in fade-in slide-in-from-top-10 duration-700">
-            <div className="bg-[#112240] rounded-[48px] border border-white/5 shadow-2xl relative overflow-hidden group">
-               {/* Arka Plan Görseli / Banner */}
-               <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity">
-                  <img 
-                    src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=90"} 
-                    alt={businessName} 
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#112240] via-[#112240]/80 to-transparent" />
-               </div>
-               
-               <div className="p-8 md:p-12 flex flex-col lg:flex-row items-center lg:items-end justify-between gap-10 relative z-10">
-                 <div className="flex flex-col md:flex-row items-center md:items-end gap-8 text-center md:text-left">
-                   {/* İşletme Logosu/Fotoğrafı */}
-                   <div className="w-32 h-32 md:w-44 md:h-44 rounded-[48px] bg-white/5 p-1 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden shrink-0">
-                     <img 
-                       src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=90"} 
-                       alt={businessName} 
-                       className="w-full h-full object-cover rounded-[46px]"
-                     />
-                   </div>
-                   
-                   <div className="space-y-4">
-                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                       <span className="px-4 py-1.5 bg-[#64ffda] text-[#0a192f] rounded-full text-[10px] font-black uppercase tracking-widest">Açık</span>
-                       <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-full text-[#64ffda] text-xs font-bold border border-[#64ffda]/20">
-                         <Star className="w-3.5 h-3.5 fill-[#64ffda]" /> {avgRating || "5.0"}
-                         <span className="text-slate-500 text-[10px]">({reviewCount || 0}+ Yorum)</span>
-                       </div>
-                     </div>
-                     
-                     <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter italic leading-none">{businessName}</h1>
-                     
-                     {/* Hakkında Metni */}
-                     <p className="text-slate-400 text-sm md:text-base font-medium max-w-2xl italic leading-relaxed">
-                        {description || "Fethiye'nin kalbinde, eşsiz lezzetler ve unutulmaz anılar için kapılarımızı açıyoruz."}
-                     </p>
-
-                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2">
-                       <div className="flex items-center gap-2 text-slate-300 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-xl border border-white/5">
-                         <MapPin className="w-3.5 h-3.5 text-[#64ffda]" /> FETHİYE / MUĞLA
-                       </div>
-                       <div className="flex items-center gap-2 text-slate-300 text-xs font-bold uppercase tracking-widest bg-white/5 px-4 py-2 rounded-xl border border-white/5">
-                         <Clock className="w-3.5 h-3.5 text-[#64ffda]" /> 09:00 - 22:00
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-
-                 {/* MENÜ GÖR BUTONU */}
-                 <div className="flex flex-col items-center gap-4 shrink-0">
-                    <button 
-                      onClick={() => setIsFullMenuOpen(true)}
-                      className="bg-gradient-to-r from-[#ea580c] to-[#ff7e33] text-white px-12 py-7 rounded-[40px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-orange-500/30 hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-4 group border-b-4 border-orange-700"
-                    >
-                      <Plus className="w-5 h-5" />
-                      <span>MENÜ KATALOĞUNU GÖR</span>
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest animate-pulse">Katalog Moduna Geç</p>
-                 </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#0a0f1a]">
+      {/* Premium Restaurant Header */}
+      <div className="relative">
+        {/* Background with gradient overlay */}
+        <div className="absolute inset-0 h-[320px] overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0f1a]/60 to-[#0a0f1a] z-10" />
+          <Image
+            src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80"}
+            alt={businessName}
+            fill
+            className="object-cover opacity-40 blur-sm scale-105"
+            priority
+          />
         </div>
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
-          {/* SOL TARAF: KATALOG VEYA STANDART LİSTE */}
-          <div className="lg:col-span-8 transition-all duration-500">
-            {isFullMenuOpen ? (
-              /* BEYAZ KATALOG GÖRÜNÜMÜ */
-              <div className="bg-[#fdfaf5] rounded-[48px] shadow-2xl overflow-hidden relative min-h-screen border border-orange-100/50 animate-in zoom-in-95 duration-500">
-                {/* Flu Desen */}
-                <div className="absolute inset-0 opacity-[0.06] pointer-events-none -z-10" 
-                  style={{ 
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ea580c' fill-opacity='0.4' fill-rule='evenodd'%3E%3Ccircle cx='50' cy='50' r='20'/%3E%3Ccircle cx='150' cy='150' r='20'/%3E%3Ccircle cx='150' cy='50' r='10'/%3E%3Ccircle cx='50' cy='150' r='10'/%3E%3C/g%3E%3C/svg%3E")`,
-                    filter: 'blur(20px)',
-                    backgroundSize: '400px 400px'
-                  }} 
-                />
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none -z-10" style={{ backgroundImage: 'radial-gradient(#ea580c 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-
-                <div className="px-6 py-8 space-y-12 relative">
-                  <div className="flex items-center justify-between">
-                     <h2 className="text-[#1a1a1a] text-2xl font-black uppercase tracking-tighter">PREMIUM MENÜ KATALOĞU</h2>
-                     <button onClick={() => setIsFullMenuOpen(false)} className="p-4 bg-orange-50 text-[#ea580c] rounded-2xl hover:bg-orange-100 transition-colors">
-                       <X className="w-6 h-6" />
-                     </button>
-                  </div>
-
-                  <div className="space-y-24">
-                    <MenuSection 
-                      products={products} 
-                      businessName={businessName} 
-                      onProductClick={(product) => setSelectedProduct(product)}
-                      onAddToCart={addToCart}
-                      cartItems={cart}
-                      viewMode="catalog"
-                      theme="light"
-                    />
-                  </div>
-
-                  <div className="py-20 text-center border-t border-orange-100">
-                    <p className="text-slate-300 text-[9px] font-black uppercase tracking-[0.8em]">FETHIYE360 DİJİTAL MENÜ SİSTEMİ</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* STANDART KOYU LİSTE GÖRÜNÜMÜ */
-              <div className="animate-in fade-in slide-in-from-left-10 duration-700">
-                <MenuSection 
-                  products={products} 
-                  businessName={businessName} 
-                  onProductClick={(product) => setSelectedProduct(product)}
-                  onAddToCart={addToCart}
-                  cartItems={cart}
-                  theme="dark"
+        {/* Restaurant Info Card */}
+        <div className="relative z-20 pt-8 pb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6">
+              {/* Logo/Image */}
+              <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-[#0a0f1a] shadow-2xl bg-white/5 shrink-0">
+                <Image
+                  src={businessImage || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80"}
+                  alt={businessName}
+                  fill
+                  className="object-cover"
                 />
               </div>
-            )}
-          </div>
 
-          {/* SAĞ TARAF: SEPET & SİPARİŞ TUTARI */}
-          <div className="lg:col-span-4 sticky top-32 animate-bounce-slow">
-            <div className="bg-[#112240] rounded-[40px] border border-white/10 p-8 shadow-2xl shadow-black/50">
-              <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-[#64ffda]/10 flex items-center justify-center text-[#64ffda]">
-                       <ShoppingCart className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h4 className="text-white font-black uppercase tracking-widest text-xs">Sepetim</h4>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{cart.length} Ürün</p>
-                    </div>
-                  </div>
-                  {cart.length > 0 && (
-                    <button onClick={clearCart} className="text-slate-500 hover:text-red-400 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-              </div>
-
-              <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 no-scrollbar mb-8">
-                  {cart.map((item) => (
-                    <div key={item.cartItemId} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group transition-all hover:bg-white/10">
-                       <div className="flex-1">
-                          <p className="text-white text-[11px] font-black uppercase tracking-tight line-clamp-1">{item.name}</p>
-                          {item.note && <p className="text-orange-400 text-[9px] font-bold italic mt-0.5">"{item.note}"</p>}
-                          <p className="text-[#64ffda] text-[10px] font-black mt-0.5">
-                            {(parseFloat(String(item.price || 0).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL
-                          </p>
-                       </div>
-                       <div className="flex items-center gap-3 bg-[#0a192f] rounded-xl px-3 py-1.5 border border-white/10">
-                          <button onClick={() => removeFromCart(item.cartItemId)} className="text-slate-500 hover:text-white"><Minus className="w-3 h-3" /></button>
-                          <span className="text-white text-[10px] font-black w-4 text-center">{item.quantity}</span>
-                          <button onClick={() => addOneMore(item.cartItemId)} className="text-[#64ffda] hover:scale-110 transition-transform"><Plus className="w-3 h-3" /></button>
-                       </div>
-                    </div>
-                  ))}
-
-                  {cart.length === 0 && (
-                    <div className="py-20 text-center space-y-6">
-                       <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto opacity-10">
-                            <ShoppingCart className="w-10 h-10 text-white" />
-                       </div>
-                       <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic">Lezzet Seçmeye Başlayın</p>
-                    </div>
-                  )}
-              </div>
-
-              {cart.length > 0 && (
-                <div className="space-y-6 border-t border-white/5 pt-8">
-                    <div className="grid grid-cols-2 gap-3">
-                      <button 
-                        onClick={() => setPaymentMethod('Nakit')}
-                        className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                          paymentMethod === 'Nakit' ? 'bg-[#64ffda] text-[#0a192f] border-[#64ffda]' : 'bg-white/5 text-slate-500 border-white/5'
-                        }`}
-                      >
-                        <Banknote className="w-4 h-4" /> Nakit
-                      </button>
-                      <button 
-                        onClick={() => setPaymentMethod('Kart')}
-                        className={`flex items-center justify-center gap-2 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                          paymentMethod === 'Kart' ? 'bg-[#64ffda] text-[#0a192f] border-[#64ffda]' : 'bg-white/5 text-slate-500 border-white/5'
-                        }`}
-                      >
-                        <CreditCard className="w-4 h-4" /> K. Kartı
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between px-2">
-                       <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">Sipariş Tutarı</span>
-                       <span className="text-[#64ffda] text-3xl font-black italic tracking-tighter">{total} TL</span>
-                    </div>
-
-                    <button 
-                      onClick={handleCheckout}
-                      className="w-full bg-[#64ffda] text-[#0a192f] py-6 rounded-[32px] font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-[#64ffda]/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4"
-                    >
-                      <WhatsappIcon className="w-5 h-5" />
-                      Siparişi Tamamla
-                    </button>
+              {/* Info */}
+              <div className="flex-1 space-y-3 pb-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30">
+                    <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                    Acik
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 text-white/70 rounded-full text-[10px] font-medium border border-white/10">
+                    <Bike className="w-3 h-3" />
+                    Paket Servis
+                  </span>
                 </div>
-              )}
+
+                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {businessName}
+                </h1>
+
+                <div className="flex flex-wrap items-center gap-4 text-sm text-white/60">
+                  <div className="flex items-center gap-1.5">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <span className="text-white font-semibold">{avgRating || '5.0'}</span>
+                    <span className="text-white/40">({reviewCount || 0}+)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-cyan-400" />
+                    <span>25-35 dk</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-rose-400" />
+                    <span>Fethiye</span>
+                  </div>
+                </div>
+
+                {description && (
+                  <p className="text-sm text-white/50 max-w-2xl line-clamp-2">
+                    {description}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-32">
+        <div className="flex gap-8">
+          {/* Menu Section - Left */}
+          <div className="flex-1 min-w-0" ref={scrollRef}>
+            <MenuSection 
+              products={products} 
+              businessName={businessName} 
+              onProductClick={(product) => setSelectedProduct(product)}
+              onAddToCart={addToCart}
+              cartItems={cart}
+              theme="dark"
+            />
+          </div>
+
+          {/* Cart Sidebar - Right (Desktop) */}
+          <div className="hidden lg:block w-[380px] shrink-0">
+            <div className="sticky top-24">
+              <div className="bg-[#111827] rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+                {/* Cart Header */}
+                <div className="p-6 border-b border-white/5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                        <ShoppingCart className="w-5 h-5 text-cyan-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-semibold">Sepetim</h3>
+                        <p className="text-xs text-white/40">{itemCount} urun</p>
+                      </div>
+                    </div>
+                    {cart.length > 0 && (
+                      <button 
+                        onClick={clearCart} 
+                        className="text-white/30 hover:text-rose-400 transition-colors p-2 hover:bg-white/5 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Cart Items */}
+                <div className="max-h-[400px] overflow-y-auto">
+                  {cart.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+                        <ShoppingCart className="w-8 h-8 text-white/20" />
+                      </div>
+                      <p className="text-white/40 text-sm">Sepetiniz bos</p>
+                      <p className="text-white/20 text-xs mt-1">Lezzetli urunleri kesfetmeye baslayin</p>
+                    </div>
+                  ) : (
+                    <div className="p-4 space-y-3">
+                      {cart.map((item) => (
+                        <div 
+                          key={item.cartItemId} 
+                          className="flex gap-3 p-3 bg-white/5 rounded-2xl border border-white/5 group hover:border-white/10 transition-all"
+                        >
+                          {/* Item Image */}
+                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/5 shrink-0 relative">
+                            {item.image_url ? (
+                              <Image src={item.image_url} alt={item.name} fill className="object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/20">
+                                <Sparkles className="w-5 h-5" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Item Details */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-white text-sm font-medium truncate">{item.name}</h4>
+                            {item.note && (
+                              <p className="text-amber-400/70 text-[10px] mt-0.5 truncate">Not: {item.note}</p>
+                            )}
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="text-cyan-400 font-semibold text-sm">
+                                {(parseFloat(String(item.price || 0).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL
+                              </span>
+                              
+                              {/* Quantity Controls */}
+                              <div className="flex items-center gap-1 bg-[#0a0f1a] rounded-lg p-1">
+                                <button 
+                                  onClick={() => removeFromCart(item.cartItemId)}
+                                  className="w-6 h-6 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="w-6 text-center text-white text-xs font-medium">{item.quantity}</span>
+                                <button 
+                                  onClick={() => addOneMore(item.cartItemId)}
+                                  className="w-6 h-6 flex items-center justify-center text-cyan-400 hover:text-cyan-300 transition-colors"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Delete Button */}
+                          <button 
+                            onClick={() => deleteFromCart(item.cartItemId)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity self-start p-1 text-white/30 hover:text-rose-400"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Cart Footer */}
+                {cart.length > 0 && (
+                  <div className="p-6 border-t border-white/5 space-y-4">
+                    {/* Payment Method */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setPaymentMethod('Nakit')}
+                        className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-medium transition-all ${
+                          paymentMethod === 'Nakit'
+                            ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                            : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <Banknote className="w-4 h-4" />
+                        Nakit
+                      </button>
+                      <button
+                        onClick={() => setPaymentMethod('Kart')}
+                        className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-medium transition-all ${
+                          paymentMethod === 'Kart'
+                            ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                            : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        Kredi Karti
+                      </button>
+                    </div>
+
+                    {/* Total */}
+                    <div className="flex items-center justify-between py-3">
+                      <span className="text-white/60 text-sm">Toplam</span>
+                      <span className="text-2xl font-bold text-white">{total} <span className="text-sm text-white/40">TL</span></span>
+                    </div>
+
+                    {/* Checkout Button */}
+                    <button
+                      onClick={handleCheckout}
+                      className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-3 transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-[0.98]"
+                    >
+                      <WhatsappIcon className="w-5 h-5" />
+                      Siparisi Tamamla
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Cart Bar */}
+      {cart.length > 0 && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-[#0a0f1a]/95 backdrop-blur-xl border-t border-white/10">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl font-semibold text-sm flex items-center justify-between px-6 shadow-lg shadow-emerald-500/20"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <ShoppingCart className="w-4 h-4" />
+              </div>
+              <span>{itemCount} urun</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold">{total} TL</span>
+              <ChevronRight className="w-5 h-5" />
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Cart Drawer */}
+      {isCartOpen && (
+        <div className="lg:hidden fixed inset-0 z-[100]">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsCartOpen(false)} />
+          <div className="absolute bottom-0 left-0 right-0 bg-[#111827] rounded-t-3xl max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom duration-300">
+            {/* Header */}
+            <div className="sticky top-0 bg-[#111827] p-6 border-b border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                  <ShoppingCart className="w-5 h-5 text-cyan-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold">Sepetim</h3>
+                  <p className="text-xs text-white/40">{itemCount} urun</p>
+                </div>
+              </div>
+              <button onClick={() => setIsCartOpen(false)} className="p-2 text-white/40 hover:text-white">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Items */}
+            <div className="overflow-y-auto max-h-[50vh] p-4 space-y-3">
+              {cart.map((item) => (
+                <div 
+                  key={item.cartItemId} 
+                  className="flex gap-3 p-3 bg-white/5 rounded-2xl border border-white/5"
+                >
+                  <div className="w-16 h-16 rounded-xl overflow-hidden bg-white/5 shrink-0 relative">
+                    {item.image_url ? (
+                      <Image src={item.image_url} alt={item.name} fill className="object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white/20">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-white text-sm font-medium truncate">{item.name}</h4>
+                    {item.note && <p className="text-amber-400/70 text-[10px] mt-0.5">Not: {item.note}</p>}
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-cyan-400 font-semibold text-sm">
+                        {(parseFloat(String(item.price || 0).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL
+                      </span>
+                      <div className="flex items-center gap-1 bg-[#0a0f1a] rounded-lg p-1">
+                        <button onClick={() => removeFromCart(item.cartItemId)} className="w-6 h-6 flex items-center justify-center text-white/50">
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-6 text-center text-white text-xs font-medium">{item.quantity}</span>
+                        <button onClick={() => addOneMore(item.cartItemId)} className="w-6 h-6 flex items-center justify-center text-cyan-400">
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-white/5 space-y-4 bg-[#111827]">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setPaymentMethod('Nakit')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-medium transition-all ${
+                    paymentMethod === 'Nakit' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-white/5 text-white/50 border border-white/5'
+                  }`}
+                >
+                  <Banknote className="w-4 h-4" /> Nakit
+                </button>
+                <button
+                  onClick={() => setPaymentMethod('Kart')}
+                  className={`flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-medium transition-all ${
+                    paymentMethod === 'Kart' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-white/5 text-white/50 border border-white/5'
+                  }`}
+                >
+                  <CreditCard className="w-4 h-4" /> Kredi Karti
+                </button>
+              </div>
+              <div className="flex items-center justify-between py-3">
+                <span className="text-white/60 text-sm">Toplam</span>
+                <span className="text-2xl font-bold text-white">{total} <span className="text-sm text-white/40">TL</span></span>
+              </div>
+              <button
+                onClick={handleCheckout}
+                className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/20"
+              >
+                <WhatsappIcon className="w-5 h-5" />
+                Siparisi Tamamla
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Product Modal */}
       <ProductModal 
         product={selectedProduct}
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={addToCart}
-        theme={isFullMenuOpen ? "light" : "dark"}
+        theme="dark"
       />
     </div>
   )
