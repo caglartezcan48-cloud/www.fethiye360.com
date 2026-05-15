@@ -1,8 +1,6 @@
 "use client"
 
-import { Instagram, Mail, MapPin, Phone } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import { Compass, Instagram, Mail, MapPin, Phone } from "lucide-react"
 
 export function Footer() {
   return (
@@ -11,18 +9,17 @@ export function Footer() {
         <div className="grid md:grid-cols-3 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <Link href="/" className="inline-block mb-4">
-              <Image 
-                src="/images/fethiye360-logo.png" 
-                alt="Fethiye360 - Fethiye'ye Dair Her Şey" 
-                width={200} 
-                height={75} 
-                className="h-16 w-auto object-contain"
-              />
-            </Link>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                <Compass className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="text-xl font-bold text-foreground">
+                Fethiye<span className="text-primary">360</span>
+              </span>
+            </div>
             <p className="text-muted-foreground text-sm mb-4">
-              {"Fethiye'nin"} guzelliklerini kesfedin. Gezi, yeme icme, alisveris,
-              etkinlikler, konaklama ve daha fazlasi bir tik uzaginizda.
+              {"Fethiye'nin"} güzelliklerini 360° sanal turlarla keşfedin.
+              Plajlar, tarihi yerler ve doğa harikaları bir tık uzağınızda.
             </p>
           </div>
 

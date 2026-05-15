@@ -12,15 +12,13 @@ export function Hero() {
       {/* HD Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=75&fm=webp&fit=crop"
+          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80"
           alt="Fethiye Ölüdeniz Plajı"
           fill
           priority
           sizes="100vw"
-          quality={70}
+          quality={75}
           className="object-cover opacity-40 scale-105 animate-slow-zoom"
-          placeholder="blur"
-          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBQYSIRMxQWH/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EABkRAAIDAQAAAAAAAAAAAAAAAAECABEhMf/aAAwDAQACEQMRAD8AzrR9s6hd6Ra3UskUKyxLIEJJIDDOMj96qfxK+X/K2lKU5Y6jLAHuf//Z"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0a192f] via-[#0a192f]/60 to-[#0a192f]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0a192f_100%)] opacity-70" />

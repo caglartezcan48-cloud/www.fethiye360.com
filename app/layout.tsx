@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     locale: 'tr_TR',
     url: 'https://www.fethiye360.com',
     siteName: 'Fethiye 360',
-    title: 'Fethiye 360 | Fethiye\'ye Dair Her Sey',
-    description: 'Fethiye\'nin en kapsamli dijital rehberi. Gezi, yeme icme, alisveris, etkinlikler, konaklama ve daha fazlasi.',
+    title: 'Fethiye 360 | Sanal Tur Deneyimi',
+    description: 'Fethiye\'nin en güzel noktalarını 360° sanal turlarla keşfedin.',
     images: [
       {
-        url: '/images/fethiye360-logo.png',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
       },
@@ -40,8 +40,21 @@ export const metadata: Metadata = {
     images: ['/twitter-image.png'],
   },
   icons: {
-    icon: '/images/fethiye360-logo.png',
-    apple: '/images/fethiye360-logo.png',
+    icon: [
+      {
+        url: '/icon-light-32x32.png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: '/icon-dark-32x32.png',
+        media: '(prefers-color-scheme: dark)',
+      },
+      {
+        url: '/icon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+    apple: '/apple-icon.png',
   },
   manifest: '/manifest.json'
 }
