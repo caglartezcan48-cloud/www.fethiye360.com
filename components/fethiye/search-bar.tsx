@@ -58,7 +58,8 @@ function SearchBarContent() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
-    router.push(`/kesfet?ara=${encodeURIComponent(query.trim())}`)
+    // Sosyal kesif yerine isletmeler rehberine yonlendir (isletmeler sayfası 'q' parametresini okuyor)
+    router.push(`/isletmeler?q=${encodeURIComponent(query.trim())}`)
     setIsOpen(false)
   }
 
@@ -166,7 +167,7 @@ function SearchBarContent() {
             type="button"
             onClick={() => {
               setQuery(tag)
-              navigateTo(`/kesfet?ara=${encodeURIComponent(tag)}`)
+              navigateTo(`/isletmeler?q=${encodeURIComponent(tag)}`)
             }}
             className="text-xs text-slate-400 hover:text-[#64ffda] bg-white/5 hover:bg-[#64ffda]/10 px-4 py-1.5 rounded-full border border-white/5 hover:border-[#64ffda]/30 transition-all"
           >
