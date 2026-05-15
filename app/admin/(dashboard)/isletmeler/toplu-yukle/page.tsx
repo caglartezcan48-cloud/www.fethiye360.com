@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Upload, CheckCircle2, AlertCircle, Database, Plus, FileText, Download, Loader2 } from 'lucide-react'
+import { CheckCircle2, Database, FileText, Download, Loader2, AlertTriangle } from 'lucide-react'
 import { bulkSaveBusinesses } from '@/lib/actions/business'
+import * as XLSX from 'xlsx'
 
 // Turkce Basliklar -> Veritabani Sutunlari Eslesmesi
 const columnMap: { [key: string]: string } = {
@@ -31,29 +32,83 @@ export default function BulkUploadPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const text = event.target?.result as string
-      const lines = text.split('\n').filter(line => line.trim())
-      
-      const delimiter = lines[0].includes(';') ? ';' : ','
-      const headers = lines[0].split(delimiter).map(h => h.trim().replace(/[\uFEFF]/g, ''))
-      
-      const result = lines.slice(1).map(line => {
-        const values = line.split(delimiter).map(v => v.trim())
-        const obj: any = {}
-        headers.forEach((header, index) => {
-          const dbColumn = columnMap[header] || header
-          obj[dbColumn] = values[index]
-        })
-        return obj
-      }).filter(item => item.name)
+    setStatus('loading')
+    setMessage('Dosya okunuyor...')
 
-      setData(JSON.stringify(result, null, 2))
-      setStatus('idle')
-      setMessage('Dosya başarıyla okundu. Kategoriler otomatik eşleştirilecek.')
+    const reader = new FileReader()
+    
+    reader.onload = (event) => {
+      try {
+        const fileExtension = file.name.split('.').pop()?.toLowerCase()
+        let result: any[] = []
+
+        if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+          // Excel dosyası
+          const data = new Uint8Array(event.target?.result as ArrayBuffer)
+          const workbook = XLSX.read(data, { type: 'array' })
+          const sheetName = workbook.SheetNames[0]
+          const worksheet = workbook.Sheets[sheetName]
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][]
+          
+          // Ilk satir basliklar
+          const headers = jsonData[0]?.map((h: any) => String(h).trim()) || []
+          
+          result = jsonData.slice(1).map((row: any[]) => {
+            const obj: any = {}
+            headers.forEach((header: string, index: number) => {
+              const dbColumn = columnMap[header] || header
+              obj[dbColumn] = row[index] !== undefined ? String(row[index]).trim() : ''
+            })
+            return obj
+          }).filter(item => item.name)
+          
+        } else {
+          // CSV dosyası
+          const text = event.target?.result as string
+          const lines = text.split('\n').filter(line => line.trim() && !line.startsWith('#'))
+          
+          const delimiter = lines[0].includes(';') ? ';' : ','
+          const headers = lines[0].split(delimiter).map(h => h.trim().replace(/[\uFEFF]/g, ''))
+          
+          result = lines.slice(1).map(line => {
+            const values = line.split(delimiter).map(v => v.trim())
+            const obj: any = {}
+            headers.forEach((header, index) => {
+              const dbColumn = columnMap[header] || header
+              obj[dbColumn] = values[index] || ''
+            })
+            return obj
+          }).filter(item => item.name)
+        }
+
+        if (result.length === 0) {
+          setStatus('error')
+          setMessage('Dosyada geçerli işletme bulunamadı. Lütfen şablonu kontrol edin.')
+          return
+        }
+
+        setData(JSON.stringify(result, null, 2))
+        setStatus('idle')
+        setMessage(`${result.length} işletme başarıyla okundu. Kategoriler otomatik eşleştirilecek.`)
+      } catch (err: any) {
+        console.error('[v0] Dosya okuma hatası:', err)
+        setStatus('error')
+        setMessage('Dosya okunamadı: ' + (err.message || 'Bilinmeyen hata'))
+      }
     }
-    reader.readAsText(file)
+    
+    reader.onerror = () => {
+      setStatus('error')
+      setMessage('Dosya okuma hatası oluştu.')
+    }
+
+    // Excel için ArrayBuffer, CSV için text olarak oku
+    const fileExtension = file.name.split('.').pop()?.toLowerCase()
+    if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+      reader.readAsArrayBuffer(file)
+    } else {
+      reader.readAsText(file)
+    }
   }
 
   const downloadCSVTemplate = () => {
@@ -218,9 +273,15 @@ export default function BulkUploadPage() {
             <h3 className="text-white font-bold mb-3">Excel Dosyanı Yükle</h3>
             <p className="text-xs text-slate-500 mb-8 leading-relaxed">İndirdiğin şablonu doldurduktan sonra buraya yükleyebilirsin.</p>
             <label className="cursor-pointer px-8 py-4 bg-slate-800 text-white rounded-2xl font-bold text-sm block hover:bg-slate-700 transition-all">
-              Dosya Seç
-              <input type="file" className="hidden" accept=".csv" onChange={handleFileUpload} />
+              {status === 'loading' && !data ? 'Yükleniyor...' : 'Dosya Seç (.xlsx veya .csv)'}
+              <input type="file" className="hidden" accept=".csv,.xlsx,.xls" onChange={handleFileUpload} />
             </label>
+            
+            {message && status !== 'success' && status !== 'error' && (
+              <div className="mt-4 p-3 bg-blue-500/10 text-blue-400 rounded-xl text-xs text-center">
+                {message}
+              </div>
+            )}
           </div>
 
           <div className="bg-[#64ffda]/5 border border-[#64ffda]/10 rounded-[32px] p-6 space-y-4">
