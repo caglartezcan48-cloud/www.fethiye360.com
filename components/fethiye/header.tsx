@@ -10,8 +10,8 @@ import {
   LogOut,
   MessageSquare,
   Bell,
-  Navigation,
 } from 'lucide-react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 
 const supabase = createClient()
@@ -56,13 +56,15 @@ export function Header() {
         }`}>
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 bg-[#64ffda] rounded-xl flex items-center justify-center rotate-3 group-hover:rotate-12 transition-transform shadow-lg shadow-[#64ffda]/20">
-                <Navigation className="w-6 h-6 text-[#0a192f] -rotate-45" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-black text-white tracking-tighter leading-none italic">FETHİYE<span className="text-[#64ffda]">360</span></span>
-              </div>
+            <Link href="/" className="flex items-center group">
+              <Image 
+                src="/images/fethiye360-logo.png" 
+                alt="Fethiye360 - Fethiye'ye Dair Her Şey" 
+                width={160} 
+                height={60} 
+                className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
+                priority
+              />
             </Link>
 
             {/* Desktop Menu */}
