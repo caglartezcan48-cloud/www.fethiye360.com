@@ -14,10 +14,10 @@ export default async function BusinessesPage({
   const params = await searchParams
   const currentPage = Number(params.page) || 1
   
-  // Kategorileri cek (Filtre icin)
-  const { data: categories } = await supabase
+  // Kategorileri ve her kategorideki isletme sayisini cek
+  const { data: categoryStats } = await supabase
     .from('business_categories')
-    .select('id, name')
+    .select('id, name, businesses(count)')
     .order('name')
 
   // Isletmeleri sorgula
@@ -51,13 +51,11 @@ export default async function BusinessesPage({
   const totalPages = count ? Math.ceil(count / PAGE_SIZE) : 0
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">İşletmeler</h1>
-          {count !== null && (
-            <p className="text-slate-500 text-sm mt-1">Toplam {count} kayıtlı işletme</p>
-          )}
+          <h1 className="text-2xl font-bold text-white">İşletme Yönetimi</h1>
+          <p className="text-slate-500 text-sm mt-1">Sistemde toplam <span className="text-[#64ffda] font-bold">{count || 0}</span> işletme kayıtlı.</p>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -77,7 +75,29 @@ export default async function BusinessesPage({
         </div>
       </div>
 
-      <BusinessFilters categories={categories || []} />
+      {/* Kategori İstatistikleri */}
+      <div className="bg-[#112240]/50 p-6 rounded-2xl border border-slate-700/30">
+        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Kategori Dağılımı</h3>
+        <div className="flex flex-wrap gap-2">
+          {categoryStats?.map((cat: any) => {
+            const bizCount = cat.businesses?.[0]?.count || 0
+            if (bizCount === 0) return null // Boş kategorileri gösterme
+            return (
+              <div 
+                key={cat.id}
+                className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-full"
+              >
+                <span className="text-slate-300 text-xs font-medium">{cat.name}</span>
+                <span className="bg-[#64ffda]/10 text-[#64ffda] text-[10px] font-black px-1.5 py-0.5 rounded-md border border-[#64ffda]/20">
+                  {bizCount}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <BusinessFilters categories={categoryStats?.map(c => ({ id: c.id, name: c.name })) || []} />
 
       {businesses && businesses.length > 0 ? (
         <div className="space-y-6">
