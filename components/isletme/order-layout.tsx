@@ -164,21 +164,17 @@ export function OrderLayout({ products, businessName, whatsappNumber, businessIm
         <div className="relative z-20 pt-8 pb-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6">
-              {/* Logo/Image */}
-              <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-[#0a0f1a] shadow-2xl bg-white/5 shrink-0 flex items-center justify-center">
-                {businessImage ? (
+              {/* Logo/Image - Sadece resim varsa goster */}
+              {businessImage && (
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-4 border-[#0a0f1a] shadow-2xl bg-white/5 shrink-0 flex items-center justify-center">
                   <Image
                     src={businessImage}
                     alt={businessName}
                     fill
                     className="object-cover"
                   />
-                ) : (
-                  <div className="flex flex-col items-center gap-1 opacity-20 text-white">
-                    <Store className="w-8 h-8" />
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Info */}
               <div className="flex-1 space-y-3 pb-1">

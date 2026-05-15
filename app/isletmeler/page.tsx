@@ -373,31 +373,29 @@ function BusinessesContent() {
                       href={`/isletme/${business.slug}`}
                       className="group relative bg-white/5 rounded-[48px] overflow-hidden border border-white/10 hover:border-[#64ffda]/50 transition-all shadow-2xl flex flex-col"
                     >
-                      {/* Cover Image */}
-                      <div className="relative h-64 w-full overflow-hidden">
-                        <Image 
-                          src={business.main_image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=75&fm=webp&fit=crop"} 
-                          alt={business.name || 'İşletme'} 
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-90" 
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
-                        
-                        {/* Logo Overlay */}
-                        <div className="absolute -bottom-6 left-8 w-20 h-20 bg-[#0a192f] rounded-[24px] p-1 border-2 border-white/10 shadow-2xl group-hover:scale-110 transition-transform overflow-hidden">
-                          <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-white/5 flex items-center justify-center">
-                            {business.logo ? (
-                              <Image src={business.logo} alt="Logo" fill className="object-cover" />
-                            ) : (
-                              <div className="text-[#64ffda] font-black text-2xl italic">
-                                {business.name ? business.name[0] : 'F'}
+                      {/* Cover Image - Sadece resim varsa goster */}
+                      {business.main_image && (
+                        <div className="relative h-64 w-full overflow-hidden">
+                          <Image 
+                            src={business.main_image} 
+                            alt={business.name || 'İşletme'} 
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-90" 
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent" />
+                          
+                          {/* Logo Overlay - Sadece logo varsa goster */}
+                          {business.logo && (
+                            <div className="absolute -bottom-6 left-8 w-20 h-20 bg-[#0a192f] rounded-[24px] p-1 border-2 border-white/10 shadow-2xl group-hover:scale-110 transition-transform overflow-hidden">
+                              <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-white/5 flex items-center justify-center">
+                                <Image src={business.logo} alt="Logo" fill className="object-cover" />
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
+                      )}
                       
                       {/* Business Info */}
                       <div className="p-10 pt-12 space-y-4">
