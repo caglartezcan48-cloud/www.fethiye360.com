@@ -184,6 +184,13 @@ export default function BulkUploadPage() {
     try {
       setStatus('loading')
       const jsonData = JSON.parse(data)
+
+      // 0. Veritabanındaki mevcut slug'ları çek (Çakışmayı önlemek için)
+      const { data: existingBusinesses } = await supabase
+        .from('businesses')
+        .select('slug')
+      
+      const existingSlugs = new Set(existingBusinesses?.map(b => b.slug) || [])
       
       // 1. Benzersiz kategori isimlerini topla
       const categoryNames = Array.from(new Set(jsonData.map((item: any) => item.category_name).filter(Boolean))) as string[]
@@ -215,32 +222,50 @@ export default function BulkUploadPage() {
         }
       }
 
-      // 3. Verileri veritabani formatina donustur
+      // 3. Verileri veritabani formatina donustur ve Mükerrerleri Ele
+      const uniqueSlugsInList = new Set()
       const businessesToInsert = jsonData.map((item: any) => {
         const { category_name, has_delivery, rating, ...rest } = item
         
-        // Paket servis kontrolü: 1, evet, yes, true değerlerini kabul et
+        // Slug oluştur (Excel'de yoksa isimden türet)
+        const slug = item.slug || item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+
+        // MÜKERRER KONTROLÜ: Veritabanında varsa VEYA listede daha önce geçtiyse atla
+        if (existingSlugs.has(slug) || uniqueSlugsInList.has(slug)) {
+          console.log(`[Atlandı] Mükerrer işletme: ${item.name} (${slug})`)
+          return null
+        }
+        
+        uniqueSlugsInList.add(slug)
+
+        // Paket servis kontrolü
         const hasDeliveryValue = has_delivery?.toString().toLowerCase().trim()
         const isPaketServis = ['1', 'evet', 'yes', 'true'].includes(hasDeliveryValue)
         
-        // Rating (Puan) kontrolü: Boşsa null gönder, sayı ise sayıya çevir
+        // Rating kontrolü
         const parsedRating = rating && !isNaN(parseFloat(rating)) ? parseFloat(rating) : null
 
         return {
           ...rest,
+          slug,
           rating: parsedRating,
           category_id: categoryMap[category_name?.toLowerCase()] || null,
-          slug: item.slug || item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
           services: isPaketServis ? ['Paket Servis'] : [],
           updated_at: new Date().toISOString()
         }
-      })
+      }).filter(Boolean) as any[]
+
+      if (businessesToInsert.length === 0) {
+        setStatus('success')
+        setMessage('Tüm işletmeler zaten kayıtlı olduğu için yeni kayıt yapılmadı.')
+        return
+      }
 
       const result = await bulkSaveBusinesses(businessesToInsert)
       if (!result.success) throw new Error(result.error)
 
       setStatus('success')
-      setMessage(`${businessesToInsert.length} işletme ve kategorileri başarıyla kaydedildi!`)
+      setMessage(`${businessesToInsert.length} yeni işletme başarıyla kaydedildi! (Mükerrer olanlar atlandı)`)
       setData('')
     } catch (err: any) {
       console.error(err)
