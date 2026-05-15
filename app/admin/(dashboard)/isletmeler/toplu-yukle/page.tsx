@@ -217,14 +217,18 @@ export default function BulkUploadPage() {
 
       // 3. Verileri veritabani formatina donustur
       const businessesToInsert = jsonData.map((item: any) => {
-        const { category_name, has_delivery, ...rest } = item
+        const { category_name, has_delivery, rating, ...rest } = item
         
         // Paket servis kontrolü: 1, evet, yes, true değerlerini kabul et
         const hasDeliveryValue = has_delivery?.toString().toLowerCase().trim()
         const isPaketServis = ['1', 'evet', 'yes', 'true'].includes(hasDeliveryValue)
         
+        // Rating (Puan) kontrolü: Boşsa null gönder, sayı ise sayıya çevir
+        const parsedRating = rating && !isNaN(parseFloat(rating)) ? parseFloat(rating) : null
+
         return {
           ...rest,
+          rating: parsedRating,
           category_id: categoryMap[category_name?.toLowerCase()] || null,
           slug: item.slug || item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
           services: isPaketServis ? ['Paket Servis'] : [],
