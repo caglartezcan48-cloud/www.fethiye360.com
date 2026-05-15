@@ -1,3 +1,19 @@
+import { getPharmacyData } from './pharmacy-data'
+import { unstable_cache } from 'next/cache'
+
+// Cached version of getCityData - revalidates every hour
+export const getCityData = unstable_cache(
+  async () => {
+    const [weather, pharmacies] = await Promise.all([
+      getWeatherData(),
+      getPharmacyData()
+    ])
+    return { weather, pharmacies }
+  },
+  ['city-data'],
+  { revalidate: 3600 } // 1 hour cache
+)
+
 export async function getWeatherData() {
   const lat = 36.6210;
   const lon = 29.1164;

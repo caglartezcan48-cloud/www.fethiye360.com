@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 export const revalidate = 60 // 1 dakika boyunca cache'le
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/fethiye/header'

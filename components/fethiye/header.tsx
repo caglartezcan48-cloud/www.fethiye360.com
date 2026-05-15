@@ -2,24 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { 
   Menu, 
   X, 
   Search, 
   User, 
   LogOut,
-  Map,
-  Compass,
   MessageSquare,
   Bell,
   Navigation,
-  Sparkles,
-  Camera,
-  PhoneCall
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { CityStats } from './city-stats'
 
 const supabase = createClient()
 
@@ -27,13 +20,12 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const pathname = usePathname()
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
     }
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
@@ -55,9 +47,7 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-500">
-      <CityStats />
-      
+    <header className="fixed top-10 left-0 right-0 z-[100] transition-all duration-500">
       <div className={`mx-auto transition-all duration-500 ${isScrolled ? 'max-w-7xl mt-4 px-4' : 'max-w-full mt-0 px-0'}`}>
         <nav className={`relative transition-all duration-500 ${
           isScrolled 
@@ -77,12 +67,12 @@ export function Header() {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10">
-              <Link href="/kesfet" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">KEŞFET</Link>
-              <Link href="/isletmeler" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">İŞLETMELER</Link>
+              <Link href="/kesfet" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">KESFET</Link>
+              <Link href="/isletmeler" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">ISLETMELER</Link>
               <Link href="/rehber" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">REHBER</Link>
               <Link href="/sosyal" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">SOSYAL</Link>
-              <Link href="/aktivite-planla" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">AKTİVİTE PLANLA</Link>
-              <Link href="/harita" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">HARİTA</Link>
+              <Link href="/aktivite-planla" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">AKTIVITE PLANLA</Link>
+              <Link href="/harita" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">HARITA</Link>
             </div>
 
             {/* Actions */}
@@ -100,7 +90,7 @@ export function Header() {
                     <Bell className="w-5 h-5" />
                   </Link>
                   <Link href="/profil" className="flex items-center gap-3 px-6 py-3 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black text-[10px] tracking-widest uppercase hover:scale-105 transition-all shadow-lg shadow-[#64ffda]/20">
-                    <User className="w-4 h-4" /> PROFİLİM
+                    <User className="w-4 h-4" /> PROFILIM
                   </Link>
                   <button onClick={handleSignOut} className="p-3 bg-white/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all border border-white/5">
                     <LogOut className="w-5 h-5" />
@@ -108,7 +98,7 @@ export function Header() {
                 </div>
               ) : (
                 <Link href="/giris" className="flex items-center gap-3 px-8 py-3 bg-white/5 text-white border border-white/10 rounded-2xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all">
-                  <User className="w-4 h-4 text-[#64ffda]" /> GİRİŞ YAP
+                  <User className="w-4 h-4 text-[#64ffda]" /> GIRIS YAP
                 </Link>
               )}
 
@@ -127,12 +117,12 @@ export function Header() {
       {isMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-[90] bg-[#0a192f] pt-32 px-6 animate-in fade-in duration-300">
           <div className="flex flex-col gap-6">
-            <Link href="/kesfet" className="text-3xl font-black text-white italic tracking-tighter">KEŞFET</Link>
-            <Link href="/isletmeler" className="text-3xl font-black text-white italic tracking-tighter">İŞLETMELER</Link>
-            <Link href="/rehber" className="text-3xl font-black text-white italic tracking-tighter">REHBER</Link>
-            <Link href="/sosyal" className="text-3xl font-black text-white italic tracking-tighter">SOSYAL</Link>
-            <Link href="/aktivite-planla" className="text-3xl font-black text-white italic tracking-tighter">AKTİVİTE PLANLA</Link>
-            <Link href="/harita" className="text-3xl font-black text-white italic tracking-tighter">HARİTA</Link>
+            <Link href="/kesfet" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">KESFET</Link>
+            <Link href="/isletmeler" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">ISLETMELER</Link>
+            <Link href="/rehber" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">REHBER</Link>
+            <Link href="/sosyal" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">SOSYAL</Link>
+            <Link href="/aktivite-planla" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">AKTIVITE PLANLA</Link>
+            <Link href="/harita" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">HARITA</Link>
           </div>
         </div>
       )}

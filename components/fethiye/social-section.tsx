@@ -57,7 +57,9 @@ export async function SocialSection() {
                 src={post.image_url} 
                 alt={post.caption || 'Fethiye'} 
                 fill 
+                sizes="(max-width: 768px) 50vw, 25vw"
                 className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                loading="lazy"
               />
               {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a192f] via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
@@ -66,7 +68,7 @@ export async function SocialSection() {
               <div className="absolute inset-0 p-6 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full border border-[#64ffda]/50 overflow-hidden relative">
-                    <Image src={post.user_profiles?.avatar_url || ''} alt="Avatar" fill className="object-cover" />
+                    <Image src={post.user_profiles?.avatar_url || ''} alt="Avatar" fill sizes="32px" className="object-cover" />
                   </div>
                   <span className="text-white text-xs font-bold tracking-tight">@{post.user_profiles?.username}</span>
                 </div>

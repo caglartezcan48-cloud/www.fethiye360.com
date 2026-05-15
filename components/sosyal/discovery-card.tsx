@@ -20,7 +20,9 @@ export function DiscoveryCard({ post, aspectRatio = "aspect-square" }: Discovery
         src={post.image_url} 
         alt={post.caption || 'Fethiye'} 
         fill 
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         className="object-cover transition-transform duration-700 group-hover:scale-110"
+        loading="lazy"
       />
 
 
@@ -41,7 +43,7 @@ export function DiscoveryCard({ post, aspectRatio = "aspect-square" }: Discovery
       <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="flex items-center gap-2">
           <div className="w-5 h-5 rounded-full overflow-hidden relative border border-[#64ffda]/30">
-            <Image src={post.user_profiles?.avatar_url || ''} alt="Avatar" fill className="object-cover" />
+            <Image src={post.user_profiles?.avatar_url || ''} alt="Avatar" fill sizes="20px" className="object-cover" />
           </div>
           <span className="text-[10px] text-white font-bold truncate">@{post.user_profiles?.username}</span>
         </div>

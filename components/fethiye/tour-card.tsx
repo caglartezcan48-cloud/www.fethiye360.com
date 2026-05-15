@@ -3,6 +3,7 @@
 import { MapPin, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import Image from "next/image"
 
 interface TourCardProps {
   title: string
@@ -26,13 +27,16 @@ export function TourCard({ title, location, category, image, onStartTour }: Tour
     >
       {/* Image Container */}
       <div 
-        className="relative aspect-[4/3] overflow-hidden cursor-pointer"
+        className="relative aspect-[4/3] overflow-hidden cursor-pointer bg-slate-800"
         onClick={onStartTour}
       >
-        <img
+        <Image
           src={image}
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
         

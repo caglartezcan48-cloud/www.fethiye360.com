@@ -1,30 +1,14 @@
-'use client'
-
-import { useState, useEffect } from 'react'
 import { Sun, Pill, MapPin, Thermometer } from 'lucide-react'
+import { getCityData } from '@/lib/city-data'
 
-export function CityStats() {
-  const [data, setData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch('/api/city-stats')
-        const json = await res.json()
-        setData(json)
-      } catch (error) {
-        console.error('City stats fetch error:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
-
-  if (loading || !data) return (
-    <div className="bg-[#112240]/50 backdrop-blur-sm border-b border-slate-700/30 py-2 h-10 animate-pulse" />
-  )
+export async function CityStats() {
+  const data = await getCityData()
+  
+  if (!data) {
+    return (
+      <div className="bg-[#112240]/50 backdrop-blur-sm border-b border-slate-700/30 py-2 h-10" />
+    )
+  }
 
   const { weather, pharmacies } = data
 
