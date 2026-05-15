@@ -81,17 +81,29 @@ export default async function BusinessesPage({
         <div className="flex flex-wrap gap-2">
           {categoryStats?.map((cat: any) => {
             const bizCount = cat.businesses?.[0]?.count || 0
-            if (bizCount === 0) return null // Boş kategorileri gösterme
+            if (bizCount === 0) return null
+            
+            const isActive = params.category === cat.id
+
             return (
-              <div 
+              <Link 
                 key={cat.id}
-                className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-full"
+                href={`/admin/isletmeler?category=${cat.id}`}
+                className={`flex items-center gap-2 px-3 py-1.5 border rounded-full transition-all hover:scale-105 active:scale-95 ${
+                  isActive 
+                    ? 'bg-[#64ffda]/10 border-[#64ffda] text-[#64ffda]' 
+                    : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-500'
+                }`}
               >
-                <span className="text-slate-300 text-xs font-medium">{cat.name}</span>
-                <span className="bg-[#64ffda]/10 text-[#64ffda] text-[10px] font-black px-1.5 py-0.5 rounded-md border border-[#64ffda]/20">
+                <span className="text-xs font-medium">{cat.name}</span>
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md border ${
+                  isActive 
+                    ? 'bg-[#64ffda] text-[#0a192f] border-transparent' 
+                    : 'bg-[#64ffda]/10 text-[#64ffda] border-[#64ffda]/20'
+                }`}>
                   {bizCount}
                 </span>
-              </div>
+              </Link>
             )
           })}
         </div>
