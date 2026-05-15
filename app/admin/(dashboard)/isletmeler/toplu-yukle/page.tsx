@@ -59,8 +59,12 @@ export default function BulkUploadPage() {
   const downloadCSVTemplate = () => {
     const BOM = '\uFEFF'
     const headers = Object.keys(columnMap).join(';') + '\n'
-    const sampleData = "Örnek Lezzet Durağı;Lezzet Gıda;Restoran;ornek-lezzet;Fethiye;02526140000;https://lezzet.com;905320000000;Harika bir yer;https://resim.jpg;5;1"
-    const blob = new Blob([BOM + headers + sampleData], { type: 'text/csv;charset=utf-8;' })
+    // Örnek 1: Paket servis OLAN restoran (1 veya evet)
+    const sampleData1 = "Örnek Lezzet Durağı;Lezzet Gıda A.Ş.;Restoran;ornek-lezzet;Fethiye Merkez;02526140000;https://lezzet.com;905320000000;Ev yapımı lezzetler;https://resim.jpg;5;1\n"
+    // Örnek 2: Paket servis OLMAYAN tanıtım işletmesi (0 veya hayır)
+    const sampleData2 = "Güzellik Salonu;Güzellik Ltd.;Kuaför;guzellik-salonu;Çalış;02526141111;https://guzellik.com;905321111111;Profesyonel hizmet;https://resim2.jpg;4.5;0"
+    const instructions = "# Paket Servis sütunu: 1/evet = sipariş alabilir | 0/hayır = tanıtım sayfası\n"
+    const blob = new Blob([BOM + instructions + headers + sampleData1 + sampleData2], { type: 'text/csv;charset=utf-8;' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -106,11 +110,16 @@ export default function BulkUploadPage() {
       // 3. Verileri veritabani formatina donustur
       const businessesToInsert = jsonData.map((item: any) => {
         const { category_name, has_delivery, ...rest } = item
+        
+        // Paket servis kontrolü: 1, evet, yes, true değerlerini kabul et
+        const hasDeliveryValue = has_delivery?.toString().toLowerCase().trim()
+        const isPaketServis = ['1', 'evet', 'yes', 'true'].includes(hasDeliveryValue)
+        
         return {
           ...rest,
           category_id: categoryMap[category_name?.toLowerCase()] || null,
           slug: item.slug || item.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-          services: has_delivery === '1' ? ['Paket Servis'] : [],
+          services: isPaketServis ? ['Paket Servis'] : [],
           updated_at: new Date().toISOString()
         }
       })
