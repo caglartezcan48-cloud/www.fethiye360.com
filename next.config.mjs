@@ -3,7 +3,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'recharts', 'date-fns', 'embla-carousel-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
   },
-  reactCompiler: true,
   typescript: {
     ignoreBuildErrors: true,
   },
