@@ -1,11 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Plus, Building2, Pencil, Trash2, Star, CheckCircle2, Database } from 'lucide-react'
+import { BusinessFilters } from '@/components/admin/business-filters'
 
-export default async function BusinessesPage() {
+export default async function BusinessesPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ category?: string, q?: string }> 
+}) {
   const supabase = await createClient()
+  const params = await searchParams
+  
+  // Kategorileri cek (Filtre icin)
+  const { data: categories } = await supabase
+    .from('business_categories')
+    .select('id, name')
+    .order('name')
 
-  const { data: businesses } = await supabase
+  // Isletmeleri sorgula
+  let query = supabase
     .from('businesses')
     .select(`
       id,
@@ -14,9 +27,20 @@ export default async function BusinessesPage() {
       rating,
       is_featured,
       created_at,
-      business_categories (name)
+      business_categories (id, name)
     `)
     .order('created_at', { ascending: false })
+
+  // Filtreleri uygula
+  if (params.category) {
+    query = query.eq('category_id', params.category)
+  }
+  
+  if (params.q) {
+    query = query.ilike('name', `%${params.q}%`)
+  }
+
+  const { data: businesses } = await query
 
   return (
     <div>
@@ -39,6 +63,8 @@ export default async function BusinessesPage() {
           </Link>
         </div>
       </div>
+
+      <BusinessFilters categories={categories || []} />
 
       {businesses && businesses.length > 0 ? (
         <div className="bg-[#112240] rounded-xl border border-slate-700/50 overflow-hidden">
@@ -78,7 +104,7 @@ export default async function BusinessesPage() {
                         <CheckCircle2 className="w-3 h-3" /> Öne Çıkan
                       </span>
                     ) : (
-                      <span className="text-slate-500 text-xs text-xs font-medium">Standart</span>
+                      <span className="text-slate-500 text-xs font-medium">Standart</span>
                     )}
                   </td>
                   <td className="p-4">
@@ -102,17 +128,33 @@ export default async function BusinessesPage() {
       ) : (
         <div className="bg-[#112240] rounded-xl border border-slate-700/50 p-12 text-center">
           <Building2 className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-white mb-2">Henüz işletme yok</h3>
-          <p className="text-slate-400 mb-6">İlk işletmenizi ekleyerek rehberi oluşturmaya başlayın</p>
-          <Link
-            href="/admin/isletmeler/ekle"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#64ffda] text-[#0a192f] rounded-lg font-medium hover:bg-[#52e0c4] transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            İlk İşletmeyi Ekle
-          </Link>
+          <h3 className="text-lg font-medium text-white mb-2">
+            {(params.category || params.q) ? 'Sonuç bulunamadı' : 'Henüz işletme yok'}
+          </h3>
+          <p className="text-slate-400 mb-6">
+            {(params.category || params.q) 
+              ? 'Filtreleri değiştirerek tekrar deneyebilirsiniz.' 
+              : 'İlk işletmenizi ekleyerek rehberi oluşturmaya başlayın'}
+          </p>
+          {!params.category && !params.q ? (
+            <Link
+              href="/admin/isletmeler/ekle"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#64ffda] text-[#0a192f] rounded-lg font-medium hover:bg-[#52e0c4] transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              İlk İşletmeyi Ekle
+            </Link>
+          ) : (
+            <Link
+              href="/admin/isletmeler"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg font-medium hover:bg-slate-700 transition-colors"
+            >
+              Filtreleri Temizle
+            </Link>
+          )}
         </div>
       )}
     </div>
   )
 }
+

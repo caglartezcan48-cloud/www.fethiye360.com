@@ -105,7 +105,7 @@ const SERVICE_HUBS = [
     color: 'from-pink-500/40 to-fuchsia-600/40',
     borderColor: 'border-pink-500/50',
     hoverBg: 'hover:bg-pink-500/10',
-    categories: ['Çiçek', 'Hediye', 'Kuyumcu', 'Butik', 'Takı', 'Gümüş', 'Antika']
+    categories: ['Çiçek', 'Hediye', 'Kuyumcu', 'Butik', 'Takı', 'Gümüş', 'Antika', 'Kuaför', 'Bayan Kuaför', 'Berber', 'Güzellik']
   },
   { 
     id: 'night', 
@@ -193,12 +193,20 @@ function BusinessesContent() {
         }
       }
 
-      // Arama sorgusu filtresi
+      // Arama sorgusu filtresi (Türkçe karakter normalizasyonu ile)
       if (searchQuery) {
-        const q = searchQuery.toLowerCase()
+        const normalize = (text: string) => 
+          text?.toLowerCase()
+            .replace(/i/g, 'i').replace(/ı/g, 'i')
+            .replace(/ğ/g, 'g').replace(/ü/g, 'u')
+            .replace(/ş/g, 's').replace(/ö/g, 'o')
+            .replace(/ç/g, 'c')
+            .trim() || ''
+
+        const q = normalize(searchQuery)
         filtered = filtered.filter(biz => 
-          biz.name?.toLowerCase().includes(q) || 
-          biz.business_categories?.name?.toLowerCase().includes(q)
+          normalize(biz.name).includes(q) || 
+          normalize(biz.business_categories?.name).includes(q)
         )
       }
 
