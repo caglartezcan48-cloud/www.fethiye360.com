@@ -58,13 +58,66 @@ export default function BulkUploadPage() {
 
   const downloadCSVTemplate = () => {
     const BOM = '\uFEFF'
-    const headers = Object.keys(columnMap).join(';') + '\n'
-    // Örnek 1: Paket servis OLAN restoran (1 veya evet)
-    const sampleData1 = "Örnek Lezzet Durağı;Lezzet Gıda A.Ş.;Restoran;ornek-lezzet;Fethiye Merkez;02526140000;https://lezzet.com;905320000000;Ev yapımı lezzetler;https://resim.jpg;5;1\n"
-    // Örnek 2: Paket servis OLMAYAN tanıtım işletmesi (0 veya hayır)
-    const sampleData2 = "Güzellik Salonu;Güzellik Ltd.;Kuaför;guzellik-salonu;Çalış;02526141111;https://guzellik.com;905321111111;Profesyonel hizmet;https://resim2.jpg;4.5;0"
-    const instructions = "# Paket Servis sütunu: 1/evet = sipariş alabilir | 0/hayır = tanıtım sayfası\n"
-    const blob = new Blob([BOM + instructions + headers + sampleData1 + sampleData2], { type: 'text/csv;charset=utf-8;' })
+    
+    // Sutun basliklari
+    const headers = [
+      'İşletme Adı',
+      'Şirket Ünvanı', 
+      'Kategori',
+      'URL Uzantısı',
+      'Adres',
+      'Telefon',
+      'Web Sitesi',
+      'WhatsApp',
+      'Açıklama',
+      'Kapak Resmi URL',
+      'Puan',
+      'Paket Servis (1/0)'
+    ].join(';') + '\n'
+    
+    // Ornek 1: Paket servis OLAN restoran
+    const ornek1 = [
+      'Deniz Restoran',           // Isletme Adi
+      'Deniz Gida Ltd. Sti.',     // Sirket Unvani
+      'Restoran',                 // Kategori
+      'deniz-restoran',           // URL Uzantisi
+      'Calis Plaji No:15',        // Adres
+      '02526140000',              // Telefon
+      'https://denizrestoran.com',// Web Sitesi
+      '905320000000',             // WhatsApp
+      'Taze deniz urunleri',      // Aciklama
+      'https://resim.jpg',        // Kapak Resmi URL
+      '4.8',                      // Puan
+      '1'                         // Paket Servis (1=evet)
+    ].join(';') + '\n'
+    
+    // Ornek 2: Paket servis OLMAYAN tanitim isletmesi
+    const ornek2 = [
+      'Guzellik Merkezi',         // Isletme Adi
+      'Guzellik A.S.',            // Sirket Unvani
+      'Kuafor',                   // Kategori
+      'guzellik-merkezi',         // URL Uzantisi
+      'Fethiye Merkez',           // Adres
+      '02526141111',              // Telefon
+      'https://guzellik.com',     // Web Sitesi
+      '905321111111',             // WhatsApp
+      'Profesyonel bakim',        // Aciklama
+      'https://resim2.jpg',       // Kapak Resmi URL
+      '4.5',                      // Puan
+      '0'                         // Paket Servis (0=hayir)
+    ].join(';')
+    
+    const instructions = [
+      '# FETHIYE360 TOPLU ISLETME YUKLEME SABLONU',
+      '# ==========================================',
+      '# Paket Servis sutunu:',
+      '#   1 veya evet = Siparis alabilen isletme (restoran, kafe vb.)',
+      '#   0 veya hayir = Tanitim sayfasi (kuafor, eczane vb.)',
+      '# ==========================================',
+      ''
+    ].join('\n')
+    
+    const blob = new Blob([BOM + instructions + headers + ornek1 + ornek2], { type: 'text/csv;charset=utf-8;' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -171,10 +224,21 @@ export default function BulkUploadPage() {
           </div>
 
           <div className="bg-[#64ffda]/5 border border-[#64ffda]/10 rounded-[32px] p-6 space-y-4">
-            <h4 className="text-[#64ffda] font-bold text-sm">Neden Türkçe Şablon?</h4>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Bu şablon sayesinde teknik terimlerle uğraşmadan, doğrudan Türkçe başlıklarla verilerinizi hazırlayabilirsiniz. Sistem verilerinizi otomatik olarak eşleştirir.
-            </p>
+            <h4 className="text-[#64ffda] font-bold text-sm">Sutun Aciklamalari</h4>
+            <div className="text-[10px] text-slate-400 space-y-1.5">
+              <p><span className="text-white font-semibold">1. Isletme Adi:</span> Gosterilecek isim</p>
+              <p><span className="text-white font-semibold">2. Sirket Unvani:</span> Resmi unvan</p>
+              <p><span className="text-white font-semibold">3. Kategori:</span> Restoran, Kafe, Kuafor vb.</p>
+              <p><span className="text-white font-semibold">4. URL Uzantisi:</span> ornek-isletme</p>
+              <p><span className="text-white font-semibold">5. Adres:</span> Tam adres</p>
+              <p><span className="text-white font-semibold">6. Telefon:</span> 02526140000</p>
+              <p><span className="text-white font-semibold">7. Web Sitesi:</span> https://...</p>
+              <p><span className="text-white font-semibold">8. WhatsApp:</span> 905xxxxxxxxx</p>
+              <p><span className="text-white font-semibold">9. Aciklama:</span> Kisa tanitim</p>
+              <p><span className="text-white font-semibold">10. Kapak Resmi:</span> Resim URL</p>
+              <p><span className="text-white font-semibold">11. Puan:</span> 1-5 arasi</p>
+              <p><span className="text-[#64ffda] font-semibold">12. Paket Servis:</span> 1=siparis alir, 0=tanitim</p>
+            </div>
           </div>
         </div>
 
