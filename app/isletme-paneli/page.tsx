@@ -40,6 +40,8 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { moderateImage, moderateText, isValidImageType, isValidFileSize } from '@/lib/moderation'
+import { compressImage } from '@/lib/utils'
 
 export default function BusinessPanel() {
   const [activeTab, setActiveTab] = useState<'general' | 'products' | 'orders' | 'photos' | 'reviews' | 'qr'>('orders')
@@ -309,13 +311,43 @@ export default function BusinessPanel() {
   const handleProductImageUpload = async (file: File, isEditing: boolean = false) => {
     setUploading(true)
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `product_${business.id}_${Date.now()}.${fileExt}`
+      // 1. Dosya tipi ve boyut kontrolü
+      if (!isValidImageType(file)) {
+        toast.error('Geçersiz dosya tipi. Sadece JPEG, PNG, WebP veya GIF yükleyebilirsiniz.')
+        return
+      }
+      if (!isValidFileSize(file, 10)) {
+        toast.error('Dosya boyutu çok büyük. Maksimum 10MB yükleyebilirsiniz.')
+        return
+      }
+
+      // 2. Görseli HD kalitede sıkıştır (WebP, max 800KB)
+      toast.info('Görsel işleniyor...')
+      const compressedBlob = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85,
+        format: 'webp',
+        maxFileSizeKB: 800
+      })
+
+      // 3. +18 içerik kontrolü
+      const imageUrl = URL.createObjectURL(compressedBlob)
+      const moderationResult = await moderateImage(imageUrl)
+      URL.revokeObjectURL(imageUrl)
+
+      if (!moderationResult.isAppropriate) {
+        toast.error('Bu görsel uygunsuz içerik barındırıyor ve yüklenemiyor.')
+        return
+      }
+
+      // 4. Supabase'e yükle
+      const fileName = `product_${business.id}_${Date.now()}.webp`
       const filePath = `products/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from('tour-images')
-        .upload(filePath, file)
+        .upload(filePath, compressedBlob, { contentType: 'image/webp' })
 
       if (uploadError) throw uploadError
 
@@ -328,6 +360,8 @@ export default function BusinessPanel() {
       } else {
         setNewProduct(prev => ({ ...prev, image_url: publicUrl }))
       }
+      
+      toast.success('Görsel başarıyla yüklendi!')
     } catch (err: any) {
       console.error(err)
       toast.error('Görsel yüklenemedi: ' + err.message)
@@ -350,13 +384,43 @@ export default function BusinessPanel() {
   const handleUploadImage = async (file: File) => {
     setUploading(true)
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${business.id}_${Date.now()}.${fileExt}`
+      // 1. Dosya tipi ve boyut kontrolü
+      if (!isValidImageType(file)) {
+        toast.error('Geçersiz dosya tipi. Sadece JPEG, PNG, WebP veya GIF yükleyebilirsiniz.')
+        return
+      }
+      if (!isValidFileSize(file, 10)) {
+        toast.error('Dosya boyutu çok büyük. Maksimum 10MB yükleyebilirsiniz.')
+        return
+      }
+
+      // 2. Görseli HD kalitede sıkıştır (WebP, max 800KB)
+      toast.info('Görsel işleniyor...')
+      const compressedBlob = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85,
+        format: 'webp',
+        maxFileSizeKB: 800
+      })
+
+      // 3. +18 içerik kontrolü
+      const imageUrl = URL.createObjectURL(compressedBlob)
+      const moderationResult = await moderateImage(imageUrl)
+      URL.revokeObjectURL(imageUrl)
+
+      if (!moderationResult.isAppropriate) {
+        toast.error('Bu görsel uygunsuz içerik barındırıyor ve yüklenemiyor.')
+        return
+      }
+
+      // 4. Supabase'e yükle
+      const fileName = `${business.id}_${Date.now()}.webp`
       const filePath = `businesses/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from('tour-images')
-        .upload(filePath, file)
+        .upload(filePath, compressedBlob, { contentType: 'image/webp' })
 
       if (uploadError) throw uploadError
 
@@ -372,7 +436,7 @@ export default function BusinessPanel() {
       if (!dbError && newImg) {
         setImages([...images, newImg[0]])
         setGallery([...gallery, newImg[0]])
-        toast.success('Fotoğraf yüklendi!')
+        toast.success('Fotoğraf başarıyla yüklendi!')
       }
     } catch (err: any) {
       console.error(err)

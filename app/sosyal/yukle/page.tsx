@@ -19,11 +19,10 @@ import {
   AlertTriangle,
   ShieldCheck
 } from 'lucide-react'
-import * as tf from '@tensorflow/tfjs'
-import * as nsfwjs from 'nsfwjs'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { compressImage } from '@/lib/utils'
+import { moderateImage, moderateText, isValidImageType, isValidFileSize } from '@/lib/moderation'
 import { 
   Dialog,
   DialogContent,
@@ -78,43 +77,44 @@ function UploadContent() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
-      setFile(selectedFile)
-      setPreview(URL.createObjectURL(selectedFile))
-      setMediaType('image')
       setNsfwError(null)
       
-      // Yapay Zeka Analizi Başlat
+      // 1. Dosya tipi ve boyut kontrolü
+      if (!isValidImageType(selectedFile)) {
+        setNsfwError('Geçersiz dosya tipi. Sadece JPEG, PNG, WebP veya GIF yükleyebilirsiniz.')
+        toast.error('Geçersiz dosya tipi.')
+        return
+      }
+      if (!isValidFileSize(selectedFile, 10)) {
+        setNsfwError('Dosya boyutu çok büyük. Maksimum 10MB yükleyebilirsiniz.')
+        toast.error('Dosya boyutu çok büyük.')
+        return
+      }
+
+      const previewUrl = URL.createObjectURL(selectedFile)
+      setPreview(previewUrl)
+      setMediaType('image')
+      
+      // 2. Yapay Zeka Analizi Başlat
       try {
         setIsAnalyzing(true)
         
-        // Modeli yükle
-        const model = await nsfwjs.load()
-        
-        // Resmi bir Image elementine dönüştür
-        const img = new (window.Image as any)()
-        img.src = URL.createObjectURL(selectedFile)
-        
-        await new Promise((resolve) => {
-          img.onload = resolve
-        })
+        const moderationResult = await moderateImage(previewUrl)
 
-        // Tahmin yap
-        const predictions = await model.classify(img)
-        
-        // Kritik kategorileri kontrol et
-        const nsfwCategories = ['Porn', 'Hentai', 'Sexy']
-        const highRisk = predictions.find(p => nsfwCategories.includes(p.className) && p.probability > 0.6)
-
-        if (highRisk) {
+        if (!moderationResult.isAppropriate) {
           setNsfwError(`Uygunsuz içerik tespit edildi. Lütfen topluluk kurallarına uygun bir fotoğraf seçin.`)
           setFile(null)
           setPreview(null)
+          URL.revokeObjectURL(previewUrl)
           toast.error('Görsel güvenlik kontrolünden geçemedi.')
         } else {
-          toast.success('Görsel güvenlik kontrolünden geçti. ✅')
+          setFile(selectedFile)
+          toast.success('Görsel güvenlik kontrolünden geçti.')
         }
       } catch (err) {
         console.error('AI Analysis Error:', err)
+        // Hata durumunda yine de dosyayı kabul et
+        setFile(selectedFile)
       } finally {
         setIsAnalyzing(false)
       }
@@ -170,16 +170,35 @@ function UploadContent() {
         if (profileCreateError) throw new Error('Profil kaydı oluşturulamadı: ' + profileCreateError.message)
       }
 
-      // 2. Fotograf ise sikistir
-      const uploadFile = await compressImage(file)
+      // 2. Metin moderasyonu kontrolü (caption ve location)
+      if (caption) {
+        const textResult = moderateText(caption)
+        if (!textResult.isAppropriate) {
+          throw new Error('Açıklama metni uygunsuz içerik barındırıyor.')
+        }
+      }
+      if (location) {
+        const locationResult = moderateText(location)
+        if (!locationResult.isAppropriate) {
+          throw new Error('Konum metni uygunsuz içerik barındırıyor.')
+        }
+      }
 
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${shareType}_${user.id}_${Date.now()}.${fileExt}`
+      // 3. Fotoğrafı HD kalitede sıkıştır (WebP, max 800KB)
+      const uploadFile = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85,
+        format: 'webp',
+        maxFileSizeKB: 800
+      })
+
+      const fileName = `${shareType}_${user.id}_${Date.now()}.webp`
       const filePath = `${shareType}s/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from('tour-images')
-        .upload(filePath, uploadFile)
+        .upload(filePath, uploadFile, { contentType: 'image/webp' })
 
       if (uploadError) throw uploadError
 
