@@ -32,13 +32,13 @@ export function Hero() {
       <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="max-w-5xl mx-auto">
           {/* HD Badge */}
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 mb-10 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 mb-10 backdrop-blur-md animate-in fade-in duration-300">
             <Sparkles className="w-4 h-4 text-[#64ffda] animate-spin-slow" />
             <span className="text-[#64ffda] text-xs font-bold uppercase tracking-[0.2em]">Fethiye'nin Dijital Dünyası</span>
           </div>
 
           {/* Main Title - HD Styling */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 leading-[1.1] tracking-tighter animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 leading-[1.1] tracking-tighter animate-in fade-in duration-500">
             Fethiye'yi <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#64ffda] via-[#52e0c4] to-blue-400 drop-shadow-[0_0_30px_rgba(100,255,218,0.3)]">
               360° Keşfet

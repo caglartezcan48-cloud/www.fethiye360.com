@@ -64,7 +64,7 @@ export function Header() {
                 height={56}
                 priority
                 sizes="180px"
-                className="h-14 md:h-16 w-auto object-contain group-hover:scale-105 transition-transform brightness-110 contrast-110 drop-shadow-[0_0_15px_rgba(100,255,218,0.2)]"
+                className="h-14 md:h-16 w-auto object-contain group-hover:scale-105 transition-transform drop-shadow-sm"
               />
             </Link>
 

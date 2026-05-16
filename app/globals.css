@@ -165,6 +165,10 @@
   contain-intrinsic-size: 0 500px;
 }
 
+.email-obfuscated::after {
+  content: "@fethiye360.com";
+}
+
 /* GPU acceleration for animated elements */
 .animate-pulse, .animate-bounce, .animate-spin {
   will-change: transform, opacity;
