@@ -695,16 +695,54 @@ export default function BusinessPanel() {
                          >
                            Kapat
                          </button>
-                         <button 
-                           onClick={() => {
-                             // Status update logic here
-                             setSelectedOrder(null)
-                             toast.success('Sipariş durumu güncellendi!')
-                           }}
-                           className="py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-all shadow-xl shadow-[#64ffda]/10"
-                         >
-                           SİPARİŞİ ONAYLA
-                         </button>
+                         
+                         {selectedOrder.status === 'pending' && (
+                           <button 
+                             onClick={async () => {
+                               const { error } = await supabase.from('business_orders').update({ status: 'preparing' }).eq('id', selectedOrder.id)
+                               if (!error) {
+                                 setOrders(orders.map(o => o.id === selectedOrder.id ? { ...o, status: 'preparing' } : o))
+                                 setSelectedOrder(null)
+                                 toast.success('Sipariş hazırlanıyor aşamasına alındı!')
+                               }
+                             }}
+                             className="py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-all shadow-xl shadow-[#64ffda]/10"
+                           >
+                             SİPARİŞİ ONAYLA
+                           </button>
+                         )}
+
+                         {selectedOrder.status === 'preparing' && (
+                           <button 
+                             onClick={async () => {
+                               const { error } = await supabase.from('business_orders').update({ status: 'on_the_way' }).eq('id', selectedOrder.id)
+                               if (!error) {
+                                 setOrders(orders.map(o => o.id === selectedOrder.id ? { ...o, status: 'on_the_way' } : o))
+                                 setSelectedOrder(null)
+                                 toast.success('Sipariş yola çıktı!')
+                               }
+                             }}
+                             className="py-5 bg-blue-500 text-white rounded-3xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-all shadow-xl shadow-blue-500/10"
+                           >
+                             YOLA ÇIKAR
+                           </button>
+                         )}
+
+                         {selectedOrder.status === 'on_the_way' && (
+                           <button 
+                             onClick={async () => {
+                               const { error } = await supabase.from('business_orders').update({ status: 'completed' }).eq('id', selectedOrder.id)
+                               if (!error) {
+                                 setOrders(orders.map(o => o.id === selectedOrder.id ? { ...o, status: 'completed' } : o))
+                                 setSelectedOrder(null)
+                                 toast.success('Sipariş başarıyla teslim edildi!')
+                               }
+                             }}
+                             className="py-5 bg-[#64ffda] text-[#0a192f] rounded-3xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] transition-all shadow-xl shadow-[#64ffda]/10"
+                           >
+                             TESLİM EDİLDİ
+                           </button>
+                         )}
                       </div>
                    </div>
                 </div>

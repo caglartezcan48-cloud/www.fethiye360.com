@@ -92,6 +92,7 @@ export default async function BusinessDetailPage({ params }: { params: Promise<{
             {/* Order Layout */}
             <OrderLayout 
               products={products} 
+              businessId={business.id}
               businessName={business.name} 
               whatsappNumber={business.whatsapp || business.phone}
               businessImage={business.main_image}

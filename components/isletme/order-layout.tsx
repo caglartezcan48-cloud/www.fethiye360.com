@@ -24,6 +24,11 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+
+const supabase = createClient()
+
 interface Product {
   id: string
   name: string
@@ -41,6 +46,7 @@ interface CartItem extends Product {
 
 interface OrderLayoutProps {
   products: Product[]
+  businessId: string
   businessName: string
   whatsappNumber?: string
   isFullMenuOpen?: boolean
@@ -58,9 +64,11 @@ const WhatsappIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-export function OrderLayout({ products, businessName, whatsappNumber, businessImage, description, avgRating, reviewCount }: OrderLayoutProps) {
+export function OrderLayout({ products, businessId, businessName, whatsappNumber, businessImage, description, avgRating, reviewCount }: OrderLayoutProps) {
+  const router = useRouter()
   const [cart, setCart] = useState<CartItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -136,10 +144,49 @@ export function OrderLayout({ products, businessName, whatsappNumber, businessIm
 
   const itemCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart])
 
-  const handleCheckout = () => {
-    if (cart.length === 0 || !whatsappNumber) return
-    const message = `Merhaba, sipariş vermek istiyorum:\n\n${cart.map(item => `- ${item.quantity}x ${item.name}${item.note ? ` (${item.note})` : ''} - ${(parseFloat(String(item.price).replace(/[^0-9.-]+/g,"")) || 0) * item.quantity} TL`).join('\n')}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}\n\nİşletme: ${businessName}`
-    window.open(`https://wa.me/${whatsappNumber?.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
+  const handleCheckout = async () => {
+    if (cart.length === 0 || isSubmitting) return
+    setIsSubmitting(true)
+
+    try {
+      // 1. Veritabanına Kaydet
+      const { data: order, error } = await supabase
+        .from('business_orders')
+        .insert([{
+          business_id: businessId,
+          customer_name: 'Anonim Müşteri', // Buraya sonradan isim inputu eklenebilir
+          total_amount: total,
+          payment_method: paymentMethod,
+          status: 'pending',
+          items: cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            note: item.note
+          }))
+        }])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      toast.success('Siparişiniz alındı! Takip sayfasına yönlendiriliyorsunuz.')
+      
+      // 2. WhatsApp Mesajını Hazırla (Opsiyonel olarak kalsın)
+      const message = `Merhaba, sipariş verdim! \n\nSipariş No: #${order.id.slice(0, 8)}\nTakip Linki: https://www.fethiye360.com/siparis-takip/${order.id}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}`
+      
+      // 3. Takip Sayfasına Yönlendir
+      clearCart()
+      router.push(`/siparis-takip/${order.id}`)
+      
+      // WhatsApp penceresini isteğe bağlı açabiliriz, ama takip sayfası daha profesyonel
+      // window.open(`https://wa.me/${whatsappNumber?.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
+    } catch (err: any) {
+      toast.error('Sipariş oluşturulamadı: ' + err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
