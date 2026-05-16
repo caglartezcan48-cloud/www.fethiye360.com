@@ -60,7 +60,9 @@ export default function UserProfilePage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editForm, setEditForm] = useState({
     full_name: '',
-    bio: ''
+    bio: '',
+    phone: '',
+    address: ''
   })
   
   const router = useRouter()
@@ -106,7 +108,9 @@ export default function UserProfilePage() {
 
       setEditForm({
         full_name: profileData?.full_name || profile?.full_name || 'Yeni Kullanıcı',
-        bio: profileData?.bio || profile?.bio || ''
+        bio: profileData?.bio || profile?.bio || '',
+        phone: profileData?.phone || '',
+        address: profileData?.address || ''
       })
 
       // 2. Gerçek Takipçi/Takip Sayılarını Getir
@@ -235,6 +239,8 @@ export default function UserProfilePage() {
         .update({
           full_name: editForm.full_name,
           bio: editForm.bio,
+          phone: editForm.phone,
+          address: editForm.address,
           updated_at: new Date().toISOString()
         })
         .eq('id', user.id)
@@ -595,9 +601,19 @@ export default function UserProfilePage() {
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ad Soyad</Label>
                 <Input value={editForm.full_name} onChange={(e) => setEditForm({...editForm, full_name: e.target.value})} className="bg-[#0a192f] border-white/5 rounded-2xl h-14" />
               </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Telefon</Label>
+                  <Input value={editForm.phone} onChange={(e) => setEditForm({...editForm, phone: e.target.value})} className="bg-[#0a192f] border-white/5 rounded-2xl h-14 text-sm" placeholder="05XX XXX XX XX" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teslimat Adresi</Label>
+                <Textarea value={editForm.address} onChange={(e) => setEditForm({...editForm, address: e.target.value})} className="bg-[#0a192f] border-white/5 rounded-2xl min-h-[100px] resize-none" placeholder="Mahalle, Sokak, No..." />
+              </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Biyografi</Label>
-                <Textarea value={editForm.bio} onChange={(e) => setEditForm({...editForm, bio: e.target.value})} className="bg-[#0a192f] border-white/5 rounded-2xl min-h-[120px]" />
+                <Textarea value={editForm.bio} onChange={(e) => setEditForm({...editForm, bio: e.target.value})} className="bg-[#0a192f] border-white/5 rounded-2xl min-h-[80px]" />
               </div>
             </div>
             <DialogFooter className="gap-4">

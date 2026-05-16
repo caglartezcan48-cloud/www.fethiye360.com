@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
   const [fullName, setFullName] = useState('')
+  const [address, setAddress] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -52,6 +53,7 @@ export default function RegisterPage() {
               username: username.toLowerCase(),
               full_name: fullName,
               phone: phone,
+              address: address,
               avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
               is_public: true
             }
@@ -120,6 +122,15 @@ export default function RegisterPage() {
                   placeholder="Ali Yılmaz"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Teslimat Adresiniz</label>
+              <textarea 
+                required value={address} onChange={(e) => setAddress(e.target.value)}
+                className="w-full bg-[#0a192f] border border-white/5 rounded-2xl py-4 px-4 text-white focus:ring-2 focus:ring-[#64ffda] transition-all outline-none text-sm min-h-[100px] resize-none"
+                placeholder="Mahalle, Sokak, No, Kat/Daire..."
+              />
             </div>
 
             <div className="space-y-2">
