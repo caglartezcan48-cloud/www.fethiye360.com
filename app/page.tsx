@@ -52,9 +52,7 @@ export default function FethiyePage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="fixed top-0 left-0 right-0 z-[101]">
-        <Suspense fallback={<div className="bg-[#112240]/50 backdrop-blur-sm border-b border-slate-700/30 py-2 h-10" />}>
-          <CityStats />
-        </Suspense>
+        <CityStats />
       </div>
       <Header />
       <Hero />
