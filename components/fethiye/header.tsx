@@ -1,18 +1,39 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { 
-  Menu, 
-  X, 
-  Search, 
-  User, 
-  LogOut,
-  MessageSquare,
-  Bell,
-} from 'lucide-react'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+
+const supabase = createClient()
+
+function SearchIcon() {
+  return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+}
+
+function UserIcon() {
+  return <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+}
+
+function MenuIcon() {
+  return <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+}
+
+function XIcon() {
+  return <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+}
+
+function MessageIcon() {
+  return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+}
+
+function BellIcon() {
+  return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+}
+
+function LogOutIcon() {
+  return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+}
 
 const supabase = createClient()
 
@@ -81,27 +102,27 @@ export function Header() {
             {/* Actions */}
             <div className="flex items-center gap-4">
               <button className="hidden md:flex p-3 bg-white/5 text-slate-400 hover:text-white rounded-2xl hover:bg-white/10 transition-all border border-white/5">
-                <Search className="w-5 h-5" />
+                <SearchIcon />
               </button>
               
               {user ? (
                 <div className="flex items-center gap-3 pl-4 border-l border-white/10">
                   <Link href="/mesajlar" className="p-3 bg-white/5 text-slate-400 hover:text-[#64ffda] rounded-2xl relative group transition-all border border-white/5">
-                    <MessageSquare className="w-5 h-5" />
+                    <MessageIcon />
                   </Link>
                   <Link href="/bildirimler" className="p-3 bg-white/5 text-slate-400 hover:text-[#64ffda] rounded-2xl relative group transition-all border border-white/5">
-                    <Bell className="w-5 h-5" />
+                    <BellIcon />
                   </Link>
                   <Link href="/profil" className="flex items-center gap-3 px-6 py-3 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black text-[10px] tracking-widest uppercase hover:scale-105 transition-all shadow-lg shadow-[#64ffda]/20">
-                    <User className="w-4 h-4" /> PROFILIM
+                    <UserIcon /> PROFILIM
                   </Link>
                   <button onClick={handleSignOut} className="p-3 bg-white/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all border border-white/5">
-                    <LogOut className="w-5 h-5" />
+                    <LogOutIcon />
                   </button>
                 </div>
               ) : (
                 <Link href="/giris" className="flex items-center gap-3 px-8 py-3 bg-white/5 text-white border border-white/10 rounded-2xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all">
-                  <User className="w-4 h-4 text-[#64ffda]" /> GIRIS YAP
+                  <UserIcon /> GIRIS YAP
                 </Link>
               )}
 
@@ -109,7 +130,7 @@ export function Header() {
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="lg:hidden p-3 bg-white/5 text-white rounded-2xl border border-white/5"
               >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isMenuOpen ? <XIcon /> : <MenuIcon />}
               </button>
             </div>
           </div>

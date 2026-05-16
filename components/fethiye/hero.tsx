@@ -1,4 +1,3 @@
-import { ArrowDown, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "./search-bar"
 import Image from "next/image"
@@ -33,7 +32,7 @@ export function Hero() {
         <div className="max-w-5xl mx-auto">
           {/* HD Badge */}
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 mb-10 backdrop-blur-md animate-in fade-in duration-300">
-            <Sparkles className="w-4 h-4 text-[#64ffda] animate-spin-slow" />
+            <svg className="w-4 h-4 text-[#64ffda]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
             <span className="text-[#64ffda] text-xs font-bold uppercase tracking-[0.2em]">Fethiye'nin Dijital Dünyası</span>
           </div>
 
@@ -90,7 +89,7 @@ export function Hero() {
       {/* Scroll Indicator */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce flex flex-col items-center gap-2">
         <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Keşfet</span>
-        <ArrowDown className="w-5 h-5 text-[#64ffda]" />
+        <svg className="w-5 h-5 text-[#64ffda]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
       </div>
     </section>
   )
