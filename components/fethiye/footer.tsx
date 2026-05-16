@@ -15,7 +15,9 @@ export function Footer() {
                 alt="Fethiye360 - Fethiye'ye Dair Her Şey" 
                 width={200} 
                 height={75} 
+                sizes="200px"
                 className="h-16 w-auto object-contain"
+                loading="lazy"
               />
             </Link>
             <p className="text-muted-foreground text-sm mb-4">

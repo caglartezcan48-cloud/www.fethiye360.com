@@ -65,12 +65,11 @@
     "zod": "^3.24.1"
   },
   "browserslist": [
-    "last 2 Chrome versions",
-    "last 2 Firefox versions",
-    "last 2 Safari versions",
-    "last 2 Edge versions",
-    "not dead",
-    "not ie 11"
+    "last 1 Chrome versions",
+    "last 1 Firefox versions",
+    "last 1 Safari versions",
+    "last 1 Edge versions",
+    "not dead"
   ],
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.0",
