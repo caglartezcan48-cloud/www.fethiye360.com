@@ -6,10 +6,10 @@ import { Toaster } from 'sonner'
 import './globals.css'
 
 const inter = Inter({ 
-  subsets: ["latin", "latin-ext"],
+  subsets: ['latin', 'latin-ext'], 
   variable: '--font-inter',
-  display: 'swap',
-  preload: true,
+  display: 'optional',
+  weight: ['400', '500', '700', '900']
 });
 
 export const metadata: Metadata = {
