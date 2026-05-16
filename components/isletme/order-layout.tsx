@@ -73,13 +73,16 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
   const [isCartOpen, setIsCartOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  // Sepeti localStorage'dan yükle
+  // Sepeti localStorage'dan yukle ve Profil Bilgilerini Cek
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    let currentUserId = ''
+    
+    const fetchProfileAndCart = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
+        currentUserId = user.id
         const { data: profile } = await supabase
-          .from('profiles')
+          .from('user_profiles')
           .select('full_name, phone, address')
           .eq('id', user.id)
           .single()
@@ -93,24 +96,48 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
           if (profile.address) setCustomerAddress(profile.address)
         }
       }
-    }
 
-    fetchUserProfile()
-
-    const saved = localStorage.getItem(`cart_${businessName}`)
-    if (saved) {
-      try {
-        setCart(JSON.parse(saved))
-      } catch (e) {
-        console.error('Sepet yüklenemedi', e)
+      // Sepeti yukle (Isletme ve Kullaniciya ozel key)
+      const cartKey = `cart_${businessId}_${currentUserId || 'guest'}`
+      const saved = localStorage.getItem(cartKey)
+      if (saved) {
+        try {
+          setCart(JSON.parse(saved))
+        } catch (e) {
+          console.error('Sepet yuklenemedi', e)
+        }
       }
     }
-  }, [businessName])
+
+    fetchProfileAndCart()
+
+    // Oturum degisikliklerini dinle
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        fetchProfileAndCart()
+      } else if (event === 'SIGNED_OUT') {
+        setCustomerName('')
+        setCustomerPhone('')
+        setCustomerAddress('')
+        setHasProfileInfo(false)
+        setCart([])
+      }
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [businessId])
 
   // Sepeti localStorage'a kaydet
   useEffect(() => {
-    localStorage.setItem(`cart_${businessName}`, JSON.stringify(cart))
-  }, [cart, businessName])
+    const saveCart = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      const cartKey = `cart_${businessId}_${user?.id || 'guest'}`
+      localStorage.setItem(cartKey, JSON.stringify(cart))
+    }
+    saveCart()
+  }, [cart, businessId])
 
   const addToCart = (product: Product, quantity: number = 1, note: string = '') => {
     setCart(prev => {
@@ -212,6 +239,9 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
       const message = `Merhaba, ${businessName}'den yeni bir sipariş verdim! \n\nSipariş No: #${order.id.slice(0, 8)}\nMüşteri: ${customerName}\nTelefon: ${customerPhone}\nAdres: ${customerAddress}\n\nTakip Linki: https://www.fethiye360.com/siparis-takip/${order.id}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}`
       
       // 3. Takip Sayfasına Yönlendir
+      const { data: { user } } = await supabase.auth.getUser()
+      const cartKey = `cart_${businessId}_${user?.id || 'guest'}`
+      localStorage.removeItem(cartKey)
       clearCart()
       router.push(`/siparis-takip/${order.id}`)
     } catch (err: any) {
