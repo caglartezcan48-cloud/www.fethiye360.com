@@ -39,7 +39,7 @@ export function TourCard({ title, location, category, image, priority, onStartTo
           className="object-cover transition-transform duration-500 group-hover:scale-110"
           priority={priority}
           loading={priority ? undefined : "lazy"}
-          quality={60}
+          quality={50}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
         

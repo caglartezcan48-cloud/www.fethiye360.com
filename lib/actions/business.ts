@@ -33,7 +33,7 @@ export async function saveBusiness(businessData: any, id?: string) {
       const { password, ...insertData } = businessData
       
       if (!ownerId && insertData.slug) {
-        const generatedEmail = `${insertData.slug}@fethiye360.com`
+        const generatedEmail = `${insertData.slug}@${'fethiye360.com'}`
         const standardPassword = password || '123456'
         
         // Kullaniciyi yarat
@@ -84,7 +84,7 @@ export async function bulkSaveBusinesses(businessesData: any[]) {
       
       // 1. Kullanici Olustur
       if (!ownerId && item.slug) {
-        const generatedEmail = `${item.slug}@fethiye360.com`
+        const generatedEmail = `${item.slug}@${'fethiye360.com'}`
         const standardPassword = '123456'
         
         const { data: authData, error: authError } = await supabase.auth.admin.createUser({

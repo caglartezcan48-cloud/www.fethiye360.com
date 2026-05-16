@@ -1,6 +1,34 @@
 import { Instagram, Mail, MapPin, Phone } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useState, useEffect } from "react"
+
+function EmailDisplay() {
+  const [email, setEmail] = useState("")
+
+  useEffect(() => {
+    setEmail(['info', 'fethiye360.com'].join('@'))
+  }, [])
+
+  if (!email) {
+    return (
+      <div className="flex items-center gap-3 text-muted-foreground text-sm">
+        <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+        <span>Yükleniyor...</span>
+      </div>
+    )
+  }
+
+  return (
+    <a
+      href={`mailto:${email}`}
+      className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
+    >
+      <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+      <span>{email}</span>
+    </a>
+  )
+}
 
 export function Footer() {
   return (
@@ -57,13 +85,7 @@ export function Footer() {
                 <span>Fethiye, Muğla, Türkiye</span>
               </li>
               <li>
-                <a
-                  href={`mailto:${['info', 'fethiye360.com'].join('@')}`}
-                  className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors text-sm"
-                >
-                  <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>{['info', 'fethiye360.com'].join('@')}</span>
-                </a>
+                <EmailDisplay />
               </li>
               <li>
                 <a

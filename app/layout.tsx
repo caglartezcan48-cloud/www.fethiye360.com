@@ -63,15 +63,14 @@ export default function RootLayout({
     <html lang="tr" className="bg-background">
       <head>
         {/* Next.js next/font handles font preconnects automatically */}
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <SystemHealthProvider>
           {children}
+          <Toaster position="top-center" richColors />
+          {process.env.NODE_ENV === 'production' && <Analytics />}
         </SystemHealthProvider>
-        <Toaster position="top-center" richColors />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
   )
