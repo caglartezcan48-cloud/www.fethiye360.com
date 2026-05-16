@@ -75,6 +75,25 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
 
   // Sepeti localStorage'dan yükle
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, phone, address')
+          .eq('id', user.id)
+          .single()
+
+        if (profile) {
+          if (profile.full_name) setCustomerName(profile.full_name)
+          if (profile.phone) setCustomerPhone(profile.phone)
+          if (profile.address) setCustomerAddress(profile.address)
+        }
+      }
+    }
+
+    fetchUserProfile()
+
     const saved = localStorage.getItem(`cart_${businessName}`)
     if (saved) {
       try {
