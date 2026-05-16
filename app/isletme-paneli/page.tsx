@@ -151,13 +151,18 @@ export default function BusinessPanel() {
         )
         .subscribe()
 
-      return () => {
-        supabase.removeChannel(channel)
-      }
-
       setLoading(false)
+
+      return channel // channel objesini dondurerek disarida cleanup yapabiliriz
     }
-    fetchData()
+
+    const cleanupPromise = fetchData()
+
+    return () => {
+      cleanupPromise.then(channel => {
+        if (channel) supabase.removeChannel(channel)
+      })
+    }
   }, [])
 
   const handleUpdateGeneral = async (e: React.FormEvent) => {
