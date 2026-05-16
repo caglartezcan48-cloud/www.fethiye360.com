@@ -3,15 +3,16 @@
  * +18 içerik kontrolü ve metin filtreleme
  */
 
-import * as nsfwjs from 'nsfwjs'
+// nsfwjs lazy loaded - sadece gorsel moderasyonda yuklenir
+type NSFWJS = Awaited<ReturnType<typeof import('nsfwjs')>>
 
 // NSFW Model singleton
-let nsfwModel: nsfwjs.NSFWJS | null = null
+let nsfwModel: any | null = null
 
 /**
  * NSFW modelini yükle (lazy loading)
  */
-export async function loadNSFWModel(): Promise<nsfwjs.NSFWJS> {
+export async function loadNSFWModel() {
   if (nsfwModel) return nsfwModel
   
   // TensorFlow.js ayarları
@@ -22,6 +23,7 @@ export async function loadNSFWModel(): Promise<nsfwjs.NSFWJS> {
     await tf.setBackend('webgl')
   }
   
+  const nsfwjs = await import('nsfwjs')
   nsfwModel = await nsfwjs.load()
   return nsfwModel
 }

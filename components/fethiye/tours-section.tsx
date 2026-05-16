@@ -39,7 +39,7 @@ export async function ToursSection() {
   return (
     <section id="rehber" className="py-32 bg-background relative overflow-hidden">
       {/* Background Decorative */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#64ffda]/5 rounded-full blur-[100px] -z-10" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#64ffda]/5 rounded-full blur-3xl -z-10" aria-hidden="true" />
       
       <div className="container mx-auto px-6">
         {/* Section Header */}

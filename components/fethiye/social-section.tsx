@@ -26,7 +26,7 @@ export async function SocialSection() {
   return (
     <section className="py-24 relative overflow-hidden bg-[#0a192f]">
       {/* Decorative Background */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#64ffda]/5 rounded-full blur-[120px] -z-10" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#64ffda]/5 rounded-full blur-3xl -z-10" aria-hidden="true" />
       
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">

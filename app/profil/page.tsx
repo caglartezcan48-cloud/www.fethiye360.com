@@ -25,8 +25,7 @@ import { PostGridSkeleton } from '@/components/sosyal/post-skeleton'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import * as tf from '@tensorflow/tfjs'
-import * as nsfwjs from 'nsfwjs'
+// tensorflow ve nsfwjs lazy loaded - sadece ihtiyac duyuldugunda yuklenir
 import {
   Dialog,
   DialogContent,
@@ -260,7 +259,8 @@ export default function UserProfilePage() {
       setUpdating(true)
       setIsAnalyzing(true)
 
-      // AI Analizi
+      // AI Analizi - dynamic import (3MB+ tasarruf)
+      const nsfwjs = await import('nsfwjs')
       const model = await nsfwjs.load()
       const img = new (window.Image as any)()
       img.src = URL.createObjectURL(file)

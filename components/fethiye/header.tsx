@@ -57,9 +57,12 @@ export function Header() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center group">
-              <img 
+              <Image 
                 src="/images/fethiye360-logo.png" 
                 alt="Fethiye360 Logo" 
+                width={180}
+                height={56}
+                priority
                 className="h-14 md:h-16 w-auto object-contain group-hover:scale-105 transition-transform brightness-110 contrast-110 drop-shadow-[0_0_15px_rgba(100,255,218,0.2)]"
               />
             </Link>

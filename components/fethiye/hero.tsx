@@ -1,6 +1,4 @@
-"use client"
-
-import { ArrowDown, Play, Sparkles } from "lucide-react"
+import { ArrowDown, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "./search-bar"
 import Image from "next/image"
@@ -18,7 +16,7 @@ export function Hero() {
           priority
           sizes="100vw"
           quality={70}
-          className="object-cover opacity-40 scale-105 animate-slow-zoom"
+          className="object-cover opacity-40"
           placeholder="blur"
           blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQRBQYSIRMxQWH/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EABkRAAIDAQAAAAAAAAAAAAAAAAECABEhMf/aAAwDAQACEQMRAD8AzrR9s6hd6Ra3UskUKyxLIEJJIDDOMj96qfxK+X/K2lKU5Y6jLAHuf//Z"
         />
@@ -26,9 +24,9 @@ export function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#0a192f_100%)] opacity-70" />
       </div>
 
-      {/* Decorative Glows */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#64ffda]/10 rounded-full blur-[120px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
+      {/* Decorative Glows - GPU accelerated */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#64ffda]/8 rounded-full blur-3xl opacity-50" aria-hidden="true" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl opacity-50" aria-hidden="true" />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">

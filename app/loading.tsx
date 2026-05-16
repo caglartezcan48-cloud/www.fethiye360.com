@@ -1,9 +1,6 @@
 export default function Loading() {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#0a192f]">
-      {/* Minimal Glow Effect */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[#64ffda]/10 rounded-full blur-[80px]" />
-      
       <div className="relative flex flex-col items-center gap-4">
         {/* Simple CSS Spinner */}
         <div className="w-16 h-16 rounded-[24px] bg-gradient-to-br from-[#64ffda] to-blue-500 flex items-center justify-center shadow-xl shadow-[#64ffda]/20">
@@ -17,7 +14,7 @@ export default function Loading() {
             Fethiye<span className="text-[#64ffda]">360</span>
           </h2>
           <div className="h-1 w-24 bg-white/5 rounded-full overflow-hidden">
-            <div className="h-full bg-[#64ffda] w-1/3 animate-pulse" />
+            <div className="h-full bg-[#64ffda] w-1/3 rounded-full animate-[loading_1s_ease-in-out_infinite]" />
           </div>
         </div>
       </div>
