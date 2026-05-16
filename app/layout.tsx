@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     locale: 'tr_TR',
     url: 'https://www.fethiye360.com',
     siteName: 'Fethiye 360',
-    title: 'Fethiye 360 | Sanal Tur Deneyimi',
-    description: 'Fethiye\'nin en güzel noktalarını 360° sanal turlarla keşfedin.',
+    title: 'Fethiye 360 | Fethiye\'ye Dair Her Şey',
+    description: 'Fethiye\'nin en kapsamlı dijital rehberi. Gezi, yeme içme, alışveriş, etkinlikler, konaklama ve daha fazlası.',
     images: [
       {
-        url: '/og-image.png',
+        url: '/images/fethiye360-logo.png',
         width: 1200,
         height: 630,
       },
@@ -35,26 +35,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Fethiye 360 | Sanal Tur Deneyimi',
-    description: 'Fethiye\'nin en güzel noktalarını 360° sanal turlarla keşfedin.',
-    images: ['/twitter-image.png'],
+    title: 'Fethiye 360 | Fethiye\'ye Dair Her Şey',
+    description: 'Fethiye\'nin en kapsamlı dijital rehberi.',
+    images: ['/images/fethiye360-logo.png'],
   },
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/images/fethiye360-logo.png',
+    apple: '/images/fethiye360-logo.png',
+    shortcut: '/images/fethiye360-logo.png',
   },
   manifest: '/manifest.json'
 }
