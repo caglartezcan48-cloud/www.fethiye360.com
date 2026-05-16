@@ -683,14 +683,22 @@ export default function BusinessPanel() {
                       <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
                          {/* Customer Info */}
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
-                               <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Müşteri</p>
-                               <p className="text-white font-black uppercase italic">{selectedOrder.customer_name}</p>
-                            </div>
-                            <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
-                               <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Ödeme</p>
-                               <p className="text-[#64ffda] font-black uppercase italic">{selectedOrder.payment_method}</p>
-                            </div>
+                             <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
+                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Müşteri</p>
+                                <p className="text-white font-black uppercase italic">{selectedOrder.customer_name}</p>
+                             </div>
+                             <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
+                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">İletişim</p>
+                                <p className="text-[#64ffda] font-black uppercase italic">{selectedOrder.customer_phone}</p>
+                             </div>
+                             <div className="col-span-full bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
+                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Teslimat Adresi</p>
+                                <p className="text-white text-sm font-medium italic leading-relaxed">{selectedOrder.customer_address}</p>
+                             </div>
+                             <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
+                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Ödeme</p>
+                                <p className="text-[#64ffda] font-black uppercase italic">{selectedOrder.payment_method}</p>
+                             </div>
                          </div>
 
                          {/* Items List */}
