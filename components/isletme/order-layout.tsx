@@ -202,7 +202,7 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
   const handleCheckout = async () => {
     if (cart.length === 0 || isSubmitting) return
     if (!customerName || !customerPhone || !customerAddress) {
-      toast.error('Lütfen tüm müşteri bilgilerini doldurun!')
+      toast.error('Profil bilgileriniz (Adres ve Telefon) eksik! Lütfen profil sayfanızdan bilgilerinizi güncelleyin.')
       return
     }
     
@@ -446,62 +446,6 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
                 {cart.length > 0 && (
                   <div className="p-6 border-t border-white/5 space-y-4">
                     {/* Payment Method */}
-                    {/* Customer Info Form or Summary */}
-                    <div className="space-y-4 pt-2">
-                      {hasProfileInfo && !isEditingInfo ? (
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 relative group">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teslimat Bilgileri</h4>
-                            <button 
-                              onClick={() => setIsEditingInfo(true)}
-                              className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest hover:underline"
-                            >
-                              Degistir
-                            </button>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-white text-sm font-bold uppercase">{customerName}</p>
-                            <p className="text-slate-400 text-xs">{customerPhone}</p>
-                            <p className="text-slate-500 text-[11px] leading-relaxed italic">{customerAddress}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between px-1">
-                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teslimat Formu</h4>
-                            {hasProfileInfo && (
-                              <button 
-                                onClick={() => setIsEditingInfo(false)}
-                                className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline"
-                              >
-                                Iptal
-                              </button>
-                            )}
-                          </div>
-                          <input
-                            type="text"
-                            placeholder="Ad Soyad"
-                            value={customerName}
-                            onChange={(e) => setCustomerName(e.target.value)}
-                            className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
-                          />
-                          <input
-                            type="tel"
-                            placeholder="Telefon (Örn: 0555...)"
-                            value={customerPhone}
-                            onChange={(e) => setCustomerPhone(e.target.value)}
-                            className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
-                          />
-                          <textarea
-                            placeholder="Teslimat Adresi"
-                            value={customerAddress}
-                            onChange={(e) => setCustomerAddress(e.target.value)}
-                            className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20 min-h-[80px] resize-none"
-                          />
-                        </div>
-                      )}
-                    </div>
-
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => setPaymentMethod('Nakit')}
@@ -632,62 +576,6 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
 
             {/* Footer */}
             <div className="p-6 border-t border-white/5 space-y-4 bg-[#111827]">
-              {/* Customer Info Form or Summary */}
-              <div className="space-y-4 pt-2">
-                {hasProfileInfo && !isEditingInfo ? (
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3 relative group">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teslimat Bilgileri</h4>
-                      <button 
-                        onClick={() => setIsEditingInfo(true)}
-                        className="text-[10px] font-black text-[#64ffda] uppercase tracking-widest hover:underline"
-                      >
-                        Degistir
-                      </button>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-white text-sm font-bold uppercase">{customerName}</p>
-                      <p className="text-slate-400 text-xs">{customerPhone}</p>
-                      <p className="text-slate-500 text-[11px] leading-relaxed italic">{customerAddress}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between px-1">
-                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teslimat Formu</h4>
-                      {hasProfileInfo && (
-                        <button 
-                          onClick={() => setIsEditingInfo(false)}
-                          className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:underline"
-                        >
-                          Iptal
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Ad Soyad"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Telefon (Örn: 0555...)"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
-                    />
-                    <textarea
-                      placeholder="Teslimat Adresi"
-                      value={customerAddress}
-                      onChange={(e) => setCustomerAddress(e.target.value)}
-                      className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20 min-h-[80px] resize-none"
-                    />
-                  </div>
-                )}
-              </div>
-
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setPaymentMethod('Nakit')}
