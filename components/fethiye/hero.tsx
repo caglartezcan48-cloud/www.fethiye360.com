@@ -9,10 +9,11 @@ export function Hero() {
       {/* HD Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=40&fm=webp&fit=crop"
+          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=40&fm=avif&fit=crop"
           alt="Fethiye Ölüdeniz Plajı"
           fill
           priority
+          fetchPriority="high"
           sizes="(max-width: 768px) 100vw, 100vw"
           quality={50}
           className="object-cover opacity-40"
