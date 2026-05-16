@@ -1,54 +1,25 @@
-/**
- * Fethiye360 - Elite Destination Portal
- * Version: 1.1.3 - Performance Optimization Update
- */
-import { Header } from "@/components/fethiye/header"
-import { Hero } from "@/components/fethiye/hero"
-import { SocialSection } from "@/components/fethiye/social-section"
-import { CityStats } from "@/components/fethiye/city-stats"
-import { Suspense } from "react"
+import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
+import { Header } from '@/components/fethiye/header'
+import { Hero } from '@/components/fethiye/hero'
+import { ToursSection } from '@/components/fethiye/tours-section'
+import { CityStats } from '@/components/fethiye/city-stats'
+import { Footer } from '@/components/fethiye/footer'
 
-// Lazy load below-the-fold components
-const ToursSection = dynamic(() => import("@/components/fethiye/tours-section").then(mod => mod.ToursSection), {
-  loading: () => <ToursSectionSkeleton />
+// Lazy load non-critical sections below the fold for 100 PageSpeed score
+const AboutSection = dynamic(() => import('@/components/fethiye/about-section').then(mod => mod.AboutSection), {
+  loading: () => <div className="h-96" />
 })
-const MapSection = dynamic(() => import("@/components/fethiye/map-section").then(mod => mod.MapSection), {
-  loading: () => <SectionSkeleton />
+
+const MapSection = dynamic(() => import('@/components/fethiye/map-section').then(mod => mod.MapSection), {
+  loading: () => <div className="h-96" />
 })
-const AboutSection = dynamic(() => import("@/components/fethiye/about-section").then(mod => mod.AboutSection), {
-  loading: () => <SectionSkeleton />
+
+const SocialSection = dynamic(() => import('@/components/fethiye/social-section').then(mod => mod.SocialSection), {
+  loading: () => <div className="h-96" />
 })
-const Footer = dynamic(() => import("@/components/fethiye/footer").then(mod => mod.Footer))
 
-// Skeleton Components
-function ToursSectionSkeleton() {
-  return (
-    <section className="py-32 bg-background">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-16">
-          <div className="h-8 w-32 bg-white/5 rounded-full mx-auto mb-4 animate-pulse" />
-          <div className="h-12 w-96 bg-white/5 rounded-lg mx-auto mb-4 animate-pulse" />
-          <div className="h-4 w-64 bg-white/5 rounded mx-auto animate-pulse" />
-        </div>
-        <div className="flex justify-center gap-3 mb-16">
-          {[1,2,3,4,5].map(i => <div key={i} className="h-10 w-24 bg-white/5 rounded-2xl animate-pulse" />)}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1,2,3,4,5,6].map(i => (
-            <div key={i} className="bg-white/5 rounded-xl aspect-[4/3] animate-pulse" />
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function SectionSkeleton() {
-  return <div className="py-20 bg-background"><div className="container mx-auto px-4 h-64 bg-white/5 rounded-2xl animate-pulse" /></div>
-}
-
-export default function FethiyePage() {
+export default function HomePage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="fixed top-0 left-0 right-0 z-[101]">
@@ -56,12 +27,20 @@ export default function FethiyePage() {
       </div>
       <Header />
       <Hero />
-      <Suspense fallback={<SectionSkeleton />}>
+      <ToursSection />
+      
+      <Suspense fallback={<div className="h-96" />}>
         <SocialSection />
       </Suspense>
-      <ToursSection />
-      <MapSection />
-      <AboutSection />
+
+      <Suspense fallback={<div className="h-96" />}>
+        <MapSection />
+      </Suspense>
+
+      <Suspense fallback={<div className="h-96" />}>
+        <AboutSection />
+      </Suspense>
+
       <Footer />
     </main>
   )
