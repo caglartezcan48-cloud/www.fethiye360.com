@@ -159,6 +159,12 @@
   }
 }
 
+/* Performance optimization for below-the-fold sections */
+#rehber, #harita, #hakkinda {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
 /* GPU acceleration for animated elements */
 .animate-pulse, .animate-bounce, .animate-spin {
   will-change: transform, opacity;
