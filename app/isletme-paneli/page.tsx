@@ -131,6 +131,30 @@ export default function BusinessPanel() {
 
       if (orderData) setOrders(orderData)
 
+      // Real-time Sipariş Takibi ve Sesli Uyarı
+      const channel = supabase
+        .channel('business-orders-realtime')
+        .on(
+          'postgres_changes',
+          { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'business_orders',
+            filter: `business_id=eq.${biz.id}`
+          },
+          (payload) => {
+            setOrders(prev => [payload.new, ...prev])
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+            audio.play().catch(e => console.log('Ses çalınamadı:', e))
+            toast.success('Yeni bir sipariş geldi!', { icon: '🔔' })
+          }
+        )
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
+
       setLoading(false)
     }
     fetchData()
@@ -511,6 +535,11 @@ export default function BusinessPanel() {
               >
                 <tab.icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${activeTab === tab.id ? 'animate-pulse' : ''}`} />
                 {tab.label}
+                {tab.id === 'orders' && orders.filter(o => o.status === 'pending').length > 0 && (
+                  <span className="absolute right-4 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-bounce shadow-lg shadow-red-500/20">
+                    {orders.filter(o => o.status === 'pending').length}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -648,7 +677,7 @@ export default function BusinessPanel() {
 
                       <div className="flex-1 overflow-y-auto p-10 space-y-12 no-scrollbar">
                          {/* Customer Info */}
-                         <div className="grid grid-cols-2 gap-6">
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-1">
                                <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Müşteri</p>
                                <p className="text-white font-black uppercase italic">{selectedOrder.customer_name}</p>

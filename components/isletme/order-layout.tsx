@@ -144,8 +144,17 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
 
   const itemCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart])
 
+  const [customerName, setCustomerName] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [customerAddress, setCustomerAddress] = useState('')
+
   const handleCheckout = async () => {
     if (cart.length === 0 || isSubmitting) return
+    if (!customerName || !customerPhone || !customerAddress) {
+      toast.error('Lütfen tüm müşteri bilgilerini doldurun!')
+      return
+    }
+    
     setIsSubmitting(true)
 
     try {
@@ -154,7 +163,9 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
         .from('business_orders')
         .insert([{
           business_id: businessId,
-          customer_name: 'Anonim Müşteri', // Buraya sonradan isim inputu eklenebilir
+          customer_name: customerName,
+          customer_phone: customerPhone,
+          customer_address: customerAddress,
           total_amount: total,
           payment_method: paymentMethod,
           status: 'pending',
@@ -173,15 +184,12 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
 
       toast.success('Siparişiniz alındı! Takip sayfasına yönlendiriliyorsunuz.')
       
-      // 2. WhatsApp Mesajını Hazırla (Opsiyonel olarak kalsın)
-      const message = `Merhaba, sipariş verdim! \n\nSipariş No: #${order.id.slice(0, 8)}\nTakip Linki: https://www.fethiye360.com/siparis-takip/${order.id}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}`
+      // 2. WhatsApp Mesajını Hazırla
+      const message = `Merhaba, ${businessName}'den yeni bir sipariş verdim! \n\nSipariş No: #${order.id.slice(0, 8)}\nMüşteri: ${customerName}\nTelefon: ${customerPhone}\nAdres: ${customerAddress}\n\nTakip Linki: https://www.fethiye360.com/siparis-takip/${order.id}\n\nToplam: ${total} TL\nÖdeme: ${paymentMethod}`
       
       // 3. Takip Sayfasına Yönlendir
       clearCart()
       router.push(`/siparis-takip/${order.id}`)
-      
-      // WhatsApp penceresini isteğe bağlı açabiliriz, ama takip sayfası daha profesyonel
-      // window.open(`https://wa.me/${whatsappNumber?.replace(/\s+/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
     } catch (err: any) {
       toast.error('Sipariş oluşturulamadı: ' + err.message)
     } finally {
@@ -384,6 +392,36 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
                 {cart.length > 0 && (
                   <div className="p-6 border-t border-white/5 space-y-4">
                     {/* Payment Method */}
+                    {/* Customer Info Form */}
+                    <div className="space-y-3 pt-2">
+                      <div className="relative group">
+                        <input
+                          type="text"
+                          placeholder="Ad Soyad"
+                          value={customerName}
+                          onChange={(e) => setCustomerName(e.target.value)}
+                          className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
+                        />
+                      </div>
+                      <div className="relative group">
+                        <input
+                          type="tel"
+                          placeholder="Telefon (Örn: 0555...)"
+                          value={customerPhone}
+                          onChange={(e) => setCustomerPhone(e.target.value)}
+                          className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
+                        />
+                      </div>
+                      <div className="relative group">
+                        <textarea
+                          placeholder="Teslimat Adresi"
+                          value={customerAddress}
+                          onChange={(e) => setCustomerAddress(e.target.value)}
+                          className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20 min-h-[80px] resize-none"
+                        />
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => setPaymentMethod('Nakit')}
@@ -514,6 +552,30 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
 
             {/* Footer */}
             <div className="p-6 border-t border-white/5 space-y-4 bg-[#111827]">
+              {/* Customer Info Form */}
+              <div className="space-y-3 pt-2">
+                <input
+                  type="text"
+                  placeholder="Ad Soyad"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
+                />
+                <input
+                  type="tel"
+                  placeholder="Telefon (Örn: 0555...)"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20"
+                />
+                <textarea
+                  placeholder="Teslimat Adresi"
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
+                  className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-cyan-500/50 outline-none transition-all placeholder:text-white/20 min-h-[80px] resize-none"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setPaymentMethod('Nakit')}
