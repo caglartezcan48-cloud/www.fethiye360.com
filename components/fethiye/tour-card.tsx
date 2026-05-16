@@ -10,10 +10,11 @@ interface TourCardProps {
   location: string
   category: string
   image: string
+  priority?: boolean
   onStartTour?: () => void
 }
 
-export function TourCard({ title, location, category, image, onStartTour }: TourCardProps) {
+export function TourCard({ title, location, category, image, priority, onStartTour }: TourCardProps) {
   const categoryColors: Record<string, string> = {
     "Plaj": "bg-blue-500/20 text-blue-400 border-blue-500/30",
     "Tarihi Yer": "bg-amber-500/20 text-amber-400 border-amber-500/30",
@@ -36,7 +37,8 @@ export function TourCard({ title, location, category, image, onStartTour }: Tour
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-500 group-hover:scale-110"
-          loading="lazy"
+          priority={priority}
+          loading={priority ? undefined : "lazy"}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
         

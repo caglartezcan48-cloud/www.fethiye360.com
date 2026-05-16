@@ -4,28 +4,30 @@
  */
 
 // nsfwjs lazy loaded - sadece gorsel moderasyonda yuklenir
-type NSFWJS = Awaited<ReturnType<typeof import('nsfwjs')>>
+type NSFWJS = any
 
 // NSFW Model singleton
-let nsfwModel: any | null = null
+let nsfwModel: NSFWJS | null = null
 
 /**
  * NSFW modelini yükle (lazy loading)
  */
-export async function loadNSFWModel() {
+export async function loadNSFWModel(): Promise<NSFWJS> {
   if (nsfwModel) return nsfwModel
   
-  // TensorFlow.js ayarları
+  // TensorFlow.js ve NSFWJS'i sadece ihtiyaç duyulduğunda dinamik olarak içe aktar
+  // Bu sayede ana bundle boyutu megabaytlarca küçülür.
   if (typeof window !== 'undefined') {
     const tf = await import('@tensorflow/tfjs')
     await tf.ready()
-    // WebGL backend kullan (daha hızlı)
     await tf.setBackend('webgl')
+    
+    const nsfwjs = await import('nsfwjs')
+    nsfwModel = await nsfwjs.load()
+    return nsfwModel
   }
   
-  const nsfwjs = await import('nsfwjs')
-  nsfwModel = await nsfwjs.load()
-  return nsfwModel
+  return null
 }
 
 /**
@@ -70,7 +72,7 @@ export async function moderateImage(imageSource: HTMLImageElement | string): Pro
     sexy: 0
   }
   
-  predictions.forEach(pred => {
+  predictions.forEach((pred: any) => {
     const key = pred.className.toLowerCase() as keyof typeof details
     if (key in details) {
       details[key] = pred.probability

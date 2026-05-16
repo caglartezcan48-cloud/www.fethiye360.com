@@ -49,7 +49,16 @@ const nextConfig = {
   poweredByHeader: false,
   headers: async () => [
     {
-      source: '/(.*)',
+      source: '/:all*(svg|jpg|jpeg|png|webp|avif|ico|woff|woff2|ttf|json|mp4|webm)',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/:path*',
       headers: [
         {
           key: 'X-DNS-Prefetch-Control',
@@ -70,24 +79,6 @@ const nextConfig = {
         {
           key: 'Permissions-Policy',
           value: 'camera=(), microphone=(), geolocation=(self)',
-        },
-      ],
-    },
-    {
-      source: '/images/:path*',
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, max-age=31536000, immutable',
-        },
-      ],
-    },
-    {
-      source: '/:path*',
-      headers: [
-        {
-          key: 'Cache-Control',
-          value: 'public, s-maxage=1, stale-while-revalidate=59',
         },
       ],
     },

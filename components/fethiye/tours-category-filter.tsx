@@ -54,13 +54,14 @@ export function ToursCategoryFilter({ destinations }: ToursCategoryFilterProps) 
       {/* Tours Grid */}
       {filteredTours.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTours.map((dest) => (
+          {filteredTours.map((dest, index) => (
             <TourCard
               key={dest.id}
               title={dest.title}
               location="Fethiye"
               category={dest.category}
               image={dest.main_image}
+              priority={index < 3}
               onStartTour={() => handleStartTour(dest.slug)}
             />
           ))}
