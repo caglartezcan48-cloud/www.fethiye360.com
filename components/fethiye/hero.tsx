@@ -2,14 +2,59 @@ import { Button } from "@/components/ui/button"
 import { SearchBar } from "./search-bar"
 import Image from "next/image"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/server"
 
-export function Hero() {
+interface HeroBanner {
+  id: string
+  title: string
+  subtitle: string | null
+  badge_text: string | null
+  button_text: string | null
+  button_url: string | null
+  secondary_button_text: string | null
+  secondary_button_url: string | null
+  background_image: string | null
+}
+
+async function getActiveBanner(): Promise<HeroBanner | null> {
+  const supabase = await createClient()
+  const now = new Date().toISOString()
+
+  const { data } = await supabase
+    .from('hero_banners')
+    .select('*')
+    .eq('is_active', true)
+    .or(`start_date.is.null,start_date.lte.${now}`)
+    .or(`end_date.is.null,end_date.gte.${now}`)
+    .order('display_order', { ascending: true })
+    .limit(1)
+    .single()
+
+  return data
+}
+
+// Varsayilan banner bilgileri
+const defaultBanner: HeroBanner = {
+  id: 'default',
+  title: "Fethiye'yi 360° Keşfet",
+  subtitle: "Şehrin en güzel noktalarını sanal turla gez. Plajlardan tarihi yerlere, işletmelerden gizli kalmış köşelere kadar her yeri HD kalitede keşfet.",
+  badge_text: "Fethiye'nin Dijital Dünyası",
+  button_text: "Hemen Keşfet",
+  button_url: "/kesfet",
+  secondary_button_text: "Sanal Turlar",
+  secondary_button_url: "#rehber",
+  background_image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=640&q=40&fm=avif&fit=crop"
+}
+
+export async function Hero() {
+  const banner = await getActiveBanner() || defaultBanner
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* HD Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=640&q=40&fm=avif&fit=crop"
+          src={banner.background_image || defaultBanner.background_image!}
           alt="Fethiye Ölüdeniz Plajı"
           fill
           priority
@@ -32,24 +77,36 @@ export function Hero() {
       <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="max-w-5xl mx-auto">
           {/* HD Badge */}
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 mb-10 backdrop-blur-md animate-in fade-in duration-300">
-            <svg className="w-4 h-4 text-[#64ffda]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-            <span className="text-[#64ffda] text-xs font-bold uppercase tracking-[0.2em]">Fethiye'nin Dijital Dünyası</span>
-          </div>
+          {banner.badge_text && (
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 border border-white/10 mb-10 backdrop-blur-md animate-in fade-in duration-300">
+              <svg className="w-4 h-4 text-[#64ffda]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+              <span className="text-[#64ffda] text-xs font-bold uppercase tracking-[0.2em]">{banner.badge_text}</span>
+            </div>
+          )}
 
           {/* Main Title - HD Styling */}
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-8 leading-[1.1] tracking-tighter animate-in fade-in duration-500">
-            Fethiye'yi <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#64ffda] via-[#52e0c4] to-blue-400 drop-shadow-[0_0_30px_rgba(100,255,218,0.3)]">
-              360° Keşfet
-            </span>
+            {banner.title.includes('360°') ? (
+              <>
+                {banner.title.split('360°')[0]}
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#64ffda] via-[#52e0c4] to-blue-400 drop-shadow-[0_0_30px_rgba(100,255,218,0.3)]">
+                  360° {banner.title.split('360°')[1] || 'Keşfet'}
+                </span>
+              </>
+            ) : (
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#64ffda] via-[#52e0c4] to-blue-400 drop-shadow-[0_0_30px_rgba(100,255,218,0.3)]">
+                {banner.title}
+              </span>
+            )}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
-            Şehrin en güzel noktalarını sanal turla gez. Plajlardan tarihi yerlere, 
-            işletmelerden gizli kalmış köşelere kadar her yeri HD kalitede keşfet.
-          </p>
+          {banner.subtitle && (
+            <p className="text-lg sm:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
+              {banner.subtitle}
+            </p>
+          )}
 
           <div className="animate-in fade-in zoom-in-95 duration-1000 delay-300">
             <SearchBar />
@@ -57,16 +114,20 @@ export function Hero() {
 
           {/* Hero Action Buttons */}
           <div className="mt-10 flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-14 duration-1000 delay-400">
-            <Link href="/kesfet">
-              <Button className="bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-xs px-10 h-14 rounded-2xl shadow-xl shadow-[#64ffda]/20 group">
-                Hemen Keşfet
-              </Button>
-            </Link>
-            <Link href="#rehber">
-              <Button variant="outline" className="border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-widest text-xs px-10 h-14 rounded-2xl">
-                Sanal Turlar
-              </Button>
-            </Link>
+            {banner.button_text && banner.button_url && (
+              <Link href={banner.button_url}>
+                <Button className="bg-[#64ffda] text-[#0a192f] hover:bg-[#52e0c4] font-black uppercase tracking-widest text-xs px-10 h-14 rounded-2xl shadow-xl shadow-[#64ffda]/20 group">
+                  {banner.button_text}
+                </Button>
+              </Link>
+            )}
+            {banner.secondary_button_text && banner.secondary_button_url && (
+              <Link href={banner.secondary_button_url}>
+                <Button variant="outline" className="border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-widest text-xs px-10 h-14 rounded-2xl">
+                  {banner.secondary_button_text}
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Stats - HD Cards */}

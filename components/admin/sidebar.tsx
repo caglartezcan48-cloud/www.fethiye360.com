@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   MapPin,
   ShoppingBag,
+  Image,
 } from 'lucide-react'
 
 interface AdminUser {
@@ -29,6 +30,7 @@ interface AdminUser {
 
 const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/bannerlar', label: 'Banner Yonetimi', icon: Image },
   { href: '/admin/turlar', label: 'Turlar', icon: Map },
   { href: '/admin/kategoriler', label: 'Kategoriler', icon: FolderOpen },
   { href: '/admin/isletmeler', label: 'İşletmeler', icon: Building2 },
