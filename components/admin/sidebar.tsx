@@ -17,7 +17,6 @@ import {
   Camera,
   ShieldAlert,
   MapPin,
-  ShoppingBag,
   Image,
 } from 'lucide-react'
 
@@ -34,7 +33,6 @@ const menuItems = [
   { href: '/admin/turlar', label: 'Turlar', icon: Map },
   { href: '/admin/kategoriler', label: 'Kategoriler', icon: FolderOpen },
   { href: '/admin/isletmeler', label: 'İşletmeler', icon: Building2 },
-  { href: '/admin/urunler', label: 'Ürünler', icon: ShoppingBag },
   { href: '/admin/kullanicilar', label: 'Kullanıcılar', icon: Users },
   { href: '/admin/yorumlar', label: 'Yorumlar', icon: MessageSquare },
   { href: '/admin/sosyal-onay', label: 'Sosyal Onay', icon: Camera },
