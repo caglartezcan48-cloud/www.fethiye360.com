@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
+import { usePathname } from 'next/navigation'
 
 const supabase = createClient()
 
@@ -28,6 +29,7 @@ function LogOutIcon() {
 }
 
 export function Header() {
+  const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -124,10 +126,28 @@ export function Header() {
 
             {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center gap-10">
-              <Link href="/isletmeler" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">ISLETMELER</Link>
-              <Link href="/rehber" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">REHBER</Link>
-              <Link href="/sosyal" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">SOSYAL</Link>
-              <Link href="/aktivite-planla" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">AKTIVITE PLANLA</Link>
+              {[
+                { href: '/isletmeler', label: 'ISLETMELER' },
+                { href: '/rehber', label: 'REHBER' },
+                { href: '/sosyal', label: 'SOSYAL' },
+                { href: '/aktivite-planla', label: 'AKTIVITE PLANLA' }
+              ].map((item) => {
+                const active = pathname === item.href || pathname?.startsWith(item.href + '/')
+                return (
+                  <Link 
+                    key={item.href}
+                    href={item.href} 
+                    className={`relative py-2 text-[11px] font-black tracking-[0.2em] uppercase transition-all duration-300 ${
+                      active ? 'text-[#64ffda] drop-shadow-[0_0_8px_rgba(100,255,218,0.5)]' : 'text-white/70 hover:text-[#64ffda]'
+                    }`}
+                  >
+                    {item.label}
+                    {active && (
+                      <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#64ffda] to-transparent rounded-full shadow-[0_0_8px_#64ffda] animate-in fade-in duration-300" />
+                    )}
+                  </Link>
+                )
+              })}
             </div>
 
             {/* Actions Bar */}
@@ -235,16 +255,28 @@ export function Header() {
               {/* Profile / Authenticated states */}
               {user ? (
                 <div className="flex items-center gap-3">
-                  <Link href="/profil" className="flex items-center gap-3 px-6 py-3 bg-[#64ffda] text-[#0a192f] rounded-2xl font-black text-[10px] tracking-widest uppercase hover:scale-105 transition-all shadow-lg shadow-[#64ffda]/20">
+                  <Link 
+                    href="/profil" 
+                    className="relative flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-[#64ffda]/30 bg-gradient-to-r from-[#64ffda] to-[#52e0c4] text-[#0a192f] shadow-[0_4px_20px_rgba(100,255,218,0.2)] hover:shadow-[0_4px_30px_rgba(100,255,218,0.4)]"
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                     <UserIcon /> PROFILIM
                   </Link>
-                  <button onClick={handleSignOut} className="p-3 bg-white/5 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all border border-white/5 flex items-center">
+                  <button 
+                    onClick={handleSignOut} 
+                    className="p-3 bg-white/5 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all duration-300 border border-white/5 hover:border-red-500/20 flex items-center active:scale-95 shadow-md"
+                    title="Çıkış Yap"
+                  >
                     <LogOutIcon />
                   </button>
                 </div>
               ) : (
-                <Link href="/giris" className="flex items-center gap-3 px-8 py-3 bg-white/5 text-white border border-white/10 rounded-2xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all">
-                  <UserIcon /> GIRIS YAP
+                <Link 
+                  href="/giris" 
+                  className="relative flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-white/10 hover:border-[#64ffda]/30 bg-white/5 hover:bg-white/10 text-white shadow-lg"
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+                  <UserIcon /> GİRİŞ YAP
                 </Link>
               )}
 

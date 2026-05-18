@@ -4,7 +4,6 @@ import { ToursSection } from '@/components/fethiye/tours-section'
 import { CityStats } from '@/components/fethiye/city-stats'
 import { Footer } from '@/components/fethiye/footer'
 import { AboutSection } from '@/components/fethiye/about-section'
-import { MapSection } from '@/components/fethiye/map-section'
 import { SocialSection } from '@/components/fethiye/social-section'
 
 export default function HomePage() {
@@ -17,7 +16,6 @@ export default function HomePage() {
       <MarqueeBanners />
       <ToursSection />
       <SocialSection />
-      <MapSection />
       <AboutSection />
       <Footer />
     </main>
