@@ -137,6 +137,7 @@ function BusinessesContent() {
   const currentHubId = searchParams.get('hub')
   const currentSubHubId = searchParams.get('sub')
   const searchQuery = searchParams.get('q') || ''
+  const currentFilter = searchParams.get('filter')
 
   const [businesses, setBusinesses] = useState<any[]>([])
   const [hubCounts, setHubCounts] = useState<{ [key: string]: number }>({})
@@ -147,7 +148,7 @@ function BusinessesContent() {
 
   useEffect(() => {
     fetchBusinesses()
-  }, [currentHubId, currentSubHubId, searchQuery])
+  }, [currentHubId, currentSubHubId, searchQuery, currentFilter])
 
   const fetchBusinesses = async () => {
     setLoading(true)
@@ -173,8 +174,14 @@ function BusinessesContent() {
 
       let filtered = allData
       
+      // Paket Servis Filtresi (Yemek Siparişi Ver Butonu İçin)
+      if (currentFilter === 'delivery') {
+        filtered = allData.filter(biz => 
+          biz.services && Array.isArray(biz.services) && biz.services.includes('Paket Servis')
+        )
+      }
       // Hub filtresi (Frontend tarafında daha esnek filtreleme)
-      if (currentHubId) {
+      else if (currentHubId) {
         const hub = SERVICE_HUBS.find(h => h.id === currentHubId)
         if (hub) {
           let targetKeywords = (hub.categories || []).map(k => k.toLowerCase())
@@ -267,7 +274,7 @@ function BusinessesContent() {
           </div>
 
           {/* Service Hub Grid */}
-          {!currentHubId && !searchQuery && (
+          {!currentHubId && !searchQuery && !currentFilter && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
               {SERVICE_HUBS.map((hub) => (
                 <button
@@ -299,17 +306,30 @@ function BusinessesContent() {
           )}
 
           {/* Active Hub / Results View */}
-          {(currentHubId || searchQuery) && (
+          {(currentHubId || searchQuery || currentFilter === 'delivery') && (
             <div className="space-y-12 animate-in fade-in duration-700">
               {/* Back & Breadcrumbs */}
               <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-white/5 pb-8">
                 <div className="flex items-center gap-4">
-                  <button onClick={() => selectHub(null)} className="p-3 bg-white/5 rounded-2xl text-white hover:bg-white/10 border border-white/10">
+                  <button 
+                    onClick={() => {
+                      if (currentFilter) {
+                        router.push('/isletmeler')
+                      } else {
+                        selectHub(null)
+                      }
+                    }} 
+                    className="p-3 bg-white/5 rounded-2xl text-white hover:bg-white/10 border border-white/10"
+                  >
                     <ChevronRight className="w-5 h-5 rotate-180" />
                   </button>
                   <div>
                     <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">
-                      {searchQuery ? `"${searchQuery}" Sonuçları` : activeHub?.title}
+                      {searchQuery 
+                        ? `"${searchQuery}" Sonuçları` 
+                        : currentFilter === 'delivery' 
+                          ? 'Paket Servis Yapan İşletmeler' 
+                          : activeHub?.title}
                     </h2>
                     <p className="text-slate-500 text-xs font-bold tracking-widest uppercase mt-1">
                       {businesses.length} İşletme Bulundu

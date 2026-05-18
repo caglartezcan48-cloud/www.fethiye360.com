@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 const supabase = createClient()
 
@@ -28,8 +28,9 @@ function LogOutIcon() {
   return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
 }
 
-export function Header() {
+function HeaderContent() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -133,12 +134,20 @@ export function Header() {
             {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center gap-10">
               {[
+                { href: '/isletmeler?filter=delivery', label: 'YEMEK SİPARİŞİ' },
+                { href: '/isletmeler?hub=masters', label: 'USTA BUL' },
                 { href: '/isletmeler', label: 'ISLETMELER' },
                 { href: '/rehber', label: 'REHBER' },
                 { href: '/sosyal', label: 'SOSYAL' },
                 { href: '/aktivite-planla', label: 'AKTIVITE PLANLA' }
               ].map((item) => {
-                const active = pathname === item.href || pathname?.startsWith(item.href + '/')
+                const active = item.href.includes('?')
+                  ? (pathname === '/isletmeler' && (
+                      (item.href.includes('filter=delivery') && searchParams.get('filter') === 'delivery') ||
+                      (item.href.includes('hub=masters') && searchParams.get('hub') === 'masters')
+                    ))
+                  : (pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href + '/'))) && !searchParams.get('filter') && !searchParams.get('hub')
+                
                 return (
                   <Link 
                     key={item.href}
@@ -344,6 +353,8 @@ export function Header() {
           className="lg:hidden fixed inset-0 z-[90] pt-32 px-6 animate-in fade-in duration-300"
         >
           <div className="flex flex-col gap-6">
+            <Link href="/isletmeler?filter=delivery" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-[#64ffda] italic tracking-tighter">YEMEK SİPARİŞİ</Link>
+            <Link href="/isletmeler?hub=masters" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-amber-400 italic tracking-tighter">USTA BUL</Link>
             <Link href="/isletmeler" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">ISLETMELER</Link>
             <Link href="/rehber" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">REHBER</Link>
             <Link href="/sosyal" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">SOSYAL</Link>
@@ -352,5 +363,15 @@ export function Header() {
         </div>
       )}
     </header>
+  )
+}
+
+export function Header() {
+  return (
+    <Suspense fallback={
+      <header className="fixed top-0 left-0 right-0 z-[100] h-20 bg-[#0a192f]/60 backdrop-blur-md border-b border-transparent" />
+    }>
+      <HeaderContent />
+    </Suspense>
   )
 }
