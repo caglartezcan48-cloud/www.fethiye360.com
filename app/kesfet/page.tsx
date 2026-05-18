@@ -95,10 +95,10 @@ export default async function DiscoveryPage({
     <main className="min-h-screen bg-[#0a192f]">
       <Header />
       
-      <div className="pt-24 pb-12 px-6">
+      <div className="pt-24 pb-6 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Page Header */}
-          <div className="mb-12">
+          <div className="mb-6">
             <div className="flex items-center gap-2 text-[#64ffda] font-black uppercase tracking-[0.3em] text-[10px] mb-4">
               <Sparkles className="w-4 h-4" /> Fethiye'yi Keşfet
             </div>
@@ -111,7 +111,7 @@ export default async function DiscoveryPage({
           </div>
 
           {/* Filters Bar */}
-          <div className="flex flex-wrap gap-3 mb-10 pb-4 border-b border-white/5">
+          <div className="flex flex-wrap gap-3 mb-6 pb-2 border-b border-white/5">
             {filterItems.map((item) => {
               const Icon = item.icon
               const isActive = filtre === item.id

@@ -316,12 +316,12 @@ function BusinessesContent() {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px]" />
       </div>
 
-      <section className="relative pt-40 pb-24 px-6">
-        <div className="max-w-7xl mx-auto space-y-12">
+      <section className="relative pt-24 pb-12 px-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           
           {/* Page Dynamic Header (Only on landing view) */}
           {!currentHubId && !searchQuery && !currentFilter && (
-            <div className="text-center max-w-3xl mx-auto mb-8 animate-in fade-in duration-700">
+            <div className="text-center max-w-3xl mx-auto mb-4 animate-in fade-in duration-700">
               <h1 className={`font-black tracking-tighter uppercase italic leading-tight ${pageTitleSize}`} style={{ color: pageTitleColor }}>
                 {pageTitle}
               </h1>

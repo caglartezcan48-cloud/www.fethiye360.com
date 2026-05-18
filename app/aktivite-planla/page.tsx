@@ -222,13 +222,13 @@ export default function ActivityPlannerPage() {
         <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px]" />
       </div>
 
-      <section className="relative pt-40 pb-32 px-6">
-        <div className="max-w-7xl mx-auto space-y-16">
+      <section className="relative pt-24 pb-12 px-6">
+        <div className="max-w-7xl mx-auto space-y-6">
           
           {/* STEP 1: SELECTION */}
           {step === 1 && (
-            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-8">
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-white/5 pb-4">
                 <div className="space-y-2">
                   <h2 className={`font-black uppercase italic tracking-tighter ${pageTitleSize}`} style={{ color: pageTitleColor }}>{pageTitle}</h2>
                   <p className={`font-medium ${pageSubtitleSize}`} style={{ color: pageSubtitleColor }}>{pageSubtitle}</p>

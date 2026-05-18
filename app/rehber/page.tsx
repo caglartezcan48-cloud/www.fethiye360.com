@@ -92,11 +92,11 @@ export default function GuidePage() {
       <Header />
       
       {/* Hero Section - Matching Home Style */}
-      <section className="relative pt-40 pb-20 px-6 overflow-hidden">
+      <section className="relative pt-24 pb-8 px-6 overflow-hidden">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#64ffda]/5 rounded-full blur-[120px] -z-10" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] -z-10" />
         
-        <div className="max-w-7xl mx-auto text-center space-y-8">
+        <div className="max-w-7xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/5 border border-white/10 rounded-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Compass className="w-4 h-4 text-[#64ffda]" />
             <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.3em]">GEZİ REHBERİ</span>
