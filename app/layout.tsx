@@ -61,18 +61,30 @@ export default async function RootLayout({
   let bgColor = '#02111a'; // default Ölüdeniz Deep Blue
   let fgColor = 'oklch(0.98 0 0)';
   let isLight = false;
+  let btnColor = '#64ffda'; // default Ölüdeniz Turkuazı
+  let btnFgColor = 'oklch(0.11 0.038 225)'; // default dark blue text
 
   try {
     const supabase = await createClient()
     const { data } = await supabase
       .from('hero_banners')
-      .select('background_image')
-      .eq('alt_text', 'SYSTEM_BG_COLOR')
-      .maybeSingle()
-    if (data?.background_image) {
-      bgColor = data.background_image;
-      fgColor = getContrastColor(bgColor);
-      isLight = fgColor.includes('0.08');
+      .select('alt_text, background_image')
+      .in('alt_text', ['SYSTEM_BG_COLOR', 'SYSTEM_BTN_COLOR'])
+    
+    if (data) {
+      const bgSetting = data.find(d => d.alt_text === 'SYSTEM_BG_COLOR')
+      const btnSetting = data.find(d => d.alt_text === 'SYSTEM_BTN_COLOR')
+      
+      if (bgSetting?.background_image) {
+        bgColor = bgSetting.background_image;
+        fgColor = getContrastColor(bgColor);
+        isLight = fgColor.includes('0.08');
+      }
+      
+      if (btnSetting?.background_image) {
+        btnColor = btnSetting.background_image;
+        btnFgColor = getContrastColor(btnColor);
+      }
     }
   } catch (err) {
     console.error("Failed to load custom background settings:", err);
@@ -86,6 +98,11 @@ export default async function RootLayout({
           :root, html, body, .dark, [data-theme='dark'] {
             --background: ${bgColor} !important;
             --foreground: ${fgColor} !important;
+            --primary: ${btnColor} !important;
+            --primary-foreground: ${btnFgColor} !important;
+            --accent: ${btnColor} !important;
+            --accent-foreground: ${btnFgColor} !important;
+            --ring: ${btnColor} !important;
             --card: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 95%, black 5%)' : 'color-mix(in srgb, ' + bgColor + ' 92%, white 8%)'} !important;
             --card-foreground: ${fgColor} !important;
             --popover: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 95%, black 5%)' : 'color-mix(in srgb, ' + bgColor + ' 92%, white 8%)'} !important;
