@@ -59,30 +59,52 @@ export default function BannerForm({ banner, isEditing = false }: BannerFormProp
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Sadece görsel dosyaları kontrolü
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
+    if (!allowedTypes.includes(file.type)) {
+      setError('Sadece görsel dosyalar yüklenebilir (JPEG, PNG, WebP, GIF, AVIF)')
+      return
+    }
+
+    // Dosya boyutu kontrolü - max 5MB
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      setError('Görsel boyutu 5MB\'dan büyük olamaz')
+      return
+    }
+
     setIsUploading(true)
     setError(null)
 
     try {
-      const uploadFormData = new FormData()
-      uploadFormData.append('file', file)
+      const timestamp = Date.now()
+      const cleanFileName = `${timestamp}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
+      const filePath = `banners/${cleanFileName}`
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: uploadFormData,
-      })
+      // Doğrudan Supabase Storage bucket'ına yüklüyoruz
+      const { data, error: uploadError } = await supabase.storage
+        .from('tour-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Yukleme basarisiz')
+      if (uploadError) {
+        throw uploadError
       }
+
+      // Herkese açık URL'sini alıyoruz
+      const { data: { publicUrl } } = supabase.storage
+        .from('tour-images')
+        .getPublicUrl(filePath)
 
       setFormData(prev => ({
         ...prev,
-        background_image: result.url
+        background_image: publicUrl
       }))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Yukleme sirasinda hata olustu')
+      console.error('Supabase upload error:', err)
+      setError(err instanceof Error ? err.message : 'Görsel yüklenirken bir hata oluştu')
     } finally {
       setIsUploading(false)
     }
