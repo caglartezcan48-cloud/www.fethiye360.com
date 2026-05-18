@@ -37,13 +37,13 @@ export async function ToursSection() {
   const destinations = await getDestinations()
 
   return (
-    <section id="rehber" className="py-32 bg-background relative overflow-hidden">
+    <section id="rehber" className="py-16 bg-background relative overflow-hidden">
       {/* Background Decorative */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#64ffda]/5 rounded-full blur-3xl -z-10" aria-hidden="true" />
       
       <div className="container mx-auto px-6">
         {/* Section Header */}
-        <div className="text-center mb-16 space-y-4">
+        <div className="text-center mb-8 space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/5 border border-white/10 rounded-full">
             <Compass className="w-4 h-4 text-[#64ffda]" />
             <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-widest">Gezi Rehberi</span>

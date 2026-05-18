@@ -35,7 +35,7 @@ export function ToursCategoryFilter({ destinations }: ToursCategoryFilterProps) 
   return (
     <>
       {/* Category Filters */}
-      <div className="flex flex-wrap justify-center gap-3 mb-16">
+      <div className="flex flex-wrap justify-center gap-3 mb-10">
         {categories.map((category) => (
           <button
             key={category}
