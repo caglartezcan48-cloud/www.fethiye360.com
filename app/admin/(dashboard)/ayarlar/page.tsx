@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Loader2, Check, Key, User, Palette, RefreshCw } from 'lucide-react'
+import { Loader2, Check, Key, Palette, RefreshCw } from 'lucide-react'
 
 // Signature Fethiye Presets for Background
 const FETHIYE_PRESETS = [
@@ -34,38 +34,54 @@ export default function SettingsPage() {
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // Background color states
-  const [selectedColor, setSelectedColor] = useState('#02111a')
-  const [colorLoading, setColorLoading] = useState(false)
-  const [colorMessage, setColorMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  // Selected configuration targets
+  const [selectedTarget, setSelectedTarget] = useState('global')
+  const [themeSettings, setThemeSettings] = useState<Record<string, string>>({})
 
-  // Button color states
+  // Main picker states
+  const [selectedColor, setSelectedColor] = useState('#02111a')
   const [selectedBtnColor, setSelectedBtnColor] = useState('#64ffda')
-  const [btnColorLoading, setBtnColorLoading] = useState(false)
-  const [btnColorMessage, setBtnColorMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [saveLoading, setSaveLoading] = useState(false)
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   
   const router = useRouter()
   const supabase = createClient()
 
-  // Load current theme settings on mount
+  // Target page configuration options
+  const PAGE_OPTIONS = [
+    { id: 'global', name: '🌍 Genel (Site-Geneli Varsayılan)', path: 'global' },
+    { id: 'navbar', name: '⚓ Üst Menü (Navbar)', path: 'navbar' },
+    { id: 'anasayfa', name: '🏠 Anasayfa (/)', path: '/' },
+    { id: 'isletmeler', name: '🏢 İşletmeler (/isletmeler)', path: '/isletmeler' },
+    { id: 'rehber', name: '📖 Rehber (/rehber)', path: '/rehber' },
+    { id: 'sosyal', name: '💬 Sosyal Paylaşım (/sosyal)', path: '/sosyal' },
+    { id: 'planla', name: '📅 Aktivite Planlama (/aktivite-planla)', path: '/aktivite-planla' },
+    { id: 'mesajlar', name: '✉️ Mesajlar (/mesajlar)', path: '/mesajlar' },
+    { id: 'bildirimler', name: '🔔 Bildirimler (/bildirimler)', path: '/bildirimler' },
+    { id: 'profil', name: '👤 Kullanıcı Profili (/profil)', path: '/profil' },
+  ]
+
+  // Load all theme configurations from database on mount
   useEffect(() => {
     async function loadThemeSettings() {
       try {
         const { data } = await supabase
           .from('hero_banners')
           .select('alt_text, background_image')
-          .in('alt_text', ['SYSTEM_BG_COLOR', 'SYSTEM_BTN_COLOR'])
+          .or('alt_text.like.SYSTEM_%,alt_text.like.PAGE_%,alt_text.like.NAVBAR_%')
         
         if (data) {
-          const bgSetting = data.find(d => d.alt_text === 'SYSTEM_BG_COLOR')
-          const btnSetting = data.find(d => d.alt_text === 'SYSTEM_BTN_COLOR')
+          const settings: Record<string, string> = {}
+          data.forEach(item => {
+            if (item.alt_text) {
+              settings[item.alt_text] = item.background_image || ''
+            }
+          })
+          setThemeSettings(settings)
           
-          if (bgSetting?.background_image) {
-            setSelectedColor(bgSetting.background_image)
-          }
-          if (btnSetting?.background_image) {
-            setSelectedBtnColor(btnSetting.background_image)
-          }
+          // Set inputs to global values initially
+          setSelectedColor(settings['SYSTEM_BG_COLOR'] || '#02111a')
+          setSelectedBtnColor(settings['SYSTEM_BTN_COLOR'] || '#64ffda')
         }
       } catch (err) {
         console.error('Tema ayarları yüklenemedi:', err)
@@ -74,107 +90,135 @@ export default function SettingsPage() {
     loadThemeSettings()
   }, [supabase])
 
-  // Save background color setting to database
-  const handleColorChange = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setColorLoading(true)
-    setColorMessage(null)
+  // Handle targeting target updates
+  const handleTargetChange = (targetId: string) => {
+    setSelectedTarget(targetId)
+    const target = PAGE_OPTIONS.find(o => o.id === targetId)
+    if (!target) return
 
-    if (!selectedColor.startsWith('#') || selectedColor.length !== 7) {
-      setColorMessage({ type: 'error', text: 'Lütfen geçerli bir HEX kod girin (Örn: #02111a)' })
-      setColorLoading(false)
+    let bgKey = ''
+    let btnKey = ''
+    let defaultBg = '#02111a'
+    let defaultBtn = '#64ffda'
+
+    if (target.id === 'global') {
+      bgKey = 'SYSTEM_BG_COLOR'
+      btnKey = 'SYSTEM_BTN_COLOR'
+    } else if (target.id === 'navbar') {
+      bgKey = 'NAVBAR_BG_COLOR'
+      btnKey = 'NAVBAR_BTN_COLOR'
+      defaultBg = '#0a192f'
+    } else {
+      bgKey = `PAGE_BG_COLOR_${target.path}`
+      btnKey = `PAGE_BTN_COLOR_${target.path}`
+    }
+
+    setSelectedColor(themeSettings[bgKey] || defaultBg)
+    setSelectedBtnColor(themeSettings[btnKey] || defaultBtn)
+  }
+
+  // Save selected target theme configurations to Supabase
+  const handleSaveTheme = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaveLoading(true)
+    setSaveMessage(null)
+
+    if (!selectedColor.startsWith('#') || selectedColor.length !== 7 ||
+        !selectedBtnColor.startsWith('#') || selectedBtnColor.length !== 7) {
+      setSaveMessage({ type: 'error', text: 'Lütfen geçerli HEX renk kodları girin (Örn: #02111a)' })
+      setSaveLoading(false)
       return
     }
 
+    const target = PAGE_OPTIONS.find(o => o.id === selectedTarget)
+    if (!target) {
+      setSaveLoading(false)
+      return
+    }
+
+    let bgKey = ''
+    let btnKey = ''
+
+    if (target.id === 'global') {
+      bgKey = 'SYSTEM_BG_COLOR'
+      btnKey = 'SYSTEM_BTN_COLOR'
+    } else if (target.id === 'navbar') {
+      bgKey = 'NAVBAR_BG_COLOR'
+      btnKey = 'NAVBAR_BTN_COLOR'
+    } else {
+      bgKey = `PAGE_BG_COLOR_${target.path}`
+      btnKey = `PAGE_BTN_COLOR_${target.path}`
+    }
+
     try {
-      const { data: existing } = await supabase
+      // 1. Upsert Background Color row
+      const { data: existingBg } = await supabase
         .from('hero_banners')
         .select('id')
-        .eq('alt_text', 'SYSTEM_BG_COLOR')
+        .eq('alt_text', bgKey)
         .maybeSingle()
 
-      if (existing) {
+      if (existingBg) {
         const { error } = await supabase
           .from('hero_banners')
           .update({ background_image: selectedColor })
-          .eq('alt_text', 'SYSTEM_BG_COLOR')
-        
+          .eq('alt_text', bgKey)
         if (error) throw error
       } else {
         const { error } = await supabase
           .from('hero_banners')
           .insert({
-            id: '00000000-0000-0000-0000-000000000000',
-            alt_text: 'SYSTEM_BG_COLOR',
+            alt_text: bgKey,
             background_image: selectedColor,
             is_active: false,
-            title: 'System Custom Background Color Settings',
+            title: `Custom Background for ${target.name}`,
             display_order: 999999,
             scroll_speed: 30,
             scroll_direction: 'left'
           })
-        
         if (error) throw error
       }
 
-      setColorMessage({ type: 'success', text: 'Zemin rengi başarıyla kaydedildi! Sayfayı yenileyerek görebilirsiniz.' })
-      router.refresh()
-    } catch (err: any) {
-      setColorMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
-    } finally {
-      setColorLoading(false)
-    }
-  }
-
-  // Save button color setting to database
-  const handleBtnColorChange = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setBtnColorLoading(true)
-    setBtnColorMessage(null)
-
-    if (!selectedBtnColor.startsWith('#') || selectedBtnColor.length !== 7) {
-      setBtnColorMessage({ type: 'error', text: 'Lütfen geçerli bir HEX kod girin (Örn: #64ffda)' })
-      setBtnColorLoading(false)
-      return
-    }
-
-    try {
-      const { data: existing } = await supabase
+      // 2. Upsert Button Color row
+      const { data: existingBtn } = await supabase
         .from('hero_banners')
         .select('id')
-        .eq('alt_text', 'SYSTEM_BTN_COLOR')
+        .eq('alt_text', btnKey)
         .maybeSingle()
 
-      if (existing) {
+      if (existingBtn) {
         const { error } = await supabase
           .from('hero_banners')
           .update({ background_image: selectedBtnColor })
-          .eq('alt_text', 'SYSTEM_BTN_COLOR')
-        
+          .eq('alt_text', btnKey)
         if (error) throw error
       } else {
         const { error } = await supabase
           .from('hero_banners')
           .insert({
-            id: '10000000-0000-0000-0000-000000000000',
-            alt_text: 'SYSTEM_BTN_COLOR',
+            alt_text: btnKey,
             background_image: selectedBtnColor,
             is_active: false,
-            title: 'System Custom Button Color Settings',
+            title: `Custom Button for ${target.name}`,
             display_order: 999998,
             scroll_speed: 30,
             scroll_direction: 'left'
           })
-        
         if (error) throw error
       }
 
-      setBtnColorMessage({ type: 'success', text: 'Buton rengi başarıyla kaydedildi! Sayfayı yenileyerek görebilirsiniz.' })
+      // Sync local state
+      const updated = { ...themeSettings }
+      updated[bgKey] = selectedColor
+      updated[btnKey] = selectedBtnColor
+      setThemeSettings(updated)
+
+      setSaveMessage({ type: 'success', text: `"${target.name}" tasarımı başarıyla kaydedildi! Sitede anında uygulandı.` })
       router.refresh()
     } catch (err: any) {
-      setBtnColorMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
+      setSaveMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
     } finally {
-      setBtnColorLoading(false)
+      setSaveLoading(false)
     }
   }
 
@@ -221,7 +265,7 @@ export default function SettingsPage() {
 
       <div className="max-w-4xl space-y-8">
         
-        {/* ZEMİN RENGİ AYARI (BACKGROUND COLOR PICKER) */}
+        {/* UNIFIED SAYFA-BAZLI VE NAVBAR RENK ÖZELLEŞTİRME PANELİ */}
         <div className="bg-[#112240] rounded-2xl border border-slate-700/50 p-8 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#64ffda]/5 rounded-full blur-[80px] -z-10" />
           
@@ -230,17 +274,38 @@ export default function SettingsPage() {
               <Palette className="w-6 h-6 text-[#64ffda]" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Site Zemin Rengi Yönetimi</h2>
-              <p className="text-sm text-slate-400">Sitenin genel arka plan rengini özelleştirin veya Fethiye konsept renklerini uygulayın.</p>
+              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Sayfa & Menü Özel Tasarım Paneli</h2>
+              <p className="text-sm text-slate-400">Genel siteyi, dilediğiniz özel sayfayı veya üst menüyü (navbar) ayrı renk kodları ile özelleştirin.</p>
             </div>
           </div>
 
-          <form onSubmit={handleColorChange} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <form onSubmit={handleSaveTheme} className="space-y-6">
+            
+            {/* Target Area Selector */}
+            <div className="bg-[#0a192f]/50 p-5 rounded-2xl border border-white/5 space-y-3">
+              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-widest">Özelleştirilecek Sayfa veya Alanı Seçin</label>
+              <select
+                value={selectedTarget}
+                onChange={(e) => handleTargetChange(e.target.value)}
+                className="w-full h-14 bg-[#0a192f] border border-slate-600 rounded-xl px-4 text-white text-sm font-bold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all cursor-pointer"
+              >
+                {PAGE_OPTIONS.map(opt => (
+                  <option key={opt.id} value={opt.id} className="bg-[#112240] text-white text-xs py-2 font-bold uppercase tracking-wider">
+                    {opt.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
               
-              {/* Color Customizer */}
-              <div className="space-y-4">
-                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-widest">Özel Renk Belirle</label>
+              {/* ZEMİN RENGİ CUSTOMIZER */}
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-sm font-bold text-[#64ffda] uppercase tracking-wider mb-1">1. Seçilen Alanın Zemin Rengi</h3>
+                  <p className="text-[11px] text-slate-400">İlgili sayfa veya alanın zemin (arka plan) rengini belirleyin.</p>
+                </div>
+
                 <div className="flex gap-4">
                   <div className="relative w-16 h-14 rounded-xl overflow-hidden border border-slate-600/80 shadow-md">
                     <input
@@ -262,101 +327,38 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                  <p className="text-[11px] text-slate-400 leading-relaxed uppercase tracking-wider font-bold">
-                    💡 <span className="text-[#64ffda]">Akıllı Kontrast Sistemi:</span> Seçtiğiniz renk aydınlık/açık bir renk ise (Örn: beyaz veya krem), sistem bunu otomatik tespit eder ve sitenin tüm yazılarını yüksek okunurluk için koyu renge çevirir!
-                  </p>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Zemin Hazır Paletleri</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[140px] overflow-y-auto pr-2 no-scrollbar">
+                    {FETHIYE_PRESETS.map((preset) => (
+                      <button
+                        key={preset.hex}
+                        type="button"
+                        onClick={() => setSelectedColor(preset.hex)}
+                        className={`flex flex-col items-start p-2.5 rounded-lg border text-left transition-all ${
+                          selectedColor.toLowerCase() === preset.hex.toLowerCase()
+                            ? 'bg-[#64ffda]/10 border-[#64ffda] text-white shadow-md'
+                            : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10'
+                        }`}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full inline-block border border-white/20" style={{ backgroundColor: preset.hex }} />
+                          {preset.name}
+                        </span>
+                        <span className="text-[8px] text-slate-500 font-bold uppercase mt-0.5 tracking-widest">{preset.hex}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Presets */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-widest mb-4">Hazır Fethiye Konseptleri</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[160px] overflow-y-auto pr-2 no-scrollbar">
-                  {FETHIYE_PRESETS.map((preset) => (
-                    <button
-                      key={preset.hex}
-                      type="button"
-                      onClick={() => setSelectedColor(preset.hex)}
-                      className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
-                        selectedColor.toLowerCase() === preset.hex.toLowerCase()
-                          ? 'bg-[#64ffda]/10 border-[#64ffda] text-white shadow-md'
-                          : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10'
-                      }`}
-                    >
-                      <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full inline-block border border-white/20" style={{ backgroundColor: preset.hex }} />
-                        {preset.name}
-                      </span>
-                      <span className="text-[9px] text-slate-500 font-bold uppercase mt-1 tracking-widest">{preset.hex}</span>
-                    </button>
-                  ))}
+              {/* BUTON VE VURGU RENGİ CUSTOMIZER */}
+              <div className="space-y-5">
+                <div>
+                  <h3 className="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-1">2. Seçilen Alanın Buton & Vurgu Rengi</h3>
+                  <p className="text-[11px] text-slate-400">Butonlar, etiketler ve aktif vurgu öğelerinin rengini belirleyin.</p>
                 </div>
-              </div>
 
-            </div>
-
-            {colorMessage && (
-              <div className={`p-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
-                colorMessage.type === 'success'
-                  ? 'bg-green-500/10 border border-green-500/20 text-green-400'
-                  : 'bg-red-500/10 border border-red-500/20 text-red-400'
-              }`}>
-                {colorMessage.type === 'success' && <Check className="w-4 h-4 flex-shrink-0" />}
-                {colorMessage.text}
-              </div>
-            )}
-
-            <div className="flex gap-4">
-              <button
-                type="submit"
-                disabled={colorLoading}
-                className="flex-1 bg-[#64ffda] text-[#0a192f] font-black uppercase tracking-widest text-[11px] py-4 rounded-xl hover:bg-[#52e0c4] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#64ffda]/10"
-              >
-                {colorLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Zemin Güncelleniyor...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Zemin Rengini Canlıya Uygula
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="px-5 border border-white/10 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center justify-center"
-                title="Sayfayı Yenile"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* BUTON VE VURGU RENGİ AYARI (BUTTON COLOR PICKER) */}
-        <div className="bg-[#112240] rounded-2xl border border-slate-700/50 p-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] -z-10" />
-          
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
-              <Palette className="w-6 h-6 text-indigo-400" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Site Buton & Vurgu Rengi Yönetimi</h2>
-              <p className="text-sm text-slate-400">Sitenin butonlarını, etiketlerini ve aktif vurgu öğelerinin rengini özelleştirin.</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleBtnColorChange} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              
-              {/* Color Customizer */}
-              <div className="space-y-4">
-                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-widest">Özel Renk Belirle</label>
                 <div className="flex gap-4">
                   <div className="relative w-16 h-14 rounded-xl overflow-hidden border border-slate-600/80 shadow-md">
                     <input
@@ -378,66 +380,65 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                  <p className="text-[11px] text-slate-400 leading-relaxed uppercase tracking-wider font-bold">
-                    💡 <span className="text-indigo-400">Akıllı Buton Yazı Kontrastı:</span> Buton rengi olarak aydınlık bir renk seçtiğinizde buton üzerindeki yazılar otomatik olarak koyu renk olur; koyu renk seçtiğinizde ise yazılar beyaz kalır!
-                  </p>
-                </div>
-              </div>
-
-              {/* Presets */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-300 uppercase tracking-widest mb-4">Hazır Buton Konseptleri</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[160px] overflow-y-auto pr-2 no-scrollbar">
-                  {BUTTON_PRESETS.map((preset) => (
-                    <button
-                      key={preset.hex}
-                      type="button"
-                      onClick={() => setSelectedBtnColor(preset.hex)}
-                      className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
-                        selectedBtnColor.toLowerCase() === preset.hex.toLowerCase()
-                          ? 'bg-indigo-500/10 border-indigo-400 text-white shadow-md'
-                          : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10'
-                      }`}
-                    >
-                      <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full inline-block border border-white/20" style={{ backgroundColor: preset.hex }} />
-                        {preset.name}
-                      </span>
-                      <span className="text-[9px] text-slate-500 font-bold uppercase mt-1 tracking-widest">{preset.hex}</span>
-                    </button>
-                  ))}
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Buton Hazır Paletleri</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[140px] overflow-y-auto pr-2 no-scrollbar">
+                    {BUTTON_PRESETS.map((preset) => (
+                      <button
+                        key={preset.hex}
+                        type="button"
+                        onClick={() => setSelectedBtnColor(preset.hex)}
+                        className={`flex flex-col items-start p-2.5 rounded-lg border text-left transition-all ${
+                          selectedBtnColor.toLowerCase() === preset.hex.toLowerCase()
+                            ? 'bg-indigo-500/10 border-indigo-400 text-white shadow-md'
+                            : 'bg-white/5 border-white/5 text-slate-300 hover:bg-white/10 hover:border-white/10'
+                        }`}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full inline-block border border-white/20" style={{ backgroundColor: preset.hex }} />
+                          {preset.name}
+                        </span>
+                        <span className="text-[8px] text-slate-500 font-bold uppercase mt-0.5 tracking-widest">{preset.hex}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
             </div>
 
-            {btnColorMessage && (
+            <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+              <p className="text-[11px] text-slate-400 leading-relaxed uppercase tracking-wider font-bold">
+                💡 <span className="text-[#64ffda]">Zeki Kontrast Entegrasyonu:</span> Zemin veya buton renkleri aydınlık/açık tonlara ulaştığında, sistem tüm yazıları yüksek okunurluk için otomatik olarak yüksek kontrastlı koyu renklere kaydırır!
+              </p>
+            </div>
+
+            {saveMessage && (
               <div className={`p-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
-                btnColorMessage.type === 'success'
+                saveMessage.type === 'success'
                   ? 'bg-green-500/10 border border-green-500/20 text-green-400'
                   : 'bg-red-500/10 border border-red-500/20 text-red-400'
               }`}>
-                {btnColorMessage.type === 'success' && <Check className="w-4 h-4 flex-shrink-0" />}
-                {btnColorMessage.text}
+                {saveMessage.type === 'success' && <Check className="w-4 h-4 flex-shrink-0" />}
+                {saveMessage.text}
               </div>
             )}
 
             <div className="flex gap-4">
               <button
                 type="submit"
-                disabled={btnColorLoading}
-                className="flex-1 bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] py-4 rounded-xl hover:bg-indigo-600 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/10"
+                disabled={saveLoading}
+                className="flex-1 bg-[#64ffda] text-[#0a192f] font-black uppercase tracking-widest text-[11px] py-4 rounded-xl hover:bg-[#52e0c4] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#64ffda]/10"
               >
-                {btnColorLoading ? (
+                {saveLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Buton Rengi Güncelleniyor...
+                    Tasarım Kaydediliyor...
                   </>
                 ) : (
                   <>
                     <Check className="w-4 h-4" />
-                    Buton Rengini Canlıya Uygula
+                    Seçili Alanın Renklerini Canlıya Uygula
                   </>
                 )}
               </button>

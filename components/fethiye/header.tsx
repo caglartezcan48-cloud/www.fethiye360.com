@@ -105,11 +105,17 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-500">
       <div className={`mx-auto transition-all duration-500 ${isScrolled ? 'max-w-7xl mt-4 px-4' : 'max-w-full mt-0 px-0'}`}>
-        <nav className={`relative transition-all duration-500 ${
-          isScrolled 
-            ? 'bg-[#0a192f]/80 backdrop-blur-2xl border border-white/10 rounded-[32px] px-8 py-4 shadow-2xl' 
-            : 'bg-[#0a192f]/40 backdrop-blur-md border-b border-white/5 px-12 py-6'
-        }`}>
+        <nav 
+          style={{ 
+            backgroundColor: isScrolled ? 'var(--navbar-bg)' : 'color-mix(in srgb, var(--navbar-bg) 60%, transparent)',
+            borderColor: 'var(--navbar-border)',
+          }}
+          className={`relative transition-all duration-500 border ${
+            isScrolled 
+              ? 'backdrop-blur-2xl rounded-[32px] px-8 py-4 shadow-2xl' 
+              : 'backdrop-blur-md px-12 py-6 border-transparent border-b-current'
+          }`}
+        >
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center group">
@@ -137,13 +143,20 @@ export function Header() {
                   <Link 
                     key={item.href}
                     href={item.href} 
-                    className={`relative py-2 text-[12px] sm:text-[13px] font-black tracking-[0.18em] uppercase transition-all duration-300 ${
-                      active ? 'text-[#64ffda] drop-shadow-[0_0_8px_rgba(100,255,218,0.5)]' : 'text-white/70 hover:text-[#64ffda]'
-                    }`}
+                    style={{
+                      color: active ? 'var(--navbar-primary)' : 'var(--navbar-text)',
+                    }}
+                    className={`relative py-2 text-[12px] sm:text-[13px] font-black tracking-[0.18em] uppercase transition-all duration-300 hover:!text-[var(--navbar-primary)]`}
                   >
                     {item.label}
                     {active && (
-                      <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#64ffda] to-transparent rounded-full shadow-[0_0_8px_#64ffda] animate-in fade-in duration-300" />
+                      <span 
+                        style={{
+                          background: 'linear-gradient(to right, transparent, var(--navbar-primary), transparent)',
+                          boxShadow: '0 0 8px var(--navbar-primary)',
+                        }}
+                        className="absolute bottom-0 left-0 right-0 h-[2px] rounded-full animate-in fade-in duration-300" 
+                      />
                     )}
                   </Link>
                 )
@@ -156,10 +169,13 @@ export function Header() {
               {/* Expandable Search Input Container */}
               <div className="relative flex items-center" ref={searchRef}>
                 {isSearchExpanded ? (
-                  <div className="flex items-center bg-[#0a192f]/90 border border-white/10 rounded-2xl px-4 py-2 w-60 sm:w-80 transition-all duration-300 animate-in fade-in zoom-in-95">
+                  <div 
+                    style={{ backgroundColor: 'var(--navbar-bg)', borderColor: 'var(--navbar-border)' }}
+                    className="flex items-center border rounded-2xl px-4 py-2 w-60 sm:w-80 transition-all duration-300 animate-in fade-in zoom-in-95"
+                  >
                     <span className="text-slate-400 mr-2.5 flex items-center">
                       {searching ? (
-                        <svg className="w-4 h-4 animate-spin text-[#64ffda]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="30" strokeDashoffset="10"/></svg>
+                        <svg className="w-4 h-4 animate-spin text-[var(--navbar-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="30" strokeDashoffset="10"/></svg>
                       ) : (
                         <SearchIcon />
                       )}
@@ -169,7 +185,8 @@ export function Header() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Fethiye'de ara..."
-                      className="w-full bg-transparent border-none text-white text-xs placeholder:text-slate-500 focus:outline-none"
+                      style={{ color: 'var(--navbar-fg)' }}
+                      className="w-full bg-transparent border-none text-xs placeholder:text-slate-500 focus:outline-none"
                       autoFocus
                     />
                     <button 
@@ -186,7 +203,11 @@ export function Header() {
                 ) : (
                   <button 
                     onClick={() => setIsSearchExpanded(true)}
-                    className="p-3.5 bg-white/5 text-slate-400 hover:text-[#64ffda] hover:bg-white/10 hover:border-[#64ffda]/30 rounded-2xl transition-all duration-300 border border-white/10 flex items-center active:scale-95 shadow-md"
+                    style={{
+                      color: 'var(--navbar-text)',
+                      borderColor: 'var(--navbar-border)',
+                    }}
+                    className="p-3.5 bg-white/5 hover:text-[var(--navbar-primary)] hover:bg-white/10 hover:border-[var(--navbar-primary)]/30 rounded-2xl transition-all duration-300 border flex items-center active:scale-95 shadow-md"
                     title="Ara"
                   >
                     <SearchIcon />
@@ -195,7 +216,10 @@ export function Header() {
 
                 {/* Floating Results Box (No Background Darkening!) */}
                 {isSearchExpanded && searchQuery.trim().length >= 2 && (searchResults.length > 0 || searching) && (
-                  <div className="absolute right-0 top-full mt-3 w-80 sm:w-96 bg-[#112240]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[320px] overflow-y-auto z-[200] animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div 
+                    style={{ backgroundColor: 'var(--navbar-bg)', borderColor: 'var(--navbar-border)' }}
+                    className="absolute right-0 top-full mt-3 w-80 sm:w-96 border rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[320px] overflow-y-auto z-[200] animate-in fade-in slide-in-from-top-2 duration-200"
+                  >
                     <div className="p-2">
                       {searchResults.map((result: any, index: number) => (
                         <button
@@ -216,7 +240,10 @@ export function Header() {
                           className="w-full flex items-center justify-between p-3.5 hover:bg-white/5 rounded-xl transition-colors group/item"
                         >
                           <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-[#64ffda]/10 text-[#64ffda] shrink-0 border border-white/5">
+                              <div 
+                                style={{ backgroundColor: 'color-mix(in srgb, var(--navbar-primary) 10%, transparent)', color: 'var(--navbar-primary)', borderColor: 'var(--navbar-border)' }}
+                                className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 border"
+                              >
                                 {result.image_url ? (
                                   <img src={result.image_url} alt={result.name} className="w-full h-full object-cover" />
                                 ) : result.type === 'profile' ? (
@@ -226,7 +253,7 @@ export function Header() {
                                 )}
                               </div>
                               <div className="text-left">
-                                <div className="text-white font-semibold text-xs group-hover/item:text-[#64ffda] transition-colors line-clamp-1">{result.name}</div>
+                                <div className="text-white font-semibold text-xs group-hover/item:text-[var(--navbar-primary)] transition-colors line-clamp-1">{result.name}</div>
                                 <div className="text-slate-500 text-[9px] uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
                                   <span>{
                                     result.type === 'category' ? 'Kategori' : 
@@ -239,7 +266,7 @@ export function Header() {
                                 </div>
                               </div>
                           </div>
-                          <svg className="w-3.5 h-3.5 text-slate-600 group-hover/item:text-[#64ffda] group-hover/item:translate-x-1 transition-all animate-out duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                          <svg className="w-3.5 h-3.5 text-slate-600 group-hover/item:text-[var(--navbar-primary)] group-hover/item:translate-x-1 transition-all animate-out duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </button>
                       ))}
                       
@@ -258,14 +285,23 @@ export function Header() {
                 <div className="flex items-center gap-3">
                   <Link 
                     href="/profil" 
-                    className="relative flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[12px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-[#64ffda]/30 bg-gradient-to-r from-[#64ffda] to-[#52e0c4] text-[#0a192f] shadow-[0_4px_20px_rgba(100,255,218,0.2)] hover:shadow-[0_4px_30px_rgba(100,255,218,0.4)]"
+                    style={{
+                      background: 'linear-gradient(to right, var(--navbar-primary), var(--navbar-primary))',
+                      color: 'var(--navbar-primary-foreground)',
+                      boxShadow: '0 4px 20px color-mix(in srgb, var(--navbar-primary) 20%, transparent)',
+                    }}
+                    className="relative flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[12px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-white/10"
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                     <UserIcon /> PROFILIM
                   </Link>
                   <button 
                     onClick={handleSignOut} 
-                    className="p-3.5 bg-white/5 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all duration-300 border border-white/5 hover:border-red-500/20 flex items-center active:scale-95 shadow-md"
+                    style={{
+                      color: 'rgb(248 113 113)',
+                      borderColor: 'var(--navbar-border)',
+                    }}
+                    className="p-3.5 bg-white/5 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all duration-300 border flex items-center active:scale-95 shadow-md"
                     title="Çıkış Yap"
                   >
                     <LogOutIcon />
@@ -274,7 +310,11 @@ export function Header() {
               ) : (
                 <Link 
                   href="/giris" 
-                  className="relative flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[12px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-white/10 hover:border-[#64ffda]/30 bg-white/5 hover:bg-white/10 text-white shadow-lg"
+                  style={{
+                    borderColor: 'var(--navbar-border)',
+                    color: 'var(--navbar-fg)',
+                  }}
+                  className="relative flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[12px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border bg-white/5 hover:bg-white/10 shadow-lg hover:border-[var(--navbar-primary)]/30"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                   <UserIcon /> GİRİŞ YAP
@@ -284,7 +324,11 @@ export function Header() {
               {/* Mobile Drawer Trigger */}
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden p-3 bg-white/5 text-white rounded-2xl border border-white/5 flex items-center"
+                style={{
+                  color: 'var(--navbar-fg)',
+                  borderColor: 'var(--navbar-border)',
+                }}
+                className="lg:hidden p-3 bg-white/5 rounded-2xl border flex items-center"
               >
                 {isMenuOpen ? <XIcon /> : <MenuIcon />}
               </button>
@@ -295,7 +339,10 @@ export function Header() {
 
       {/* Mobile Drawer Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-[90] bg-[#0a192f] pt-32 px-6 animate-in fade-in duration-300">
+        <div 
+          style={{ backgroundColor: 'var(--navbar-bg)' }}
+          className="lg:hidden fixed inset-0 z-[90] pt-32 px-6 animate-in fade-in duration-300"
+        >
           <div className="flex flex-col gap-6">
             <Link href="/isletmeler" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">ISLETMELER</Link>
             <Link href="/rehber" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">REHBER</Link>
