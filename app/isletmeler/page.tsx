@@ -339,25 +339,25 @@ function BusinessesContent() {
 
                 {/* Usta Bul - Renkli Dashboard */}
                 {activeHub?.id === 'masters' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mx-auto py-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl mx-auto py-4">
                     {activeHub.subHubs?.map(sub => (
                       <button
                         key={sub.id}
                         onClick={() => selectSubHub(sub.id)}
-                        className={`group relative p-8 rounded-[40px] border-2 transition-all flex flex-col items-center justify-center gap-4 shadow-xl ${
+                        className={`group relative p-4 px-6 rounded-[24px] border-2 transition-all flex flex-row items-center justify-start gap-4 shadow-xl ${
                           currentSubHubId === sub.id 
-                            ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f] scale-105' 
+                            ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f] scale-102' 
                             : `bg-white/5 border-white/10 text-white hover:border-white/30 ${sub.id === 'home_masters' ? 'hover:bg-blue-500/20' : 'hover:bg-orange-500/20'}`
                         }`}
                       >
-                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${currentSubHubId === sub.id ? 'bg-white/20' : sub.color + ' shadow-lg'}`}>
-                          <sub.icon className="w-8 h-8" />
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${currentSubHubId === sub.id ? 'bg-white/20' : sub.color + ' shadow-lg'}`}>
+                          <sub.icon className="w-5 h-5" />
                         </div>
-                        <span className="text-xl font-black uppercase italic tracking-tighter">{sub.title}</span>
+                        <span className="text-sm font-black uppercase italic tracking-tighter">{sub.title}</span>
                         
                         {currentSubHubId === sub.id && (
-                          <div className="absolute -top-2 -right-2 bg-white text-[#0a192f] p-1.5 rounded-full shadow-lg">
-                            <CheckCircle2 className="w-4 h-4" />
+                          <div className="absolute top-1/2 -translate-y-1/2 -right-2 bg-white text-[#0a192f] p-1 rounded-full shadow-lg">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
                           </div>
                         )}
                       </button>
@@ -366,7 +366,7 @@ function BusinessesContent() {
                     {currentSubHubId && (
                       <button 
                         onClick={() => selectSubHub('')}
-                        className="md:col-span-2 text-center text-[#64ffda] text-[10px] font-black uppercase tracking-widest hover:underline"
+                        className="sm:col-span-2 text-center text-[#64ffda] text-[10px] font-black uppercase tracking-widest hover:underline pt-2"
                       >
                         TÜM USTALARI GÖSTER
                       </button>
