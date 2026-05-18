@@ -52,15 +52,15 @@ export default async function DiscoveryPage({
   try {
     const { data: textData } = await supabase
       .from('hero_banners')
-      .select('title, background_image, button_text, button_link')
+      .select('title, background_image, link_url, scroll_direction')
       .eq('alt_text', 'TEXT_EXPLORE')
       .maybeSingle()
     
     if (textData) {
       if (textData.title) pageTitle = textData.title
       if (textData.background_image) pageSubtitle = textData.background_image
-      if (textData.button_text) pageTitleColor = textData.button_text
-      if (textData.button_link) pageSubtitleColor = textData.button_link
+      if (textData.link_url) pageTitleColor = textData.link_url
+      if (textData.scroll_direction) pageSubtitleColor = textData.scroll_direction
     }
   } catch (err) {
     console.error('Keşfet başlığı yüklenemedi:', err)

@@ -84,7 +84,7 @@ export default function SettingsPage() {
       try {
         const { data } = await supabase
           .from('hero_banners')
-          .select('alt_text, title, background_image, button_text, button_link')
+          .select('alt_text, title, background_image, link_url, scroll_direction')
           .or('alt_text.like.SYSTEM_%,alt_text.like.PAGE_%,alt_text.like.NAVBAR_%,alt_text.like.TEXT_%')
         
         if (data) {
@@ -94,8 +94,8 @@ export default function SettingsPage() {
               settings[item.alt_text] = {
                 title: item.title || '',
                 background_image: item.background_image || '',
-                button_text: item.button_text || '',
-                button_link: item.button_link || ''
+                button_text: item.link_url || '',
+                button_link: item.scroll_direction || ''
               }
             }
           })
@@ -295,8 +295,8 @@ export default function SettingsPage() {
           .update({
             title: customTitle,
             background_image: customSubtitle,
-            button_text: customTitleColor,
-            button_link: customSubtitleColor
+            link_url: customTitleColor,
+            scroll_direction: customSubtitleColor
           })
           .eq('alt_text', selectedTextTarget)
         if (error) throw error
@@ -307,12 +307,11 @@ export default function SettingsPage() {
             alt_text: selectedTextTarget,
             title: customTitle,
             background_image: customSubtitle,
-            button_text: customTitleColor,
-            button_link: customSubtitleColor,
+            link_url: customTitleColor,
+            scroll_direction: customSubtitleColor,
             is_active: false,
             display_order: 888888,
-            scroll_speed: 30,
-            scroll_direction: 'left'
+            scroll_speed: 30
           })
         if (error) throw error
       }

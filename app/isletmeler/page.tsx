@@ -229,15 +229,15 @@ function BusinessesContent() {
       try {
         const { data: textData } = await supabase
           .from('hero_banners')
-          .select('title, background_image, button_text, button_link')
+          .select('title, background_image, link_url, scroll_direction')
           .eq('alt_text', 'TEXT_BUSINESSES')
           .maybeSingle()
         
         if (textData) {
           if (textData.title) setPageTitle(textData.title)
           if (textData.background_image) setPageSubtitle(textData.background_image)
-          if (textData.button_text) setPageTitleColor(textData.button_text)
-          if (textData.button_link) setPageSubtitleColor(textData.button_link)
+          if (textData.link_url) setPageTitleColor(textData.link_url)
+          if (textData.scroll_direction) setPageSubtitleColor(textData.scroll_direction)
         }
       } catch (err) {
         console.error('İşletmeler başlığı yüklenemedi:', err)
