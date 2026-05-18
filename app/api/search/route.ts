@@ -29,26 +29,29 @@ export async function GET(request: Request) {
         name, 
         slug, 
         main_image,
-        business_categories!inner(name)
+        description,
+        business_categories (
+          name
+        )
       `)
-      .or(`name.ilike.%${q}%,business_categories.name.ilike.%${q}%`)
-      .limit(6),
+      .or(`name.ilike.%${q}%,description.ilike.%${q}%`)
+      .limit(8),
 
     // 3. Sosyal Gönderiler
     supabase
       .from('posts')
-      .select('id, content, image_url, profiles!inner(full_name, username)')
+      .select('id, content, image_url, profiles:user_profiles!inner(full_name, username)')
       .ilike('content', `%${q}%`)
       .limit(3),
 
-    // 4. Kullanıcı Profilleri
+    // 4. Kullanıcı Profilleri (Düzeltildi: user_profiles)
     supabase
-      .from('profiles')
+      .from('user_profiles')
       .select('id, username, full_name, avatar_url')
       .or(`username.ilike.%${q}%,full_name.ilike.%${q}%`)
-      .limit(3),
+      .limit(4),
 
-    // 5. Ürünler & Hizmetler (Yeni!)
+    // 5. Ürünler & Hizmetler
     supabase
       .from('business_products')
       .select(`
@@ -88,7 +91,7 @@ export async function GET(request: Request) {
       results.push({
         id: p.id,
         name: p.name,
-        slug: parent.slug, // Clicking goes to parent business page
+        slug: parent.slug,
         image_url: p.image_url,
         type: 'product',
         subtitle: `${parent.name} • ${p.price} TL`,
@@ -97,21 +100,21 @@ export async function GET(request: Request) {
     }
   });
 
-  // 3. Kategoriler
-  categoriesRes.data?.forEach(c => {
-    results.push({ ...c, type: 'category', priority: 3 });
-  });
-
-  // 4. Profiller
+  // 3. Profiller (Kullanıcı Adları - Yüksek Öncelikli!)
   profilesRes.data?.forEach(p => {
     results.push({ 
       id: p.id,
-      name: p.full_name || p.username,
+      name: p.full_name || `@${p.username}`,
       slug: p.username,
       image_url: p.avatar_url,
       type: 'profile',
-      priority: 4
+      priority: 3
     });
+  });
+
+  // 4. Kategoriler
+  categoriesRes.data?.forEach(c => {
+    results.push({ ...c, type: 'category', priority: 4 });
   });
 
   // 5. Gönderiler

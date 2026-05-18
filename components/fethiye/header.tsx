@@ -196,21 +196,28 @@ export function Header() {
                           className="w-full flex items-center justify-between p-3.5 hover:bg-white/5 rounded-xl transition-colors group/item"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#64ffda]/10 text-[#64ffda]">
-                              <SearchIcon />
-                            </div>
-                            <div className="text-left">
-                              <div className="text-white font-semibold text-xs group-hover/item:text-[#64ffda] transition-colors line-clamp-1">{result.name}</div>
-                              <div className="text-slate-500 text-[9px] uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
-                                <span>{
-                                  result.type === 'category' ? 'Kategori' : 
-                                  result.type === 'post' ? 'Gönderi' : 
-                                  result.type === 'product' ? 'Ürün / Hizmet' : 'İşletme'
-                                }</span>
-                                {result.category_name && <span className="normal-case tracking-normal text-slate-600">• {result.category_name}</span>}
-                                {result.subtitle && <span className="normal-case tracking-normal text-slate-400">• {result.subtitle}</span>}
+                              <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-[#64ffda]/10 text-[#64ffda] shrink-0 border border-white/5">
+                                {result.image_url ? (
+                                  <img src={result.image_url} alt={result.name} className="w-full h-full object-cover" />
+                                ) : result.type === 'profile' ? (
+                                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                ) : (
+                                  <SearchIcon />
+                                )}
                               </div>
-                            </div>
+                              <div className="text-left">
+                                <div className="text-white font-semibold text-xs group-hover/item:text-[#64ffda] transition-colors line-clamp-1">{result.name}</div>
+                                <div className="text-slate-500 text-[9px] uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
+                                  <span>{
+                                    result.type === 'category' ? 'Kategori' : 
+                                    result.type === 'post' ? 'Gönderi' : 
+                                    result.type === 'profile' ? 'Kullanıcı Profili' :
+                                    result.type === 'product' ? 'Ürün / Hizmet' : 'İşletme'
+                                  }</span>
+                                  {result.category_name && <span className="normal-case tracking-normal text-slate-600">• {result.category_name}</span>}
+                                  {result.subtitle && <span className="normal-case tracking-normal text-slate-400">• {result.subtitle}</span>}
+                                </div>
+                              </div>
                           </div>
                           <svg className="w-3.5 h-3.5 text-slate-600 group-hover/item:text-[#64ffda] group-hover/item:translate-x-1 transition-all animate-out duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </button>
