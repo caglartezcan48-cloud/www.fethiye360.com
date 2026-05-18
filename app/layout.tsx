@@ -52,6 +52,8 @@ function getContrastColor(hexColor: string): string {
   return yiq >= 128 ? 'oklch(0.08 0.01 225)' : 'oklch(0.98 0 0)';
 }
 
+import { ThemeHydrator } from "@/components/fethiye/theme-hydrator";
+
 export default async function RootLayout({
   children,
 }: {
@@ -97,6 +99,7 @@ export default async function RootLayout({
         `}} />
       </head>
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
+        <ThemeHydrator />
         <SystemHealthProvider>
           {children}
           <DeferredProviders />
