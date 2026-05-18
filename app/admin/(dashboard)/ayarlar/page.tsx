@@ -87,7 +87,9 @@ export default function SettingsPage() {
             background_image: selectedColor,
             is_active: false,
             title: 'System Custom Background Color Settings',
-            display_order: 999999
+            display_order: 999999,
+            scroll_speed: 30,
+            scroll_direction: 'left'
           })
         
         if (error) throw error
