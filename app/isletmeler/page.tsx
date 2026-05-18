@@ -148,7 +148,10 @@ function BusinessesContent() {
   const [pageTitle, setPageTitle] = useState("FETHİYE İŞLETMELERİ")
   const [pageSubtitle, setPageSubtitle] = useState("Fethiye'deki tüm işletmeleri keşfedin, en iyi hizmetlere anında ulaşın.")
   const [pageTitleColor, setPageTitleColor] = useState("#ffffff")
+  const [pageTitleSize, setPageTitleSize] = useState("text-4xl md:text-6xl")
   const [pageSubtitleColor, setPageSubtitleColor] = useState("#94a3b8")
+  const [pageSubtitleSize, setPageSubtitleSize] = useState("text-lg")
+  const [hubOverrides, setHubOverrides] = useState<Record<string, { title?: string, subtitle?: string, startColor?: string, endColor?: string }>>({})
 
   const supabase = createClient()
 
@@ -236,11 +239,46 @@ function BusinessesContent() {
         if (textData) {
           if (textData.title) setPageTitle(textData.title)
           if (textData.background_image) setPageSubtitle(textData.background_image)
-          if (textData.link_url) setPageTitleColor(textData.link_url)
-          if (textData.scroll_direction) setPageSubtitleColor(textData.scroll_direction)
+          
+          if (textData.link_url) {
+            const [color, size] = textData.link_url.split('|')
+            setPageTitleColor(color || '#ffffff')
+            setPageTitleSize(size || 'text-4xl md:text-6xl')
+          }
+          if (textData.scroll_direction) {
+            const [color, size] = textData.scroll_direction.split('|')
+            setPageSubtitleColor(color || '#94a3b8')
+            setPageSubtitleSize(size || 'text-lg')
+          }
         }
       } catch (err) {
         console.error('İşletmeler başlığı yüklenemedi:', err)
+      }
+
+      // Fetch dynamic business hub custom cards
+      try {
+        const { data: hubData } = await supabase
+          .from('hero_banners')
+          .select('alt_text, title, background_image, link_url, scroll_direction')
+          .like('alt_text', 'BIZ_HUB_%')
+        
+        if (hubData) {
+          const overrides: Record<string, any> = {}
+          hubData.forEach(item => {
+            const hubId = item.alt_text?.replace('BIZ_HUB_', '')
+            if (hubId) {
+              overrides[hubId] = {
+                title: item.title,
+                subtitle: item.background_image,
+                startColor: item.link_url,
+                endColor: item.scroll_direction
+              }
+            }
+          })
+          setHubOverrides(overrides)
+        }
+      } catch (err) {
+        console.error('Hub overrides yüklenemedi:', err)
       }
     }
     setLoading(false)
@@ -284,10 +322,10 @@ function BusinessesContent() {
           {/* Page Dynamic Header (Only on landing view) */}
           {!currentHubId && !searchQuery && !currentFilter && (
             <div className="text-center max-w-3xl mx-auto mb-8 animate-in fade-in duration-700">
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-tight" style={{ color: pageTitleColor }}>
+              <h1 className={`font-black tracking-tighter uppercase italic leading-tight ${pageTitleSize}`} style={{ color: pageTitleColor }}>
                 {pageTitle}
               </h1>
-              <p className="mt-4 text-lg max-w-2xl mx-auto font-medium" style={{ color: pageSubtitleColor }}>
+              <p className={`mt-4 max-w-2xl mx-auto font-medium ${pageSubtitleSize}`} style={{ color: pageSubtitleColor }}>
                 {pageSubtitle}
               </p>
             </div>
@@ -312,32 +350,53 @@ function BusinessesContent() {
           {/* Service Hub Grid */}
           {!currentHubId && !searchQuery && !currentFilter && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-              {SERVICE_HUBS.map((hub) => (
-                <button
-                  key={hub.id}
-                  onClick={() => selectHub(hub.id)}
-                  className={`group relative p-8 rounded-[48px] border-2 bg-gradient-to-br ${hub.color} ${hub.borderColor} ${hub.hoverBg} transition-all text-left overflow-hidden shadow-2xl backdrop-blur-md`}
-                >
-                  <div className="relative z-10 space-y-4">
-                    <div className="w-16 h-16 bg-white/20 rounded-[24px] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-inner">
-                      <hub.icon className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-md">{hub.title}</h3>
-                      <p className="text-white/70 text-sm font-medium">{hub.subtitle}</p>
-                      <div className="mt-4 flex items-center gap-2">
-                        <span className="text-[10px] font-black text-[#64ffda] bg-[#64ffda]/10 px-3 py-1 rounded-full border border-[#64ffda]/20 tracking-widest uppercase italic">
-                          {hubCounts[hub.id] || 0} KAYITLI İŞLETME
-                        </span>
+              {SERVICE_HUBS.map((hub) => {
+                const startColor = hubOverrides[hub.id]?.startColor
+                const endColor = hubOverrides[hub.id]?.endColor
+                const customTitle = hubOverrides[hub.id]?.title || hub.title
+                const customSubtitle = hubOverrides[hub.id]?.subtitle || hub.subtitle
+
+                const cardStyle = startColor && endColor
+                  ? {
+                      background: `linear-gradient(135deg, ${startColor}25, ${endColor}25)`,
+                      borderColor: `${startColor}40`,
+                    }
+                  : {}
+
+                return (
+                  <button
+                    key={hub.id}
+                    onClick={() => selectHub(hub.id)}
+                    style={cardStyle}
+                    className={`group relative p-8 rounded-[48px] border-2 bg-gradient-to-br ${startColor && endColor ? '' : hub.color + ' ' + hub.borderColor + ' ' + hub.hoverBg} transition-all text-left overflow-hidden shadow-2xl backdrop-blur-md`}
+                  >
+                    <div className="relative z-10 space-y-4">
+                      <div 
+                        style={startColor ? { backgroundColor: `${startColor}30` } : {}}
+                        className="w-16 h-16 bg-white/20 rounded-[24px] flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-inner"
+                      >
+                        <hub.icon className="w-8 h-8" style={startColor ? { color: startColor } : {}} />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter drop-shadow-md">{customTitle}</h3>
+                        <p className="text-white/70 text-sm font-medium">{customSubtitle}</p>
+                        <div className="mt-4 flex items-center gap-2">
+                          <span 
+                            style={startColor ? { color: startColor, backgroundColor: `${startColor}10`, borderColor: `${startColor}20` } : {}}
+                            className="text-[10px] font-black text-[#64ffda] bg-[#64ffda]/10 px-3 py-1 rounded-full border border-[#64ffda]/20 tracking-widest uppercase italic"
+                          >
+                            {hubCounts[hub.id] || 0} KAYITLI İŞLETME
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <hub.icon className="w-32 h-32 -mr-8 -mt-8 rotate-12" />
-                  </div>
-                  <ChevronRight className="absolute right-8 bottom-8 w-6 h-6 text-white/40 group-hover:text-white group-hover:translate-x-2 transition-all" />
-                </button>
-              ))}
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <hub.icon className="w-32 h-32 -mr-8 -mt-8 rotate-12" style={startColor ? { color: startColor } : {}} />
+                    </div>
+                    <ChevronRight className="absolute right-8 bottom-8 w-6 h-6 text-white/40 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                  </button>
+                )
+              })}
             </div>
           )}
 
@@ -376,33 +435,56 @@ function BusinessesContent() {
                 {/* Usta Bul - Renkli Dashboard */}
                 {activeHub?.id === 'masters' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl mx-auto py-4">
-                    {activeHub.subHubs?.map(sub => (
-                      <button
-                        key={sub.id}
-                        onClick={() => selectSubHub(sub.id)}
-                        className={`group relative p-4 px-6 rounded-[24px] border-2 transition-all flex flex-row items-center justify-start gap-4 shadow-xl ${
-                          currentSubHubId === sub.id 
-                            ? 'bg-[#64ffda] border-[#64ffda] text-[#0a192f] scale-102' 
-                            : `bg-white/5 border-white/10 text-white hover:border-white/30 ${sub.id === 'home_masters' ? 'hover:bg-blue-500/20' : 'hover:bg-orange-500/20'}`
-                        }`}
-                      >
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${currentSubHubId === sub.id ? 'bg-white/20' : sub.color + ' shadow-lg'}`}>
-                          <sub.icon className="w-5 h-5" />
-                        </div>
-                        <span className="text-sm font-black uppercase italic tracking-tighter">{sub.title}</span>
-                        
-                        {currentSubHubId === sub.id && (
-                          <div className="absolute top-1/2 -translate-y-1/2 -right-2 bg-white text-[#0a192f] p-1 rounded-full shadow-lg">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                    {activeHub.subHubs?.map(sub => {
+                      const mastersStartColor = hubOverrides['masters']?.startColor || '#64ffda'
+                      
+                      return (
+                        <button
+                          key={sub.id}
+                          onClick={() => selectSubHub(sub.id)}
+                          style={
+                            currentSubHubId === sub.id 
+                              ? { 
+                                  backgroundColor: mastersStartColor, 
+                                  borderColor: mastersStartColor,
+                                  color: '#0a192f'
+                                } 
+                              : {
+                                  borderColor: `${mastersStartColor}20`
+                                }
+                          }
+                          className={`group relative p-4 px-6 rounded-[24px] border-2 transition-all flex flex-row items-center justify-start gap-4 shadow-xl ${
+                            currentSubHubId === sub.id 
+                              ? 'scale-102 font-black shadow-lg' 
+                              : `bg-white/5 text-white hover:border-white/30 ${sub.id === 'home_masters' ? 'hover:bg-blue-500/20' : 'hover:bg-orange-500/20'}`
+                          }`}
+                        >
+                          <div 
+                            style={
+                              currentSubHubId === sub.id 
+                                ? { backgroundColor: 'rgba(255,255,255,0.2)' } 
+                                : { backgroundColor: `${mastersStartColor}20` }
+                            }
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg`}
+                          >
+                            <sub.icon className="w-5 h-5" style={currentSubHubId === sub.id ? {} : { color: mastersStartColor }} />
                           </div>
-                        )}
-                      </button>
-                    ))}
+                          <span className="text-sm font-black uppercase italic tracking-tighter">{sub.title}</span>
+                          
+                          {currentSubHubId === sub.id && (
+                            <div className="absolute top-1/2 -translate-y-1/2 -right-2 bg-white text-[#0a192f] p-1 rounded-full shadow-lg">
+                              <CheckCircle2 className="w-3.5 h-3.5" style={{ color: mastersStartColor }} />
+                            </div>
+                          )}
+                        </button>
+                      )
+                    })}
                     
                     {currentSubHubId && (
                       <button 
                         onClick={() => selectSubHub('')}
-                        className="sm:col-span-2 text-center text-[#64ffda] text-[10px] font-black uppercase tracking-widest hover:underline pt-2"
+                        style={{ color: hubOverrides['masters']?.startColor || '#64ffda' }}
+                        className="sm:col-span-2 text-center text-[10px] font-black uppercase tracking-widest hover:underline pt-2"
                       >
                         TÜM USTALARI GÖSTER
                       </button>

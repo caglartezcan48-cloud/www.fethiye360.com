@@ -17,10 +17,12 @@ export default function GuidePage() {
   const router = useRouter()
 
   // Dynamic Page Copy States
-  const [pageTitle, setPageTitle] = useState("FETHİYE'Yİ KEŞFET")
+  const [pageTitle, setPageTitle] = useState("FETHİYE\'Yİ KEŞFET")
   const [pageSubtitle, setPageSubtitle] = useState("Tarihi mekanlardan turkuaz koylara kadar Fethiye'nin görülmesi gereken tüm noktalarını keşfedin.")
   const [pageTitleColor, setPageTitleColor] = useState("#ffffff")
+  const [pageTitleSize, setPageTitleSize] = useState("text-5xl md:text-8xl")
   const [pageSubtitleColor, setPageSubtitleColor] = useState("#94a3b8")
+  const [pageSubtitleSize, setPageSubtitleSize] = useState("text-base")
 
   const categories = ["Tümü", "Plaj", "Tarihi Yer", "Doğa", "Kültürel"]
 
@@ -62,8 +64,17 @@ export default function GuidePage() {
       if (textData) {
         if (textData.title) setPageTitle(textData.title)
         if (textData.background_image) setPageSubtitle(textData.background_image)
-        if (textData.link_url) setPageTitleColor(textData.link_url)
-        if (textData.scroll_direction) setPageSubtitleColor(textData.scroll_direction)
+        
+        if (textData.link_url) {
+          const [color, size] = textData.link_url.split('|')
+          setPageTitleColor(color || '#ffffff')
+          setPageTitleSize(size || 'text-5xl md:text-8xl')
+        }
+        if (textData.scroll_direction) {
+          const [color, size] = textData.scroll_direction.split('|')
+          setPageSubtitleColor(color || '#94a3b8')
+          setPageSubtitleSize(size || 'text-base')
+        }
       }
     } catch (err) {
       console.error('Rehber başlığı yüklenemedi:', err)
@@ -90,10 +101,10 @@ export default function GuidePage() {
             <Compass className="w-4 h-4 text-[#64ffda]" />
             <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.3em]">GEZİ REHBERİ</span>
           </div>
-          <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase italic leading-none animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100" style={{ color: pageTitleColor }}>
+          <h1 className={`font-black tracking-tighter uppercase italic leading-none animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 ${pageTitleSize}`} style={{ color: pageTitleColor }}>
             {pageTitle}
           </h1>
-          <p className="max-w-2xl mx-auto font-medium italic animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200" style={{ color: pageSubtitleColor }}>
+          <p className={`max-w-2xl mx-auto font-medium italic animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200 ${pageSubtitleSize}`} style={{ color: pageSubtitleColor }}>
             {pageSubtitle}
           </p>
 

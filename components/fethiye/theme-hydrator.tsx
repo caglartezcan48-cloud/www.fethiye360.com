@@ -14,19 +14,25 @@ export function ThemeHydrator() {
         const { data } = await supabase
           .from('hero_banners')
           .select('alt_text, background_image')
-          .or(`alt_text.in.("SYSTEM_BG_COLOR","SYSTEM_BTN_COLOR","NAVBAR_BG_COLOR","NAVBAR_BTN_COLOR"),alt_text.eq.PAGE_BG_COLOR_${pathname},alt_text.eq.PAGE_BTN_COLOR_${pathname}`)
+          .or(`alt_text.in.("SYSTEM_BG_COLOR","SYSTEM_BTN_COLOR","NAVBAR_BG_COLOR","NAVBAR_BTN_COLOR","SYSTEM_FONT_FAMILY","SYSTEM_FONT_SCALE"),alt_text.eq.PAGE_BG_COLOR_${pathname},alt_text.eq.PAGE_BTN_COLOR_${pathname}`)
         
         let bgColor = '#02111a'
         let btnColor = '#64ffda'
         let navBgColor = '#0a192f'
         let navBtnColor = '#64ffda'
+        let fontFamily = "'Outfit', sans-serif"
+        let fontScale = "100%"
         
         if (data) {
           // 1. Global Defaults
           const globalBg = data.find(d => d.alt_text === 'SYSTEM_BG_COLOR')
           const globalBtn = data.find(d => d.alt_text === 'SYSTEM_BTN_COLOR')
+          const globalFont = data.find(d => d.alt_text === 'SYSTEM_FONT_FAMILY')
+          const globalScale = data.find(d => d.alt_text === 'SYSTEM_FONT_SCALE')
           if (globalBg?.background_image) bgColor = globalBg.background_image
           if (globalBtn?.background_image) btnColor = globalBtn.background_image
+          if (globalFont?.background_image) fontFamily = globalFont.background_image
+          if (globalScale?.background_image) fontScale = globalScale.background_image
 
           // 2. Page Specific Overrides
           const pageBg = data.find(d => d.alt_text === `PAGE_BG_COLOR_${pathname}`)
@@ -139,7 +145,11 @@ export function ThemeHydrator() {
           document.head.appendChild(styleEl);
         }
         
+        const fontImport = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;700;900&family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');`;
+
         styleEl.innerHTML = `
+          ${fontImport}
+
           :root, html, body, .dark, [data-theme='dark'] {
             --background: ${bgColor} !important;
             --foreground: ${fgColor} !important;
@@ -165,6 +175,16 @@ export function ThemeHydrator() {
             --navbar-text: ${isNavLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)'} !important;
             --navbar-text-hover: ${isNavLight ? '#000000' : '#ffffff'} !important;
             --navbar-border: ${isNavLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'} !important;
+          }
+
+          /* Global Typography Override */
+          *, *::before, *::after {
+            font-family: ${fontFamily} !important;
+          }
+
+          /* Global Base Font Size Scaling Override */
+          html {
+            font-size: ${fontScale} !important;
           }
         `;
       } catch (err) {

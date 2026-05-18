@@ -47,7 +47,9 @@ export default async function DiscoveryPage({
   let pageTitle = "Sosyal Keşif"
   let pageSubtitle = "Fethiye'nin dört bir yanından kullanıcı paylaşımları ve anlık kareler."
   let pageTitleColor = "#ffffff"
+  let pageTitleSize = "text-4xl md:text-6xl"
   let pageSubtitleColor = "#94a3b8"
+  let pageSubtitleSize = "text-lg"
 
   try {
     const { data: textData } = await supabase
@@ -59,8 +61,17 @@ export default async function DiscoveryPage({
     if (textData) {
       if (textData.title) pageTitle = textData.title
       if (textData.background_image) pageSubtitle = textData.background_image
-      if (textData.link_url) pageTitleColor = textData.link_url
-      if (textData.scroll_direction) pageSubtitleColor = textData.scroll_direction
+      
+      if (textData.link_url) {
+        const [color, size] = textData.link_url.split('|')
+        pageTitleColor = color || '#ffffff'
+        pageTitleSize = size || 'text-4xl md:text-6xl'
+      }
+      if (textData.scroll_direction) {
+        const [color, size] = textData.scroll_direction.split('|')
+        pageSubtitleColor = color || '#94a3b8'
+        pageSubtitleSize = size || 'text-lg'
+      }
     }
   } catch (err) {
     console.error('Keşfet başlığı yüklenemedi:', err)
@@ -91,10 +102,10 @@ export default async function DiscoveryPage({
             <div className="flex items-center gap-2 text-[#64ffda] font-black uppercase tracking-[0.3em] text-[10px] mb-4">
               <Sparkles className="w-4 h-4" /> Fethiye'yi Keşfet
             </div>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-tight" style={{ color: pageTitleColor }}>
+            <h1 className={`font-black tracking-tighter uppercase italic leading-tight ${pageTitleSize}`} style={{ color: pageTitleColor }}>
               {pageTitle}
             </h1>
-            <p className="mt-4 text-lg max-w-2xl font-medium" style={{ color: pageSubtitleColor }}>
+            <p className={`mt-4 max-w-2xl font-medium ${pageSubtitleSize}`} style={{ color: pageSubtitleColor }}>
               {pageSubtitle}
             </p>
           </div>

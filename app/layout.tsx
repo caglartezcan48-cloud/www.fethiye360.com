@@ -63,17 +63,21 @@ export default async function RootLayout({
   let isLight = false;
   let btnColor = '#64ffda'; // default Ölüdeniz Turkuazı
   let btnFgColor = 'oklch(0.11 0.038 225)'; // default dark blue text
+  let fontFamily = "'Outfit', sans-serif";
+  let fontScale = "100%";
 
   try {
     const supabase = await createClient()
     const { data } = await supabase
       .from('hero_banners')
       .select('alt_text, background_image')
-      .in('alt_text', ['SYSTEM_BG_COLOR', 'SYSTEM_BTN_COLOR'])
+      .in('alt_text', ['SYSTEM_BG_COLOR', 'SYSTEM_BTN_COLOR', 'SYSTEM_FONT_FAMILY', 'SYSTEM_FONT_SCALE'])
     
     if (data) {
       const bgSetting = data.find(d => d.alt_text === 'SYSTEM_BG_COLOR')
       const btnSetting = data.find(d => d.alt_text === 'SYSTEM_BTN_COLOR')
+      const fontSetting = data.find(d => d.alt_text === 'SYSTEM_FONT_FAMILY')
+      const scaleSetting = data.find(d => d.alt_text === 'SYSTEM_FONT_SCALE')
       
       if (bgSetting?.background_image) {
         bgColor = bgSetting.background_image;
@@ -85,6 +89,14 @@ export default async function RootLayout({
         btnColor = btnSetting.background_image;
         btnFgColor = getContrastColor(btnColor);
       }
+
+      if (fontSetting?.background_image) {
+        fontFamily = fontSetting.background_image;
+      }
+
+      if (scaleSetting?.background_image) {
+        fontScale = scaleSetting.background_image;
+      }
     }
   } catch (err) {
     console.error("Failed to load custom background settings:", err);
@@ -95,6 +107,8 @@ export default async function RootLayout({
       <head>
         <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
         <style dangerouslySetInnerHTML={{ __html: `
+          @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Inter:wght@300;400;500;700;900&family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+          
           :root, html, body, .dark, [data-theme='dark'] {
             --background: ${bgColor} !important;
             --foreground: ${fgColor} !important;
@@ -111,6 +125,9 @@ export default async function RootLayout({
             --secondary-foreground: ${fgColor} !important;
             --muted-foreground: ${isLight ? 'color-mix(in srgb, ' + fgColor + ' 60%, black 40%)' : 'color-mix(in srgb, ' + fgColor + ' 60%, white 40%)'} !important;
             --border: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 88%, black 12%)' : 'color-mix(in srgb, ' + bgColor + ' 84%, white 16%)'} !important;
+            
+            font-family: ${fontFamily} !important;
+            font-size: ${fontScale} !important;
           }
         `}} />
       </head>

@@ -49,7 +49,9 @@ export default function ActivityPlannerPage() {
   const [pageTitle, setPageTitle] = useState('Gezilecek Yerler Listeni Oluştur')
   const [pageSubtitle, setPageSubtitle] = useState("Fethiye'de görmek istediğin yerleri seç, listeni oluştur.")
   const [pageTitleColor, setPageTitleColor] = useState('#ffffff')
+  const [pageTitleSize, setPageTitleSize] = useState('text-3xl')
   const [pageSubtitleColor, setPageSubtitleColor] = useState('#94a3b8')
+  const [pageSubtitleSize, setPageSubtitleSize] = useState('text-base')
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,8 +81,17 @@ export default function ActivityPlannerPage() {
         if (textData) {
           if (textData.title) setPageTitle(textData.title)
           if (textData.background_image) setPageSubtitle(textData.background_image)
-          if (textData.link_url) setPageTitleColor(textData.link_url)
-          if (textData.scroll_direction) setPageSubtitleColor(textData.scroll_direction)
+          
+          if (textData.link_url) {
+            const [color, size] = textData.link_url.split('|')
+            setPageTitleColor(color || '#ffffff')
+            setPageTitleSize(size || 'text-3xl')
+          }
+          if (textData.scroll_direction) {
+            const [color, size] = textData.scroll_direction.split('|')
+            setPageSubtitleColor(color || '#94a3b8')
+            setPageSubtitleSize(size || 'text-base')
+          }
         }
       } catch (err) {
         console.error('Planner başlığı yüklenemedi:', err)
@@ -219,8 +230,8 @@ export default function ActivityPlannerPage() {
             <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
               <div className="flex flex-col md:flex-row items-center justify-between gap-8 border-b border-white/5 pb-8">
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-black uppercase italic tracking-tighter" style={{ color: pageTitleColor }}>{pageTitle}</h2>
-                  <p className="font-medium" style={{ color: pageSubtitleColor }}>{pageSubtitle}</p>
+                  <h2 className={`font-black uppercase italic tracking-tighter ${pageTitleSize}`} style={{ color: pageTitleColor }}>{pageTitle}</h2>
+                  <p className={`font-medium ${pageSubtitleSize}`} style={{ color: pageSubtitleColor }}>{pageSubtitle}</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="px-6 py-3 bg-white/5 rounded-full border border-white/10 text-[#64ffda] font-black text-xs tracking-widest uppercase">

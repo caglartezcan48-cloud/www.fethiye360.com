@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Loader2, Check, Key, Palette, RefreshCw } from 'lucide-react'
+import { Loader2, Check, Key, Palette, RefreshCw, LayoutGrid } from 'lucide-react'
 
 // Signature Fethiye Presets for Background
 const FETHIYE_PRESETS = [
@@ -50,9 +50,48 @@ export default function SettingsPage() {
   const [customSubtitle, setCustomSubtitle] = useState("Fethiye'de görmek istediğin yerleri seç, listeni oluştur.")
   const [customTitleColor, setCustomTitleColor] = useState('#ffffff')
   const [customSubtitleColor, setCustomSubtitleColor] = useState('#94a3b8')
+  const [customTitleSize, setCustomTitleSize] = useState('text-5xl')
+  const [customSubtitleSize, setCustomSubtitleSize] = useState('text-lg')
+  const [customFontFamily, setCustomFontFamily] = useState("'Outfit', sans-serif")
+  const [customFontScale, setCustomFontScale] = useState("100%")
   const [textSaveLoading, setTextSaveLoading] = useState(false)
   const [textSaveMessage, setTextSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   
+  // Business Hub Cards Editor States
+  const [selectedHubTarget, setSelectedHubTarget] = useState('food')
+  const [customHubTitle, setCustomHubTitle] = useState('ACIKTIN MI?')
+  const [customHubSubtitle, setCustomHubSubtitle] = useState('Yemek, Restoran, Kafe & Tüm Lezzetler')
+  const [customHubStartColor, setCustomHubStartColor] = useState('#f97316')
+  const [customHubEndColor, setCustomHubEndColor] = useState('#dc2626')
+  const [hubSaveLoading, setHubSaveLoading] = useState(false)
+  const [hubSaveMessage, setHubSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  const HUB_OPTIONS = [
+    { id: 'food', name: '🍔 ACIKTIN MI? (Yemek & Restoran)', defaultTitle: 'ACIKTIN MI?', defaultSubtitle: 'Yemek, Restoran, Kafe & Tüm Lezzetler', defaultStart: '#f97316', defaultEnd: '#dc2626' },
+    { id: 'stay', name: '🏨 KONAKLAMA (Otel, Motel, Pansiyon)', defaultTitle: 'KONAKLAMA', defaultSubtitle: 'Otel, Motel, Pansiyon, Villa & Apart', defaultStart: '#3b82f6', defaultEnd: '#0891b2' },
+    { id: 'masters', name: '🔨 USTA BUL (Ev & Oto Tamir)', defaultTitle: 'USTA BUL', defaultSubtitle: 'Ev & Araba İçin Tüm Ustalar', defaultStart: '#fbbf24', defaultEnd: '#ea580c' },
+    { id: 'emergency', name: '🚨 ACİL DURUM (Sağlık & Çekici)', defaultTitle: 'ACİL DURUM', defaultSubtitle: 'Yol Yardım & Sağlık', defaultStart: '#dc2626', defaultEnd: '#be123c' },
+    { id: 'sea', name: '⛵ MAVİ DÜNYA (Tekne & Yat)', defaultTitle: 'MAVİ DÜNYA', defaultSubtitle: 'Tekne Turu, Marina & Yat Servis', defaultStart: '#22d3ee', defaultEnd: '#2563eb' },
+    { id: 'activity', name: '🧗 AKTİVİTE & TUR (Macera & Gezi)', defaultTitle: 'AKTİVİTE & TUR', defaultSubtitle: 'Macera & Deneyim', defaultStart: '#34d399', defaultEnd: '#0d9488' },
+    { id: 'gift', name: '🎁 HEDİYE & ÇİÇEK (Hediyelik & Çiçekçi)', defaultTitle: 'HEDİYE & ÇİÇEK', defaultSubtitle: 'Çiçekçiler & Hediyelik Eşyalar', defaultStart: '#ec4899', defaultEnd: '#c026d3' },
+    { id: 'night', name: '🎵 GECE HAYATI (Bar, Canlı Müzik)', defaultTitle: 'GECE HAYATI', defaultSubtitle: 'Tüm Barlar & Gece Mekanları', defaultStart: '#7c3aed', defaultEnd: '#6b21a8' },
+    { id: 'pro', name: '💼 PROFESYONEL (Emlak, Avukat vb.)', defaultTitle: 'PROFESYONEL', defaultSubtitle: 'Emlak, Avukat & Danışman', defaultStart: '#94a3b8', defaultEnd: '#475569' }
+  ]
+
+  const handleHubTargetChange = (target: string, currentSettings?: any) => {
+    setSelectedHubTarget(target)
+    setHubSaveMessage(null)
+    const opt = HUB_OPTIONS.find(h => h.id === target)
+    if (!opt) return
+
+    const settingsMap = currentSettings || themeSettings
+    const dbData = settingsMap['BIZ_HUB_' + target]
+    setCustomHubTitle(dbData?.title || opt.defaultTitle)
+    setCustomHubSubtitle(dbData?.background_image || opt.defaultSubtitle)
+    setCustomHubStartColor(dbData?.button_text || opt.defaultStart)
+    setCustomHubEndColor(dbData?.button_link || opt.defaultEnd)
+  }
+
   const router = useRouter()
   const supabase = createClient()
 
@@ -85,7 +124,7 @@ export default function SettingsPage() {
         const { data } = await supabase
           .from('hero_banners')
           .select('alt_text, title, background_image, link_url, scroll_direction')
-          .or('alt_text.like.SYSTEM_%,alt_text.like.PAGE_%,alt_text.like.NAVBAR_%,alt_text.like.TEXT_%')
+          .or('alt_text.like.SYSTEM_%,alt_text.like.PAGE_%,alt_text.like.NAVBAR_%,alt_text.like.TEXT_%,alt_text.like.BIZ_HUB_%')
         
         if (data) {
           const settings: Record<string, { title?: string, background_image?: string, button_text?: string, button_link?: string }> = {}
@@ -105,12 +144,29 @@ export default function SettingsPage() {
           setSelectedColor(settings['SYSTEM_BG_COLOR']?.background_image || '#02111a')
           setSelectedBtnColor(settings['SYSTEM_BTN_COLOR']?.background_image || '#64ffda')
 
+          // Load Global Font Family and Font Scale
+          setCustomFontFamily(settings['SYSTEM_FONT_FAMILY']?.background_image || "'Outfit', sans-serif")
+          setCustomFontScale(settings['SYSTEM_FONT_SCALE']?.background_image || '100%')
+
           // Set text states to planner initially
           const plannerData = settings['TEXT_PLANNER']
           setCustomTitle(plannerData?.title || 'Gezilecek Yerler Listeni Oluştur')
-          setCustomSubtitle(plannerData?.background_image || "Fethiye'de görmek istediğin yerleri seç, listeni oluştur.")
-          setCustomTitleColor(plannerData?.button_text || '#ffffff')
-          setCustomSubtitleColor(plannerData?.button_link || '#94a3b8')
+          setCustomSubtitle(plannerData?.background_image || "Fethiye\'de görmek istediğin yerleri seç, listeni oluştur.")
+          
+          const [color, size] = (plannerData?.button_text || '#ffffff').split('|')
+          setCustomTitleColor(color || '#ffffff')
+          setCustomTitleSize(size || 'text-5xl')
+          
+          const [subColor, subSize] = (plannerData?.button_link || '#94a3b8').split('|')
+          setCustomSubtitleColor(subColor || '#94a3b8')
+          setCustomSubtitleSize(subSize || 'text-lg')
+
+          // Set hub states to food initially
+          const foodData = settings['BIZ_HUB_food']
+          setCustomHubTitle(foodData?.title || 'ACIKTIN MI?')
+          setCustomHubSubtitle(foodData?.background_image || 'Yemek, Restoran, Kafe & Tüm Lezzetler')
+          setCustomHubStartColor(foodData?.button_text || '#f97316')
+          setCustomHubEndColor(foodData?.button_link || '#dc2626')
         }
       } catch (err) {
         console.error('Tema ayarları yüklenemedi:', err)
@@ -155,8 +211,15 @@ export default function SettingsPage() {
     const record = themeSettings[targetId]
     setCustomTitle(record?.title || opt.defaultTitle)
     setCustomSubtitle(record?.background_image || opt.defaultSubtitle)
-    setCustomTitleColor(record?.button_text || '#ffffff')
-    setCustomSubtitleColor(record?.button_link || '#94a3b8')
+    
+    // Parse color|size
+    const [color, size] = (record?.button_text || '#ffffff').split('|')
+    setCustomTitleColor(color || '#ffffff')
+    setCustomTitleSize(size || 'text-5xl')
+    
+    const [subColor, subSize] = (record?.button_link || '#94a3b8').split('|')
+    setCustomSubtitleColor(subColor || '#94a3b8')
+    setCustomSubtitleSize(subSize || 'text-lg')
   }
 
   // Save selected target theme configurations to Supabase
@@ -249,10 +312,72 @@ export default function SettingsPage() {
         if (error) throw error
       }
 
+      // 3. Upsert Global Font Family if target is global
+      if (target.id === 'global') {
+        const { data: existingFont } = await supabase
+          .from('hero_banners')
+          .select('id')
+          .eq('alt_text', 'SYSTEM_FONT_FAMILY')
+          .maybeSingle()
+
+        if (existingFont) {
+          const { error } = await supabase
+            .from('hero_banners')
+            .update({ background_image: customFontFamily })
+            .eq('alt_text', 'SYSTEM_FONT_FAMILY')
+          if (error) throw error
+        } else {
+          const { error } = await supabase
+            .from('hero_banners')
+            .insert({
+              alt_text: 'SYSTEM_FONT_FAMILY',
+              background_image: customFontFamily,
+              is_active: false,
+              title: 'Global Font Family Override',
+              display_order: 999997,
+              scroll_speed: 30,
+              scroll_direction: 'left'
+            })
+          if (error) throw error
+        }
+
+        // 4. Upsert Global Font Scale
+        const { data: existingScale } = await supabase
+          .from('hero_banners')
+          .select('id')
+          .eq('alt_text', 'SYSTEM_FONT_SCALE')
+          .maybeSingle()
+
+        if (existingScale) {
+          const { error } = await supabase
+            .from('hero_banners')
+            .update({ background_image: customFontScale })
+            .eq('alt_text', 'SYSTEM_FONT_SCALE')
+          if (error) throw error
+        } else {
+          const { error } = await supabase
+            .from('hero_banners')
+            .insert({
+              alt_text: 'SYSTEM_FONT_SCALE',
+              background_image: customFontScale,
+              is_active: false,
+              title: 'Global Font Scale Override',
+              display_order: 999996,
+              scroll_speed: 30,
+              scroll_direction: 'left'
+            })
+          if (error) throw error
+        }
+      }
+
       // Sync local state
       const updated = { ...themeSettings }
       updated[bgKey] = { ...updated[bgKey], background_image: selectedColor }
       updated[btnKey] = { ...updated[btnKey], background_image: selectedBtnColor }
+      if (target.id === 'global') {
+        updated['SYSTEM_FONT_FAMILY'] = { ...updated['SYSTEM_FONT_FAMILY'], background_image: customFontFamily }
+        updated['SYSTEM_FONT_SCALE'] = { ...updated['SYSTEM_FONT_SCALE'], background_image: customFontScale }
+      }
       setThemeSettings(updated)
 
       setSaveMessage({ type: 'success', text: `"${target.name}" tasarımı başarıyla kaydedildi! Sitede anında uygulandı.` })
@@ -289,14 +414,17 @@ export default function SettingsPage() {
         .eq('alt_text', selectedTextTarget)
         .maybeSingle()
 
+      const compositeTitleVal = `${customTitleColor}|${customTitleSize}`
+      const compositeSubtitleVal = `${customSubtitleColor}|${customSubtitleSize}`
+
       if (existing) {
         const { error } = await supabase
           .from('hero_banners')
           .update({
             title: customTitle,
             background_image: customSubtitle,
-            link_url: customTitleColor,
-            scroll_direction: customSubtitleColor
+            link_url: compositeTitleVal,
+            scroll_direction: compositeSubtitleVal
           })
           .eq('alt_text', selectedTextTarget)
         if (error) throw error
@@ -307,8 +435,8 @@ export default function SettingsPage() {
             alt_text: selectedTextTarget,
             title: customTitle,
             background_image: customSubtitle,
-            link_url: customTitleColor,
-            scroll_direction: customSubtitleColor,
+            link_url: compositeTitleVal,
+            scroll_direction: compositeSubtitleVal,
             is_active: false,
             display_order: 888888,
             scroll_speed: 30
@@ -321,17 +449,83 @@ export default function SettingsPage() {
       updated[selectedTextTarget] = {
         title: customTitle,
         background_image: customSubtitle,
-        button_text: customTitleColor,
-        button_link: customSubtitleColor
+        button_text: compositeTitleVal,
+        button_link: compositeSubtitleVal
       }
       setThemeSettings(updated)
 
-      setTextSaveMessage({ type: 'success', text: `"${opt.name}" başlıkları ve renkleri başarıyla güncellendi! Sitede anında etkinleştirildi.` })
+      setTextSaveMessage({ type: 'success', text: `"${opt.name}" başlıkları, renkleri ve metin boyutları başarıyla güncellendi! Sitede anında etkinleştirildi.` })
       router.refresh()
     } catch (err: any) {
       setTextSaveMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
     } finally {
       setTextSaveLoading(false)
+    }
+  }
+
+  const handleSaveHubCard = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setHubSaveLoading(true)
+    setHubSaveMessage(null)
+
+    const opt = HUB_OPTIONS.find(h => h.id === selectedHubTarget)
+    if (!opt) {
+      setHubSaveLoading(false)
+      return
+    }
+
+    const dbKey = 'BIZ_HUB_' + selectedHubTarget
+
+    try {
+      const { data: existing } = await supabase
+        .from('hero_banners')
+        .select('id')
+        .eq('alt_text', dbKey)
+        .maybeSingle()
+
+      if (existing) {
+        const { error } = await supabase
+          .from('hero_banners')
+          .update({
+            title: customHubTitle,
+            background_image: customHubSubtitle,
+            link_url: customHubStartColor,
+            scroll_direction: customHubEndColor
+          })
+          .eq('alt_text', dbKey)
+        if (error) throw error
+      } else {
+        const { error } = await supabase
+          .from('hero_banners')
+          .insert({
+            alt_text: dbKey,
+            title: customHubTitle,
+            background_image: customHubSubtitle,
+            link_url: customHubStartColor,
+            scroll_direction: customHubEndColor,
+            is_active: false,
+            display_order: 999999,
+            scroll_speed: 30
+          })
+        if (error) throw error
+      }
+
+      // Update local state map
+      const updated = { ...themeSettings }
+      updated[dbKey] = {
+        title: customHubTitle,
+        background_image: customHubSubtitle,
+        button_text: customHubStartColor,
+        button_link: customHubEndColor
+      }
+      setThemeSettings(updated)
+
+      setHubSaveMessage({ type: 'success', text: `"${opt.name}" kartı başlık, alt metin ve renk geçişleri başarıyla güncellendi! Sitede anında etkinleştirildi.` })
+      router.refresh()
+    } catch (err: any) {
+      setHubSaveMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
+    } finally {
+      setHubSaveLoading(false)
     }
   }
 
@@ -520,6 +714,53 @@ export default function SettingsPage() {
 
             </div>
 
+            {/* TYPOGRAPHY & SCALING CUSTOMIZER */}
+            {selectedTarget === 'global' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-800/80">
+                
+                {/* GLOBAL FONT FAMILY */}
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-amber-400 uppercase tracking-wider mb-1">3. Global Yazı Tipi (Font Family)</h3>
+                    <p className="text-[11px] text-slate-400">Sitenin genelinde kullanılacak olan modern yazı karakterini seçin.</p>
+                  </div>
+                  <select
+                    value={customFontFamily}
+                    onChange={(e) => setCustomFontFamily(e.target.value)}
+                    className="w-full h-14 bg-[#0a192f] border border-slate-600 rounded-xl px-4 text-white text-sm font-bold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all cursor-pointer"
+                  >
+                    <option value="'Outfit', sans-serif">Outfit (Modern & Oval - Varsayılan)</option>
+                    <option value="'Inter', sans-serif">Inter (Temiz & Geometrik)</option>
+                    <option value="'Montserrat', sans-serif">Montserrat (Canlı & Vurgulu)</option>
+                    <option value="'Playfair Display', serif">Playfair Display (Zarif & Serfli Klasik)</option>
+                    <option value="system-ui, sans-serif">Sistem Varsayılanı</option>
+                  </select>
+                </div>
+
+                {/* GLOBAL FONT SCALE */}
+                <div className="space-y-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-1">4. Sitedeki Tüm Yazıların Boyut Ölçeği (Font Scale)</h3>
+                    <p className="text-[11px] text-slate-400">Sitenin genelindeki tüm metinleri, butonları ve başlıkları orantılı olarak ölçeklendirin.</p>
+                  </div>
+                  <select
+                    value={customFontScale}
+                    onChange={(e) => setCustomFontScale(e.target.value)}
+                    className="w-full h-14 bg-[#0a192f] border border-slate-600 rounded-xl px-4 text-white text-sm font-bold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all cursor-pointer"
+                  >
+                    <option value="90%">Küçük Metinler (%90)</option>
+                    <option value="95%">Orta-Küçük Metinler (%95)</option>
+                    <option value="100%">Varsayılan Boyut (%100 - Standart)</option>
+                    <option value="105%">Orta-Büyük Metinler (%105)</option>
+                    <option value="110%">Büyük Metinler (%110)</option>
+                    <option value="115%">Çok Büyük Metinler (%115)</option>
+                    <option value="120%">Ekstra Büyük Metinler (%120)</option>
+                  </select>
+                </div>
+
+              </div>
+            )}
+
             <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
               <p className="text-[11px] text-slate-400 leading-relaxed uppercase tracking-wider font-bold">
                 💡 <span className="text-[#64ffda]">Zeki Kontrast Entegrasyonu:</span> Zemin veya buton renkleri aydınlık/açık tonlara ulaştığında, sistem tüm yazıları yüksek okunurluk için otomatik olarak yüksek kontrastlı koyu renklere kaydırır!
@@ -626,13 +867,13 @@ export default function SettingsPage() {
                 />
               </div>
 
-              {/* Custom Text Color Pickers */}
+              {/* Custom Text Color & Size Pickers */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#0a192f]/50 p-5 rounded-2xl border border-white/5">
-                {/* Custom Title Color Customizer */}
+                {/* Custom Title Color & Size Customizer */}
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Ana Başlık Rengi</label>
-                    <p className="text-[10px] text-slate-400">Başlığın rengini seçin.</p>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Ana Başlık Rengi & Boyutu</label>
+                    <p className="text-[10px] text-slate-400">Başlığın rengini ve boyutunu seçin.</p>
                   </div>
                   <div className="flex gap-3">
                     <div className="relative w-14 h-12 rounded-xl overflow-hidden border border-slate-600/80 shadow-md">
@@ -654,13 +895,27 @@ export default function SettingsPage() {
                       />
                     </div>
                   </div>
+                  
+                  {/* Title Size Selector */}
+                  <select
+                    value={customTitleSize}
+                    onChange={(e) => setCustomTitleSize(e.target.value)}
+                    className="w-full h-11 bg-[#0a192f] border border-slate-600 rounded-xl px-3 text-white text-xs font-bold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all cursor-pointer mt-2"
+                  >
+                    <option value="text-2xl">Çok Küçük Başlık (text-2xl)</option>
+                    <option value="text-3xl">Küçük Başlık (text-3xl)</option>
+                    <option value="text-4xl">Orta Başlık (text-4xl)</option>
+                    <option value="text-5xl">Büyük Başlık (text-5xl)</option>
+                    <option value="text-6xl">Çok Büyük Başlık (text-6xl)</option>
+                    <option value="text-7xl">Devasa Başlık (text-7xl)</option>
+                  </select>
                 </div>
 
-                {/* Custom Subtitle Color Customizer */}
+                {/* Custom Subtitle Color & Size Customizer */}
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Açıklama Metni Rengi</label>
-                    <p className="text-[10px] text-slate-400">Açıklama metninin rengini seçin.</p>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Açıklama Metni Rengi & Boyutu</label>
+                    <p className="text-[10px] text-slate-400">Açıklama metninin rengini ve boyutunu seçin.</p>
                   </div>
                   <div className="flex gap-3">
                     <div className="relative w-14 h-12 rounded-xl overflow-hidden border border-slate-600/80 shadow-md">
@@ -682,6 +937,19 @@ export default function SettingsPage() {
                       />
                     </div>
                   </div>
+                  
+                  {/* Subtitle Size Selector */}
+                  <select
+                    value={customSubtitleSize}
+                    onChange={(e) => setCustomSubtitleSize(e.target.value)}
+                    className="w-full h-11 bg-[#0a192f] border border-slate-600 rounded-xl px-3 text-white text-xs font-bold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all cursor-pointer mt-2"
+                  >
+                    <option value="text-xs">Çok Küçük Metin (text-xs)</option>
+                    <option value="text-sm">Küçük Metin (text-sm)</option>
+                    <option value="text-base">Orta Metin (text-base)</option>
+                    <option value="text-lg">Büyük Metin (text-lg)</option>
+                    <option value="text-xl">Çok Büyük Metin (text-xl)</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -712,6 +980,195 @@ export default function SettingsPage() {
                   <>
                     <Check className="w-4 h-4" />
                     Başlığı ve Metni Güncelle
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="px-5 border border-white/10 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center justify-center"
+                title="Sayfayı Yenile"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* İŞLETMELER SAYFASI DAHBOARD (KATEGORİ KARTLARI) YÖNETİM PANELİ */}
+        <div className="bg-[#112240] rounded-2xl border border-slate-700/50 p-8 shadow-2xl relative overflow-hidden">
+          {/* Decorative subtle background circle */}
+          <div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+          
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+              <LayoutGrid className="w-6 h-6 text-amber-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white uppercase tracking-wider">İşletmeler Sayfası Kategori Kartları & Dashboard Yönetimi</h2>
+              <p className="text-sm text-slate-400">İşletmeler sayfasındaki 9 adet kategori kartının (ACIKTIN MI?, USTA BUL, vb.) başlığını, alt yazısını ve arka plan renk geçişlerini (gradient) ayrı ayrı özelleştirin.</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveHubCard} className="space-y-6">
+            <div className="bg-[#0a192f] border border-slate-800 rounded-2xl p-6 space-y-6">
+              
+              {/* Category Select Dropdown */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-[#64ffda] mb-2">Düzenlenecek Kategori Kartı</label>
+                <select
+                  value={selectedHubTarget}
+                  onChange={(e) => handleHubTargetChange(e.target.value)}
+                  className="w-full bg-[#112240] border border-slate-700 rounded-xl py-3.5 px-4 text-white text-sm font-black focus:outline-none focus:border-[#64ffda] transition-all uppercase tracking-wider"
+                >
+                  {HUB_OPTIONS.map((hub) => (
+                    <option key={hub.id} value={hub.id}>
+                      {hub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Title & Subtitle Copy Editor */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">Kart Başlığı (Title)</label>
+                  <input
+                    type="text"
+                    value={customHubTitle}
+                    onChange={(e) => setCustomHubTitle(e.target.value)}
+                    className="w-full h-12 bg-[#112240] border border-slate-700 rounded-xl px-4 text-white text-sm font-semibold focus:outline-none focus:border-[#64ffda] transition-all"
+                    placeholder="Kart başlığı"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">Kart Açıklaması (Subtitle)</label>
+                  <input
+                    type="text"
+                    value={customHubSubtitle}
+                    onChange={(e) => setCustomHubSubtitle(e.target.value)}
+                    className="w-full h-12 bg-[#112240] border border-slate-700 rounded-xl px-4 text-white text-sm font-semibold focus:outline-none focus:border-[#64ffda] transition-all"
+                    placeholder="Kart açıklaması"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Gradient Colors Editor */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+                
+                {/* Gradient Start Color */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Geçiş Başlangıç Rengi (HEX)</label>
+                    <p className="text-[10px] text-slate-400">Kartın sol üst köşesinden başlayan renk.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="relative w-14 h-12 rounded-xl overflow-hidden border border-slate-700 shadow-md">
+                      <input
+                        type="color"
+                        value={customHubStartColor}
+                        onChange={(e) => setCustomHubStartColor(e.target.value)}
+                        className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer bg-transparent scale-150"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={customHubStartColor}
+                        onChange={(e) => setCustomHubStartColor(e.target.value)}
+                        className="w-full h-12 bg-[#112240] border border-slate-700 rounded-xl px-4 text-white text-sm font-mono uppercase tracking-widest focus:outline-none focus:border-[#64ffda] transition-all"
+                        placeholder="#f97316"
+                        maxLength={7}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Gradient End Color */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Geçiş Bitiş Rengi (HEX)</label>
+                    <p className="text-[10px] text-slate-400">Kartın sağ alt köşesine doğru solan renk.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="relative w-14 h-12 rounded-xl overflow-hidden border border-slate-700 shadow-md">
+                      <input
+                        type="color"
+                        value={customHubEndColor}
+                        onChange={(e) => setCustomHubEndColor(e.target.value)}
+                        className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer bg-transparent scale-150"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={customHubEndColor}
+                        onChange={(e) => setCustomHubEndColor(e.target.value)}
+                        className="w-full h-12 bg-[#112240] border border-slate-700 rounded-xl px-4 text-white text-sm font-mono uppercase tracking-widest focus:outline-none focus:border-[#64ffda] transition-all"
+                        placeholder="#dc2626"
+                        maxLength={7}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Dynamic Preview Box */}
+              <div className="pt-6 border-t border-slate-800">
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">CANLI ÖNİZLEME (PREVIEW)</label>
+                <div className="flex justify-center p-4 bg-[#112240]/40 rounded-2xl border border-slate-800">
+                  <div
+                    style={{
+                      background: `linear-gradient(135deg, ${customHubStartColor}25, ${customHubEndColor}25)`,
+                      borderColor: `${customHubStartColor}40`
+                    }}
+                    className="w-full max-w-sm p-6 rounded-[36px] border-2 text-left space-y-4 shadow-xl backdrop-blur-md transition-all"
+                  >
+                    <div
+                      style={{ backgroundColor: `${customHubStartColor}30` }}
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner"
+                    >
+                      <LayoutGrid className="w-6 h-6" style={{ color: customHubStartColor }} />
+                    </div>
+                    <div>
+                      <h3 className="text-white font-black text-lg uppercase italic tracking-tighter">{customHubTitle}</h3>
+                      <p className="text-slate-400 text-xs mt-1 font-semibold">{customHubSubtitle}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {hubSaveMessage && (
+              <div className={`p-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
+                hubSaveMessage.type === 'success'
+                  ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+                  : 'bg-red-500/10 border border-red-500/20 text-red-400'
+              }`}>
+                {hubSaveMessage.type === 'success' && <Check className="w-4 h-4 flex-shrink-0" />}
+                {hubSaveMessage.text}
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={hubSaveLoading}
+                className="flex-1 bg-amber-500 text-[#0a192f] font-black uppercase tracking-widest text-[11px] py-4 rounded-xl hover:bg-amber-600 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10"
+              >
+                {hubSaveLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Kategori Kartı Güncelleniyor...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Kategori Kartı Tasarımını Kaydet
                   </>
                 )}
               </button>
