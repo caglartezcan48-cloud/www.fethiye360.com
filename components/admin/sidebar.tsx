@@ -56,17 +56,24 @@ export default function AdminSidebar({ user }: { user: AdminUser }) {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-[#112240] border-r border-slate-700/50 flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-slate-700/50">
+      <div className="p-6 border-b border-slate-700/50 flex items-center justify-between shrink-0">
         <Link href="/admin" className="block">
           <h1 className="text-xl font-bold text-white">
             Fethiye<span className="text-[#64ffda]">360</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">Admin Paneli</p>
         </Link>
+        <button
+          onClick={handleLogout}
+          title="Güvenli Çıkış Yap"
+          className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all active:scale-95 cursor-pointer ml-2"
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto no-scrollbar">
         {menuItems.map((item) => {
           const isActive = pathname === item.href || 
             (item.href !== '/admin' && pathname.startsWith(item.href))
