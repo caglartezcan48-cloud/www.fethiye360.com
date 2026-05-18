@@ -89,7 +89,6 @@ export function Header() {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10">
-              <Link href="/kesfet" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">KESFET</Link>
               <Link href="/isletmeler" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">ISLETMELER</Link>
               <Link href="/rehber" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">REHBER</Link>
               <Link href="/sosyal" className="text-[11px] font-black text-white/70 hover:text-[#64ffda] transition-colors tracking-[0.2em] uppercase">SOSYAL</Link>
@@ -139,7 +138,6 @@ export function Header() {
       {isMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-[90] bg-[#0a192f] pt-32 px-6 animate-in fade-in duration-300">
           <div className="flex flex-col gap-6">
-            <Link href="/kesfet" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">KESFET</Link>
             <Link href="/isletmeler" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">ISLETMELER</Link>
             <Link href="/rehber" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">REHBER</Link>
             <Link href="/sosyal" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">SOSYAL</Link>
