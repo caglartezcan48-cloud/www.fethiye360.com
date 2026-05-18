@@ -234,3 +234,25 @@
 .bg-\[\#0a192f\]\/40 {
   background-color: color-mix(in srgb, var(--background) 40%, transparent) !important;
 }
+
+.bg-\[\#0a0f1a\] {
+  background-color: var(--background) !important;
+}
+.bg-\[\#0a0f1a\]\/98 {
+  background-color: color-mix(in srgb, var(--background) 98%, transparent) !important;
+}
+.bg-\[\#0a0f1a\]\/95 {
+  background-color: color-mix(in srgb, var(--background) 95%, transparent) !important;
+}
+.bg-\[\#0a0f1a\]\/90 {
+  background-color: color-mix(in srgb, var(--background) 90%, transparent) !important;
+}
+.bg-\[\#0a0f1a\]\/80 {
+  background-color: color-mix(in srgb, var(--background) 80%, transparent) !important;
+}
+.bg-\[\#0a0f1a\]\/60 {
+  background-color: color-mix(in srgb, var(--background) 60%, transparent) !important;
+}
+.bg-\[\#0a0f1a\]\/40 {
+  background-color: color-mix(in srgb, var(--background) 40%, transparent) !important;
+}

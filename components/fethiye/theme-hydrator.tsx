@@ -34,38 +34,48 @@ export function ThemeHydrator() {
             }
           }
           
-          // Inject custom color tokens directly into document root
-          const root = document.documentElement;
-          root.style.setProperty('--background', bgColor, 'important');
-          root.style.setProperty('--foreground', fgColor, 'important');
-          
           const cardVal = isLight 
             ? `color-mix(in srgb, ${bgColor} 95%, black 5%)`
             : `color-mix(in srgb, ${bgColor} 92%, white 8%)`;
-          root.style.setProperty('--card', cardVal, 'important');
-          root.style.setProperty('--card-foreground', fgColor, 'important');
           
           const popoverVal = isLight
             ? `color-mix(in srgb, ${bgColor} 95%, black 5%)`
             : `color-mix(in srgb, ${bgColor} 92%, white 8%)`;
-          root.style.setProperty('--popover', popoverVal, 'important');
-          root.style.setProperty('--popover-foreground', fgColor, 'important');
           
           const secVal = isLight
             ? `color-mix(in srgb, ${bgColor} 90%, black 10%)`
             : `color-mix(in srgb, ${bgColor} 84%, white 16%)`;
-          root.style.setProperty('--secondary', secVal, 'important');
-          root.style.setProperty('--secondary-foreground', fgColor, 'important');
           
           const mutVal = isLight
             ? `color-mix(in srgb, ${fgColor} 60%, black 40%)`
             : `color-mix(in srgb, ${fgColor} 60%, white 40%)`;
-          root.style.setProperty('--muted-foreground', mutVal, 'important');
           
           const borderVal = isLight
             ? `color-mix(in srgb, ${bgColor} 88%, black 12%)`
             : `color-mix(in srgb, ${bgColor} 84%, white 16%)`;
-          root.style.setProperty('--border', borderVal, 'important');
+
+          // Inject custom color tokens directly into a global style block in the head
+          let styleEl = document.getElementById('dynamic-theme-style') as HTMLStyleElement;
+          if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'dynamic-theme-style';
+            document.head.appendChild(styleEl);
+          }
+          
+          styleEl.innerHTML = `
+            :root, html, body, .dark, [data-theme='dark'] {
+              --background: ${bgColor} !important;
+              --foreground: ${fgColor} !important;
+              --card: ${cardVal} !important;
+              --card-foreground: ${fgColor} !important;
+              --popover: ${popoverVal} !important;
+              --popover-foreground: ${fgColor} !important;
+              --secondary: ${secVal} !important;
+              --secondary-foreground: ${fgColor} !important;
+              --muted-foreground: ${mutVal} !important;
+              --border: ${borderVal} !important;
+            }
+          `;
         }
       } catch (err) {
         console.error('Failed to sync client theme:', err)

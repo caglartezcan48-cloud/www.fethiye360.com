@@ -84,7 +84,7 @@ export default async function RootLayout({
       <head>
         <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
         <style dangerouslySetInnerHTML={{ __html: `
-          :root, .dark {
+          :root, html, body, .dark, [data-theme='dark'] {
             --background: ${bgColor} !important;
             --foreground: ${fgColor} !important;
             --card: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 95%, black 5%)' : 'color-mix(in srgb, ' + bgColor + ' 92%, white 8%)'} !important;
