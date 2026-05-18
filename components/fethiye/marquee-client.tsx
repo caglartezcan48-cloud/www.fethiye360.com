@@ -51,22 +51,43 @@ export function MarqueeClient({ banners, isHero = false }: MarqueeClientProps) {
     const hasText = banner.title && banner.title !== 'Banner' && banner.title.trim() !== ''
 
     const content = (
-      <div className="relative w-full h-full overflow-hidden flex items-center justify-start bg-[#0a192f]">
-        {/* Background Image - Razor sharp, perfectly proportioned */}
-        <div className="absolute inset-0 w-full h-full">
+      <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-[#051121]">
+        
+        {/* AMBIENT GLOW BACKDROP LAYER (Sleek Object Cover, Blurred, Parallax-aligned) */}
+        <div className="absolute inset-0 w-full h-full select-none pointer-events-none overflow-hidden z-0">
           <Image
             src={banner.background_image}
-            alt={banner.alt_text || banner.title || 'Fethiye360 Ad'}
+            alt="Ambient Ad Backdrop Glow"
             fill
             priority={isActive}
             unoptimized={true}
-            className="object-contain w-full h-full"
+            className="object-cover w-full h-full blur-[60px] sm:blur-[100px] scale-125 opacity-35 transition-transform duration-1000 ease-out"
+            style={{
+              transform: isActive ? 'scale(1.25) translateY(4px)' : 'scale(1.25) translateY(0)',
+            }}
           />
+          {/* Soft Dark Vignette to push focus to the center */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#051121]/95 via-transparent to-[#051121]/95" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#051121]/40 via-transparent to-[#051121]/40" />
+        </div>
+
+        {/* SHARP FOREGROUND BANNER (Floating Center Piece) */}
+        <div className="relative w-full h-full max-w-[1440px] mx-auto z-10 flex items-center justify-center p-0.5 sm:p-2.5">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <Image
+              src={banner.background_image}
+              alt={banner.alt_text || banner.title || 'Fethiye360 Ad'}
+              fill
+              priority={isActive}
+              unoptimized={true}
+              className="object-contain w-full h-full drop-shadow-[0_15px_35px_rgba(0,0,0,0.65)] hover:scale-[1.005] transition-transform duration-700 ease-out"
+            />
+          </div>
         </div>
 
         {/* Soft elegant gradient strictly on the left to guarantee high text contrast without darkening the banner */}
         {hasText && (
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0a192f]/85 via-[#0a192f]/35 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#051121]/85 via-[#051121]/30 to-transparent z-20 pointer-events-none" />
         )}
 
         {/* Premium Left-Aligned Text (No crude dashboard boxes - direct clean typography) */}
@@ -120,7 +141,7 @@ export function MarqueeClient({ banners, isHero = false }: MarqueeClientProps) {
   }
 
   return (
-    <section className={`relative w-full overflow-hidden bg-[#0a192f] group ${
+    <section className={`relative w-full overflow-hidden bg-[#051121] group ${
       isHero 
         ? 'mt-[80px] md:mt-[88px] border-b border-slate-800/40' 
         : 'py-1 border-y border-slate-800/40'
