@@ -59,8 +59,7 @@ export function MarqueeClient({ banners, isHero = false }: MarqueeClientProps) {
             alt={banner.alt_text || banner.title || 'Fethiye360 Ad'}
             fill
             priority={isActive}
-            sizes="100vw"
-            quality={100}
+            unoptimized={true}
             className="object-cover"
           />
         </div>
