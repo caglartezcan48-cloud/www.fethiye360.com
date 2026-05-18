@@ -36,13 +36,20 @@ export default function SettingsPage() {
 
   // Selected configuration targets
   const [selectedTarget, setSelectedTarget] = useState('global')
-  const [themeSettings, setThemeSettings] = useState<Record<string, string>>({})
+  const [themeSettings, setThemeSettings] = useState<Record<string, { title?: string, background_image?: string }>>({})
 
   // Main picker states
   const [selectedColor, setSelectedColor] = useState('#02111a')
   const [selectedBtnColor, setSelectedBtnColor] = useState('#64ffda')
   const [saveLoading, setSaveLoading] = useState(false)
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // Page Title Editor States
+  const [selectedTextTarget, setSelectedTextTarget] = useState('TEXT_PLANNER')
+  const [customTitle, setCustomTitle] = useState('Gezilecek Yerler Listeni Oluştur')
+  const [customSubtitle, setCustomSubtitle] = useState("Fethiye'de görmek istediğin yerleri seç, listeni oluştur.")
+  const [textSaveLoading, setTextSaveLoading] = useState(false)
+  const [textSaveMessage, setTextSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   
   const router = useRouter()
   const supabase = createClient()
@@ -61,27 +68,41 @@ export default function SettingsPage() {
     { id: 'profil', name: '👤 Kullanıcı Profili (/profil)', path: '/profil' },
   ]
 
-  // Load all theme configurations from database on mount
+  // Page dynamic text options
+  const TEXT_OPTIONS = [
+    { id: 'TEXT_PLANNER', name: '📅 Aktivite Planlama Sayfası (/aktivite-planla)', defaultTitle: 'Gezilecek Yerler Listeni Oluştur', defaultSubtitle: "Fethiye'de görmek istediğin yerleri seç, listeni oluştur." },
+    { id: 'TEXT_GUIDE', name: '📖 Gezi Rehberi Sayfası (/rehber)', defaultTitle: "FETHİYE'Yİ KEŞFET", defaultSubtitle: "Tarihi mekanlardan turkuaz koylara kadar Fethiye'nin görülmesi gereken tüm noktalarını keşfedin." },
+  ]
+
+  // Load all theme & copy configurations from database on mount
   useEffect(() => {
     async function loadThemeSettings() {
       try {
         const { data } = await supabase
           .from('hero_banners')
-          .select('alt_text, background_image')
-          .or('alt_text.like.SYSTEM_%,alt_text.like.PAGE_%,alt_text.like.NAVBAR_%')
+          .select('alt_text, title, background_image')
+          .or('alt_text.like.SYSTEM_%,alt_text.like.PAGE_%,alt_text.like.NAVBAR_%,alt_text.like.TEXT_%')
         
         if (data) {
-          const settings: Record<string, string> = {}
+          const settings: Record<string, { title?: string, background_image?: string }> = {}
           data.forEach(item => {
             if (item.alt_text) {
-              settings[item.alt_text] = item.background_image || ''
+              settings[item.alt_text] = {
+                title: item.title || '',
+                background_image: item.background_image || ''
+              }
             }
           })
           setThemeSettings(settings)
           
           // Set inputs to global values initially
-          setSelectedColor(settings['SYSTEM_BG_COLOR'] || '#02111a')
-          setSelectedBtnColor(settings['SYSTEM_BTN_COLOR'] || '#64ffda')
+          setSelectedColor(settings['SYSTEM_BG_COLOR']?.background_image || '#02111a')
+          setSelectedBtnColor(settings['SYSTEM_BTN_COLOR']?.background_image || '#64ffda')
+
+          // Set text states to planner initially
+          const plannerData = settings['TEXT_PLANNER']
+          setCustomTitle(plannerData?.title || 'Gezilecek Yerler Listeni Oluştur')
+          setCustomSubtitle(plannerData?.background_image || "Fethiye'de görmek istediğin yerleri seç, listeni oluştur.")
         }
       } catch (err) {
         console.error('Tema ayarları yüklenemedi:', err)
@@ -113,8 +134,19 @@ export default function SettingsPage() {
       btnKey = `PAGE_BTN_COLOR_${target.path}`
     }
 
-    setSelectedColor(themeSettings[bgKey] || defaultBg)
-    setSelectedBtnColor(themeSettings[btnKey] || defaultBtn)
+    setSelectedColor(themeSettings[bgKey]?.background_image || defaultBg)
+    setSelectedBtnColor(themeSettings[btnKey]?.background_image || defaultBtn)
+  }
+
+  // Handle page text copy targeting updates
+  const handleTextTargetChange = (targetId: string) => {
+    setSelectedTextTarget(targetId)
+    const opt = TEXT_OPTIONS.find(o => o.id === targetId)
+    if (!opt) return
+
+    const record = themeSettings[targetId]
+    setCustomTitle(record?.title || opt.defaultTitle)
+    setCustomSubtitle(record?.background_image || opt.defaultSubtitle)
   }
 
   // Save selected target theme configurations to Supabase
@@ -209,8 +241,8 @@ export default function SettingsPage() {
 
       // Sync local state
       const updated = { ...themeSettings }
-      updated[bgKey] = selectedColor
-      updated[btnKey] = selectedBtnColor
+      updated[bgKey] = { ...updated[bgKey], background_image: selectedColor }
+      updated[btnKey] = { ...updated[btnKey], background_image: selectedBtnColor }
       setThemeSettings(updated)
 
       setSaveMessage({ type: 'success', text: `"${target.name}" tasarımı başarıyla kaydedildi! Sitede anında uygulandı.` })
@@ -219,6 +251,72 @@ export default function SettingsPage() {
       setSaveMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
     } finally {
       setSaveLoading(false)
+    }
+  }
+
+  // Save dynamically editable titles and subtitles
+  const handleSaveText = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setTextSaveLoading(true)
+    setTextSaveMessage(null)
+
+    if (!customTitle.trim() || !customSubtitle.trim()) {
+      setTextSaveMessage({ type: 'error', text: 'Başlık ve açıklama alanları boş bırakılamaz.' })
+      setTextSaveLoading(false)
+      return
+    }
+
+    const opt = TEXT_OPTIONS.find(o => o.id === selectedTextTarget)
+    if (!opt) {
+      setTextSaveLoading(false)
+      return
+    }
+
+    try {
+      const { data: existing } = await supabase
+        .from('hero_banners')
+        .select('id')
+        .eq('alt_text', selectedTextTarget)
+        .maybeSingle()
+
+      if (existing) {
+        const { error } = await supabase
+          .from('hero_banners')
+          .update({
+            title: customTitle,
+            background_image: customSubtitle
+          })
+          .eq('alt_text', selectedTextTarget)
+        if (error) throw error
+      } else {
+        const { error } = await supabase
+          .from('hero_banners')
+          .insert({
+            alt_text: selectedTextTarget,
+            title: customTitle,
+            background_image: customSubtitle,
+            is_active: false,
+            display_order: 888888,
+            scroll_speed: 30,
+            scroll_direction: 'left'
+          })
+        if (error) throw error
+      }
+
+      // Update local state map
+      const updated = { ...themeSettings }
+      updated[selectedTextTarget] = {
+        title: customTitle,
+        background_image: customSubtitle
+      }
+      setThemeSettings(updated)
+
+      setTextSaveMessage({ type: 'success', text: `"${opt.name}" başlıkları başarıyla güncellendi! Sitede anında etkinleştirildi.` })
+      router.refresh()
+    } catch (err: any) {
+      setTextSaveMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
+    } finally {
+      setTextSaveLoading(false)
     }
   }
 
@@ -439,6 +537,107 @@ export default function SettingsPage() {
                   <>
                     <Check className="w-4 h-4" />
                     Seçili Alanın Renklerini Canlıya Uygula
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="px-5 border border-white/10 hover:bg-white/5 rounded-xl text-slate-400 hover:text-white transition-all flex items-center justify-center"
+                title="Sayfayı Yenile"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* SAYFA BAŞLIKLARI VE METİN YÖNETİM PANELİ (PAGE COPY CUSTOMIZER) */}
+        <div className="bg-[#112240] rounded-2xl border border-slate-700/50 p-8 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-[80px] -z-10" />
+          
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20">
+              <Palette className="w-6 h-6 text-indigo-400" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Sayfa Başlık & Metin Yönetimi</h2>
+              <p className="text-sm text-slate-400">Sitedeki ana sayfaların başlıklarını ve alt açıklamalarını dinamik olarak değiştirin.</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveText} className="space-y-6">
+            
+            {/* Target Text Area Selector */}
+            <div className="bg-[#0a192f]/50 p-5 rounded-2xl border border-white/5 space-y-3">
+              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-widest">Düzenlenecek Sayfa Metnini Seçin</label>
+              <select
+                value={selectedTextTarget}
+                onChange={(e) => handleTextTargetChange(e.target.value)}
+                className="w-full h-14 bg-[#0a192f] border border-slate-600 rounded-xl px-4 text-white text-sm font-bold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all cursor-pointer"
+              >
+                {TEXT_OPTIONS.map(opt => (
+                  <option key={opt.id} value={opt.id} className="bg-[#112240] text-white text-xs py-2 font-bold uppercase tracking-wider">
+                    {opt.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-5 pt-2">
+              {/* Custom Title Input */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest">Ana Başlık (H1 / H2)</label>
+                <input
+                  type="text"
+                  value={customTitle}
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  className="w-full h-14 bg-[#0a192f] border border-slate-600 rounded-xl px-4 text-white text-sm font-semibold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all"
+                  placeholder="Gezilecek Yerler Listeni Oluştur"
+                  required
+                />
+              </div>
+
+              {/* Custom Subtitle Input */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest">Alt Açıklama Metni</label>
+                <textarea
+                  value={customSubtitle}
+                  onChange={(e) => setCustomSubtitle(e.target.value)}
+                  rows={3}
+                  className="w-full bg-[#0a192f] border border-slate-600 rounded-xl p-4 text-white text-sm font-semibold tracking-wide focus:outline-none focus:border-[#64ffda] transition-all resize-none"
+                  placeholder="Fethiye'de görmek istediğin yerleri seç, listeni oluştur."
+                  required
+                />
+              </div>
+            </div>
+
+            {textSaveMessage && (
+              <div className={`p-4 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 ${
+                textSaveMessage.type === 'success'
+                  ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+                  : 'bg-red-500/10 border border-red-500/20 text-red-400'
+              }`}>
+                {textSaveMessage.type === 'success' && <Check className="w-4 h-4 flex-shrink-0" />}
+                {textSaveMessage.text}
+              </div>
+            )}
+
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={textSaveLoading}
+                className="flex-1 bg-indigo-500 text-white font-black uppercase tracking-widest text-[11px] py-4 rounded-xl hover:bg-indigo-600 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/10"
+              >
+                {textSaveLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Başlık Güncelleniyor...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Başlığı ve Metni Güncelle
                   </>
                 )}
               </button>
