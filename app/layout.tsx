@@ -4,6 +4,8 @@ import { SystemHealthProvider } from "@/components/providers/system-health-provi
 import { DeferredProviders } from "@/components/providers/deferred-providers";
 import './globals.css'
 
+import { createClient } from "@/lib/supabase/server";
+
 const inter = Inter({ 
   subsets: ['latin', 'latin-ext'], 
   variable: '--font-inter',
@@ -35,17 +37,64 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+function getContrastColor(hexColor: string): string {
+  const cleanHex = hexColor.replace('#', '');
+  if (cleanHex.length !== 6) return 'oklch(0.98 0 0)';
+  
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  
+  // YIQ Contrast formula
+  const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+  return yiq >= 128 ? 'oklch(0.08 0.01 225)' : 'oklch(0.98 0 0)';
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let bgColor = '#02111a'; // default Ölüdeniz Deep Blue
+  let fgColor = 'oklch(0.98 0 0)';
+  let isLight = false;
+
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase
+      .from('hero_banners')
+      .select('background_image')
+      .eq('alt_text', 'SYSTEM_BG_COLOR')
+      .maybeSingle()
+    if (data?.background_image) {
+      bgColor = data.background_image;
+      fgColor = getContrastColor(bgColor);
+      isLight = fgColor.includes('0.08');
+    }
+  } catch (err) {
+    console.error("Failed to load custom background settings:", err);
+  }
+
   return (
     <html lang="tr" className="scroll-smooth">
       <head>
         <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root, .dark {
+            --background: ${bgColor} !important;
+            --foreground: ${fgColor} !important;
+            --card: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 95%, black 5%)' : 'color-mix(in srgb, ' + bgColor + ' 92%, white 8%)'} !important;
+            --card-foreground: ${fgColor} !important;
+            --popover: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 95%, black 5%)' : 'color-mix(in srgb, ' + bgColor + ' 92%, white 8%)'} !important;
+            --popover-foreground: ${fgColor} !important;
+            --secondary: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 90%, black 10%)' : 'color-mix(in srgb, ' + bgColor + ' 84%, white 16%)'} !important;
+            --secondary-foreground: ${fgColor} !important;
+            --muted-foreground: ${isLight ? 'color-mix(in srgb, ' + fgColor + ' 60%, black 40%)' : 'color-mix(in srgb, ' + fgColor + ' 60%, white 40%)'} !important;
+            --border: ${isLight ? 'color-mix(in srgb, ' + bgColor + ' 88%, black 12%)' : 'color-mix(in srgb, ' + bgColor + ' 84%, white 16%)'} !important;
+          }
+        `}} />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <SystemHealthProvider>
           {children}
           <DeferredProviders />
