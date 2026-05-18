@@ -9,11 +9,11 @@ import { usePathname } from 'next/navigation'
 const supabase = createClient()
 
 function SearchIcon() {
-  return <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+  return <svg className="w-5.5 h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
 }
 
 function UserIcon() {
-  return <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  return <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 }
 
 function MenuIcon() {
@@ -137,7 +137,7 @@ export function Header() {
                   <Link 
                     key={item.href}
                     href={item.href} 
-                    className={`relative py-2 text-[11px] font-black tracking-[0.2em] uppercase transition-all duration-300 ${
+                    className={`relative py-2 text-[12px] sm:text-[13px] font-black tracking-[0.18em] uppercase transition-all duration-300 ${
                       active ? 'text-[#64ffda] drop-shadow-[0_0_8px_rgba(100,255,218,0.5)]' : 'text-white/70 hover:text-[#64ffda]'
                     }`}
                   >
@@ -186,7 +186,7 @@ export function Header() {
                 ) : (
                   <button 
                     onClick={() => setIsSearchExpanded(true)}
-                    className="p-3 bg-white/5 text-slate-400 hover:text-[#64ffda] hover:bg-white/10 hover:border-[#64ffda]/30 rounded-2xl transition-all duration-300 border border-white/10 flex items-center active:scale-95 shadow-md"
+                    className="p-3.5 bg-white/5 text-slate-400 hover:text-[#64ffda] hover:bg-white/10 hover:border-[#64ffda]/30 rounded-2xl transition-all duration-300 border border-white/10 flex items-center active:scale-95 shadow-md"
                     title="Ara"
                   >
                     <SearchIcon />
@@ -258,14 +258,14 @@ export function Header() {
                 <div className="flex items-center gap-3">
                   <Link 
                     href="/profil" 
-                    className="relative flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-[#64ffda]/30 bg-gradient-to-r from-[#64ffda] to-[#52e0c4] text-[#0a192f] shadow-[0_4px_20px_rgba(100,255,218,0.2)] hover:shadow-[0_4px_30px_rgba(100,255,218,0.4)]"
+                    className="relative flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[12px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-[#64ffda]/30 bg-gradient-to-r from-[#64ffda] to-[#52e0c4] text-[#0a192f] shadow-[0_4px_20px_rgba(100,255,218,0.2)] hover:shadow-[0_4px_30px_rgba(100,255,218,0.4)]"
                   >
                     <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                     <UserIcon /> PROFILIM
                   </Link>
                   <button 
                     onClick={handleSignOut} 
-                    className="p-3 bg-white/5 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all duration-300 border border-white/5 hover:border-red-500/20 flex items-center active:scale-95 shadow-md"
+                    className="p-3.5 bg-white/5 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-2xl transition-all duration-300 border border-white/5 hover:border-red-500/20 flex items-center active:scale-95 shadow-md"
                     title="Çıkış Yap"
                   >
                     <LogOutIcon />
@@ -274,7 +274,7 @@ export function Header() {
               ) : (
                 <Link 
                   href="/giris" 
-                  className="relative flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-white/10 hover:border-[#64ffda]/30 bg-white/5 hover:bg-white/10 text-white shadow-lg"
+                  className="relative flex items-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[12px] tracking-widest uppercase transition-all duration-300 active:scale-95 group/btn overflow-hidden border border-white/10 hover:border-[#64ffda]/30 bg-white/5 hover:bg-white/10 text-white shadow-lg"
                 >
                   <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                   <UserIcon /> GİRİŞ YAP

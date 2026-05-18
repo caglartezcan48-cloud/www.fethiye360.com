@@ -125,8 +125,8 @@ export function MarqueeClient({ banners, isHero = false }: MarqueeClientProps) {
         ? 'mt-[80px] md:mt-[88px] border-b border-slate-800/40' 
         : 'py-1 border-y border-slate-800/40'
     }`}>
-      {/* Slides Container - Responsive Aspect Ratio (Optimized for perfect mobile height & zero squeeze) */}
-      <div className="relative w-full aspect-[1.8/1] sm:aspect-[2.2/1] md:aspect-[2.4/1] lg:aspect-[2.6/1] xl:aspect-[2.8/1]">
+      {/* Slides Container - Responsive Aspect Ratio (Sleek, compact, and highly elegant) */}
+      <div className="relative w-full aspect-[2.5/1] sm:aspect-[3/1] md:aspect-[3.4/1] lg:aspect-[3.8/1] xl:aspect-[4.2/1]">
         {banners.map((banner, index) => {
           const isActive = index === currentIndex
           return (
