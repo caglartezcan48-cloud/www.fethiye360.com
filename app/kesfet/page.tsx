@@ -43,6 +43,29 @@ export default async function DiscoveryPage({
     console.error("Fetch social posts error:", error)
   }
 
+  // Fetch dynamic page titles & colors
+  let pageTitle = "Sosyal Keşif"
+  let pageSubtitle = "Fethiye'nin dört bir yanından kullanıcı paylaşımları ve anlık kareler."
+  let pageTitleColor = "#ffffff"
+  let pageSubtitleColor = "#94a3b8"
+
+  try {
+    const { data: textData } = await supabase
+      .from('hero_banners')
+      .select('title, background_image, button_text, button_link')
+      .eq('alt_text', 'TEXT_EXPLORE')
+      .maybeSingle()
+    
+    if (textData) {
+      if (textData.title) pageTitle = textData.title
+      if (textData.background_image) pageSubtitle = textData.background_image
+      if (textData.button_text) pageTitleColor = textData.button_text
+      if (textData.button_link) pageSubtitleColor = textData.button_link
+    }
+  } catch (err) {
+    console.error('Keşfet başlığı yüklenemedi:', err)
+  }
+
   // Filtreleme Mantigi (Memory Seviyesi)
   let processedPosts = posts || []
   if (filtre === 'populer') {
@@ -68,11 +91,11 @@ export default async function DiscoveryPage({
             <div className="flex items-center gap-2 text-[#64ffda] font-black uppercase tracking-[0.3em] text-[10px] mb-4">
               <Sparkles className="w-4 h-4" /> Fethiye'yi Keşfet
             </div>
-            <h1 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase italic leading-tight">
-              Sosyal <span className="text-[#64ffda]">Keşif</span>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-tight" style={{ color: pageTitleColor }}>
+              {pageTitle}
             </h1>
-            <p className="text-slate-400 mt-4 text-lg max-w-2xl font-medium">
-            Fethiye'nin dört bir yanından kullanıcı paylaşımları ve anlık kareler.
+            <p className="mt-4 text-lg max-w-2xl font-medium" style={{ color: pageSubtitleColor }}>
+              {pageSubtitle}
             </p>
           </div>
 

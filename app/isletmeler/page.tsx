@@ -144,6 +144,12 @@ function BusinessesContent() {
   const [loading, setLoading] = useState(false)
   const [searchInput, setSearchInput] = useState(searchQuery)
 
+  // Dynamic Page Copy States
+  const [pageTitle, setPageTitle] = useState("FETHİYE İŞLETMELERİ")
+  const [pageSubtitle, setPageSubtitle] = useState("Fethiye'deki tüm işletmeleri keşfedin, en iyi hizmetlere anında ulaşın.")
+  const [pageTitleColor, setPageTitleColor] = useState("#ffffff")
+  const [pageSubtitleColor, setPageSubtitleColor] = useState("#94a3b8")
+
   const supabase = createClient()
 
   useEffect(() => {
@@ -218,6 +224,24 @@ function BusinessesContent() {
       }
 
       setBusinesses(filtered)
+
+      // Fetch dynamic page titles & colors
+      try {
+        const { data: textData } = await supabase
+          .from('hero_banners')
+          .select('title, background_image, button_text, button_link')
+          .eq('alt_text', 'TEXT_BUSINESSES')
+          .maybeSingle()
+        
+        if (textData) {
+          if (textData.title) setPageTitle(textData.title)
+          if (textData.background_image) setPageSubtitle(textData.background_image)
+          if (textData.button_text) setPageTitleColor(textData.button_text)
+          if (textData.button_link) setPageSubtitleColor(textData.button_link)
+        }
+      } catch (err) {
+        console.error('İşletmeler başlığı yüklenemedi:', err)
+      }
     }
     setLoading(false)
   }
@@ -257,6 +281,18 @@ function BusinessesContent() {
       <section className="relative pt-40 pb-24 px-6">
         <div className="max-w-7xl mx-auto space-y-12">
           
+          {/* Page Dynamic Header (Only on landing view) */}
+          {!currentHubId && !searchQuery && !currentFilter && (
+            <div className="text-center max-w-3xl mx-auto mb-8 animate-in fade-in duration-700">
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-tight" style={{ color: pageTitleColor }}>
+                {pageTitle}
+              </h1>
+              <p className="mt-4 text-lg max-w-2xl mx-auto font-medium" style={{ color: pageSubtitleColor }}>
+                {pageSubtitle}
+              </p>
+            </div>
+          )}
+
           {/* Hero & Search */}
           <div className="text-center max-w-3xl mx-auto">
             <form onSubmit={handleSearch} className="relative group">

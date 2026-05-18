@@ -74,6 +74,8 @@ export default function SettingsPage() {
   const TEXT_OPTIONS = [
     { id: 'TEXT_PLANNER', name: '📅 Aktivite Planlama Sayfası (/aktivite-planla)', defaultTitle: 'Gezilecek Yerler Listeni Oluştur', defaultSubtitle: "Fethiye'de görmek istediğin yerleri seç, listeni oluştur." },
     { id: 'TEXT_GUIDE', name: '📖 Gezi Rehberi Sayfası (/rehber)', defaultTitle: "FETHİYE'Yİ KEŞFET", defaultSubtitle: "Tarihi mekanlardan turkuaz koylara kadar Fethiye'nin görülmesi gereken tüm noktalarını keşfedin." },
+    { id: 'TEXT_BUSINESSES', name: '🏢 İşletmeler Sayfası (/isletmeler)', defaultTitle: 'FETHİYE İŞLETMELERİ', defaultSubtitle: "Fethiye'deki tüm işletmeleri keşfedin, en iyi hizmetlere anında ulaşın." },
+    { id: 'TEXT_EXPLORE', name: '✨ Sosyal Keşif Sayfası (/kesfet)', defaultTitle: 'Sosyal Keşif', defaultSubtitle: "Fethiye'nin dört bir yanından kullanıcı paylaşımları ve anlık kareler." },
   ]
 
   // Load all theme & copy configurations from database on mount
