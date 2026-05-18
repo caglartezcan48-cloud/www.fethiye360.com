@@ -60,7 +60,7 @@ export function MarqueeClient({ banners, isHero = false }: MarqueeClientProps) {
             fill
             priority={isActive}
             unoptimized={true}
-            className="object-cover"
+            className="object-contain w-full h-full"
           />
         </div>
 
