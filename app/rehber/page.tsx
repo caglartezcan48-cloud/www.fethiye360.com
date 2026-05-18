@@ -19,6 +19,8 @@ export default function GuidePage() {
   // Dynamic Page Copy States
   const [pageTitle, setPageTitle] = useState("FETHİYE'Yİ KEŞFET")
   const [pageSubtitle, setPageSubtitle] = useState("Tarihi mekanlardan turkuaz koylara kadar Fethiye'nin görülmesi gereken tüm noktalarını keşfedin.")
+  const [pageTitleColor, setPageTitleColor] = useState("#ffffff")
+  const [pageSubtitleColor, setPageSubtitleColor] = useState("#94a3b8")
 
   const categories = ["Tümü", "Plaj", "Tarihi Yer", "Doğa", "Kültürel"]
 
@@ -49,17 +51,19 @@ export default function GuidePage() {
 
     setDestinations(merged)
     
-    // Fetch dynamic page titles
+    // Fetch dynamic page titles & colors
     try {
       const { data: textData } = await supabase
         .from('hero_banners')
-        .select('title, background_image')
+        .select('title, background_image, button_text, button_link')
         .eq('alt_text', 'TEXT_GUIDE')
         .maybeSingle()
       
       if (textData) {
         if (textData.title) setPageTitle(textData.title)
         if (textData.background_image) setPageSubtitle(textData.background_image)
+        if (textData.button_text) setPageTitleColor(textData.button_text)
+        if (textData.button_link) setPageSubtitleColor(textData.button_link)
       }
     } catch (err) {
       console.error('Rehber başlığı yüklenemedi:', err)
@@ -86,10 +90,10 @@ export default function GuidePage() {
             <Compass className="w-4 h-4 text-[#64ffda]" />
             <span className="text-[#64ffda] text-[10px] font-black uppercase tracking-[0.3em]">GEZİ REHBERİ</span>
           </div>
-          <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter uppercase italic leading-none animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100">
+          <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase italic leading-none animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100" style={{ color: pageTitleColor }}>
             {pageTitle}
           </h1>
-          <p className="text-slate-400 max-w-2xl mx-auto font-medium italic animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
+          <p className="max-w-2xl mx-auto font-medium italic animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200" style={{ color: pageSubtitleColor }}>
             {pageSubtitle}
           </p>
 

@@ -36,7 +36,7 @@ export default function SettingsPage() {
 
   // Selected configuration targets
   const [selectedTarget, setSelectedTarget] = useState('global')
-  const [themeSettings, setThemeSettings] = useState<Record<string, { title?: string, background_image?: string }>>({})
+  const [themeSettings, setThemeSettings] = useState<Record<string, { title?: string, background_image?: string, button_text?: string, button_link?: string }>>({})
 
   // Main picker states
   const [selectedColor, setSelectedColor] = useState('#02111a')
@@ -48,6 +48,8 @@ export default function SettingsPage() {
   const [selectedTextTarget, setSelectedTextTarget] = useState('TEXT_PLANNER')
   const [customTitle, setCustomTitle] = useState('Gezilecek Yerler Listeni Oluştur')
   const [customSubtitle, setCustomSubtitle] = useState("Fethiye'de görmek istediğin yerleri seç, listeni oluştur.")
+  const [customTitleColor, setCustomTitleColor] = useState('#ffffff')
+  const [customSubtitleColor, setCustomSubtitleColor] = useState('#94a3b8')
   const [textSaveLoading, setTextSaveLoading] = useState(false)
   const [textSaveMessage, setTextSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   
@@ -80,16 +82,18 @@ export default function SettingsPage() {
       try {
         const { data } = await supabase
           .from('hero_banners')
-          .select('alt_text, title, background_image')
+          .select('alt_text, title, background_image, button_text, button_link')
           .or('alt_text.like.SYSTEM_%,alt_text.like.PAGE_%,alt_text.like.NAVBAR_%,alt_text.like.TEXT_%')
         
         if (data) {
-          const settings: Record<string, { title?: string, background_image?: string }> = {}
+          const settings: Record<string, { title?: string, background_image?: string, button_text?: string, button_link?: string }> = {}
           data.forEach(item => {
             if (item.alt_text) {
               settings[item.alt_text] = {
                 title: item.title || '',
-                background_image: item.background_image || ''
+                background_image: item.background_image || '',
+                button_text: item.button_text || '',
+                button_link: item.button_link || ''
               }
             }
           })
@@ -103,6 +107,8 @@ export default function SettingsPage() {
           const plannerData = settings['TEXT_PLANNER']
           setCustomTitle(plannerData?.title || 'Gezilecek Yerler Listeni Oluştur')
           setCustomSubtitle(plannerData?.background_image || "Fethiye'de görmek istediğin yerleri seç, listeni oluştur.")
+          setCustomTitleColor(plannerData?.button_text || '#ffffff')
+          setCustomSubtitleColor(plannerData?.button_link || '#94a3b8')
         }
       } catch (err) {
         console.error('Tema ayarları yüklenemedi:', err)
@@ -147,6 +153,8 @@ export default function SettingsPage() {
     const record = themeSettings[targetId]
     setCustomTitle(record?.title || opt.defaultTitle)
     setCustomSubtitle(record?.background_image || opt.defaultSubtitle)
+    setCustomTitleColor(record?.button_text || '#ffffff')
+    setCustomSubtitleColor(record?.button_link || '#94a3b8')
   }
 
   // Save selected target theme configurations to Supabase
@@ -284,7 +292,9 @@ export default function SettingsPage() {
           .from('hero_banners')
           .update({
             title: customTitle,
-            background_image: customSubtitle
+            background_image: customSubtitle,
+            button_text: customTitleColor,
+            button_link: customSubtitleColor
           })
           .eq('alt_text', selectedTextTarget)
         if (error) throw error
@@ -295,6 +305,8 @@ export default function SettingsPage() {
             alt_text: selectedTextTarget,
             title: customTitle,
             background_image: customSubtitle,
+            button_text: customTitleColor,
+            button_link: customSubtitleColor,
             is_active: false,
             display_order: 888888,
             scroll_speed: 30,
@@ -307,11 +319,13 @@ export default function SettingsPage() {
       const updated = { ...themeSettings }
       updated[selectedTextTarget] = {
         title: customTitle,
-        background_image: customSubtitle
+        background_image: customSubtitle,
+        button_text: customTitleColor,
+        button_link: customSubtitleColor
       }
       setThemeSettings(updated)
 
-      setTextSaveMessage({ type: 'success', text: `"${opt.name}" başlıkları başarıyla güncellendi! Sitede anında etkinleştirildi.` })
+      setTextSaveMessage({ type: 'success', text: `"${opt.name}" başlıkları ve renkleri başarıyla güncellendi! Sitede anında etkinleştirildi.` })
       router.refresh()
     } catch (err: any) {
       setTextSaveMessage({ type: 'error', text: 'Kaydedilirken hata oluştu: ' + err.message })
@@ -609,6 +623,65 @@ export default function SettingsPage() {
                   placeholder="Fethiye'de görmek istediğin yerleri seç, listeni oluştur."
                   required
                 />
+              </div>
+
+              {/* Custom Text Color Pickers */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#0a192f]/50 p-5 rounded-2xl border border-white/5">
+                {/* Custom Title Color Customizer */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Ana Başlık Rengi</label>
+                    <p className="text-[10px] text-slate-400">Başlığın rengini seçin.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="relative w-14 h-12 rounded-xl overflow-hidden border border-slate-600/80 shadow-md">
+                      <input
+                        type="color"
+                        value={customTitleColor}
+                        onChange={(e) => setCustomTitleColor(e.target.value)}
+                        className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer bg-transparent scale-150"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={customTitleColor}
+                        onChange={(e) => setCustomTitleColor(e.target.value)}
+                        className="w-full h-12 bg-[#0a192f] border border-slate-600 rounded-xl px-4 text-white text-sm font-mono uppercase tracking-widest focus:outline-none focus:border-[#64ffda] transition-all"
+                        placeholder="#ffffff"
+                        maxLength={7}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Custom Subtitle Color Customizer */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-widest mb-1">Açıklama Metni Rengi</label>
+                    <p className="text-[10px] text-slate-400">Açıklama metninin rengini seçin.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="relative w-14 h-12 rounded-xl overflow-hidden border border-slate-600/80 shadow-md">
+                      <input
+                        type="color"
+                        value={customSubtitleColor}
+                        onChange={(e) => setCustomSubtitleColor(e.target.value)}
+                        className="absolute inset-0 w-full h-full p-0 border-0 cursor-pointer bg-transparent scale-150"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={customSubtitleColor}
+                        onChange={(e) => setCustomSubtitleColor(e.target.value)}
+                        className="w-full h-12 bg-[#0a192f] border border-slate-600 rounded-xl px-4 text-white text-sm font-mono uppercase tracking-widest focus:outline-none focus:border-[#64ffda] transition-all"
+                        placeholder="#94a3b8"
+                        maxLength={7}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
