@@ -132,14 +132,14 @@ function HeaderContent() {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center gap-10">
+            <div className="hidden lg:flex items-center gap-6">
               {[
-                { href: '/isletmeler?filter=delivery', label: 'YEMEK SİPARİŞİ' },
-                { href: '/isletmeler?hub=masters', label: 'USTA BUL' },
-                { href: '/isletmeler', label: 'ISLETMELER' },
+                { href: '/isletmeler?filter=delivery', label: 'YEMEK SİPARİŞİ', isPill: true, pillType: 'food' },
+                { href: '/isletmeler?hub=masters', label: 'USTA BUL', isPill: true, pillType: 'master' },
+                { href: '/isletmeler', label: 'İŞLETMELER' },
                 { href: '/rehber', label: 'REHBER' },
                 { href: '/sosyal', label: 'SOSYAL' },
-                { href: '/aktivite-planla', label: 'AKTIVITE PLANLA' }
+                { href: '/aktivite-planla', label: 'AKTİVİTE PLANLA' }
               ].map((item) => {
                 const active = item.href.includes('?')
                   ? (pathname === '/isletmeler' && (
@@ -148,6 +148,42 @@ function HeaderContent() {
                     ))
                   : (pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href + '/'))) && !searchParams.get('filter') && !searchParams.get('hub')
                 
+                if (item.isPill) {
+                  if (item.pillType === 'food') {
+                    return (
+                      <Link 
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-1.5 px-4.5 py-2.5 rounded-full text-[11px] font-black tracking-wider uppercase transition-all duration-300 border hover:scale-105 active:scale-95 shadow-md ${
+                          active
+                            ? 'bg-rose-500/25 border-rose-400 text-rose-200 shadow-[0_0_15px_rgba(244,63,94,0.35)]'
+                            : 'bg-rose-500/5 border-rose-500/20 text-rose-400/90 hover:bg-rose-500/10 hover:border-rose-400/60 hover:text-white shadow-[0_0_10px_rgba(244,63,94,0.05)]'
+                        }`}
+                      >
+                        <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        {item.label}
+                      </Link>
+                    )
+                  }
+                  
+                  if (item.pillType === 'master') {
+                    return (
+                      <Link 
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-1.5 px-4.5 py-2.5 rounded-full text-[11px] font-black tracking-wider uppercase transition-all duration-300 border hover:scale-105 active:scale-95 shadow-md ${
+                          active
+                            ? 'bg-amber-500/25 border-amber-400 text-amber-200 shadow-[0_0_15px_rgba(245,158,11,0.35)]'
+                            : 'bg-amber-500/5 border-amber-500/20 text-amber-400/90 hover:bg-amber-500/10 hover:border-amber-400/60 hover:text-white shadow-[0_0_10px_rgba(245,158,11,0.05)]'
+                        }`}
+                      >
+                        <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 0-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 0 7.94-7.94l-3.76 3.76z"/></svg>
+                        {item.label}
+                      </Link>
+                    )
+                  }
+                }
+
                 return (
                   <Link 
                     key={item.href}
@@ -155,7 +191,7 @@ function HeaderContent() {
                     style={{
                       color: active ? 'var(--navbar-primary)' : 'var(--navbar-text)',
                     }}
-                    className={`relative py-2 text-[12px] sm:text-[13px] font-black tracking-[0.18em] uppercase transition-all duration-300 hover:!text-[var(--navbar-primary)]`}
+                    className={`relative py-2 text-[11px] sm:text-[12px] font-black tracking-[0.18em] uppercase transition-all duration-300 hover:!text-[var(--navbar-primary)]`}
                   >
                     {item.label}
                     {active && (
@@ -350,15 +386,54 @@ function HeaderContent() {
       {isMenuOpen && (
         <div 
           style={{ backgroundColor: 'var(--navbar-bg)' }}
-          className="lg:hidden fixed inset-0 z-[90] pt-32 px-6 animate-in fade-in duration-300"
+          className="lg:hidden fixed inset-0 z-[90] pt-32 px-6 animate-in fade-in duration-300 overflow-y-auto"
         >
-          <div className="flex flex-col gap-6">
-            <Link href="/isletmeler?filter=delivery" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-[#64ffda] italic tracking-tighter">YEMEK SİPARİŞİ</Link>
-            <Link href="/isletmeler?hub=masters" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-amber-400 italic tracking-tighter">USTA BUL</Link>
-            <Link href="/isletmeler" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">ISLETMELER</Link>
-            <Link href="/rehber" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">REHBER</Link>
-            <Link href="/sosyal" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">SOSYAL</Link>
-            <Link href="/aktivite-planla" onClick={() => setIsMenuOpen(false)} className="text-3xl font-black text-white italic tracking-tighter">AKTIVITE PLANLA</Link>
+          <div className="flex flex-col gap-4">
+            
+            {/* Yemek Siparişi Card */}
+            <Link 
+              href="/isletmeler?filter=delivery" 
+              onClick={() => setIsMenuOpen(false)} 
+              className="flex items-center justify-between p-4.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-base font-black uppercase tracking-wider transition-all"
+            >
+              <span className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                YEMEK SİPARİŞİ
+              </span>
+              <span className="px-3 py-1 rounded-full bg-rose-500/20 border border-rose-400/40 text-rose-200 text-[9px] tracking-widest font-black uppercase shadow-sm">SİPARİŞ</span>
+            </Link>
+
+            {/* Usta Bul Card */}
+            <Link 
+              href="/isletmeler?hub=masters" 
+              onClick={() => setIsMenuOpen(false)} 
+              className="flex items-center justify-between p-4.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-base font-black uppercase tracking-wider transition-all"
+            >
+              <span className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 0-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 0 7.94-7.94l-3.76 3.76z"/></svg>
+                USTA BUL
+              </span>
+              <span className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[9px] tracking-widest font-black uppercase shadow-sm">USTA</span>
+            </Link>
+
+            {/* Other standard items */}
+            {[
+              { href: '/isletmeler', label: 'İŞLETMELER' },
+              { href: '/rehber', label: 'REHBER' },
+              { href: '/sosyal', label: 'SOSYAL' },
+              { href: '/aktivite-planla', label: 'AKTİVİTE PLANLA' }
+            ].map((item) => (
+              <Link 
+                key={item.href}
+                href={item.href} 
+                onClick={() => setIsMenuOpen(false)} 
+                className="p-4.5 rounded-2xl bg-white/5 border border-white/10 text-white text-sm font-black uppercase tracking-widest transition-all hover:bg-white/10 flex items-center justify-between"
+              >
+                {item.label}
+                <svg className="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </Link>
+            ))}
+
           </div>
         </div>
       )}
