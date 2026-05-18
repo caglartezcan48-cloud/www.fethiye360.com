@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { Sparkles, MonitorSmartphone, ImageIcon } from "lucide-react"
 
 const features = [
@@ -27,6 +28,16 @@ export function AboutSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Text */}
           <div>
+            {/* Company Logo */}
+            <div className="mb-6">
+              <Image 
+                src="/images/fethiye360-logo.png" 
+                alt="Fethiye360 Logo" 
+                width={260}
+                height={80}
+                className="h-20 sm:h-24 w-auto object-contain drop-shadow-md"
+              />
+            </div>
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
               Fethiye 360 <span className="text-primary">Nedir?</span>
             </h2>
