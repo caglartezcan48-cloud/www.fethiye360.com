@@ -5,6 +5,7 @@ import { DeferredProviders } from "@/components/providers/deferred-providers";
 import './globals.css'
 
 import { createClient } from "@/lib/supabase/server";
+import { ThemeHydrator } from "@/components/fethiye/theme-hydrator";
 
 const inter = Inter({ 
   subsets: ['latin', 'latin-ext'], 
@@ -51,8 +52,6 @@ function getContrastColor(hexColor: string): string {
   const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
   return yiq >= 128 ? 'oklch(0.08 0.01 225)' : 'oklch(0.98 0 0)';
 }
-
-import { ThemeHydrator } from "@/components/fethiye/theme-hydrator";
 
 export default async function RootLayout({
   children,
