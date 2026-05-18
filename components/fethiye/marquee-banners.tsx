@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { MarqueeClient } from "./marquee-client"
+import { Hero } from "./hero"
 
 interface Banner {
   id: string
@@ -30,8 +31,8 @@ export async function MarqueeBanners() {
   const banners = await getActiveBanners()
 
   if (banners.length === 0) {
-    return null
+    return <Hero />
   }
 
-  return <MarqueeClient banners={banners} />
+  return <MarqueeClient banners={banners} isHero={true} />
 }
