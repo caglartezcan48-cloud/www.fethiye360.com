@@ -156,7 +156,7 @@ export function ShowcaseLayout({ business, products, reviews, avgRating }: Showc
   return (
     <div className="w-full pb-20">
       {/* Cinematic Banner Header */}
-      <section className="relative h-[35vh] sm:h-[45vh] md:h-[50vh] w-full overflow-hidden bg-slate-950">
+      <section className="relative h-[35vh] sm:h-[45vh] md:h-[50vh] w-full overflow-hidden bg-slate-950 group/banner">
         {business.main_image ? (
           <Image 
             src={business.main_image} 
@@ -164,12 +164,12 @@ export function ShowcaseLayout({ business, products, reviews, avgRating }: Showc
             fill
             priority
             unoptimized
-            className="object-cover opacity-85"
+            className="object-cover transition-transform duration-700 group-hover/banner:scale-105"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-[#0a192f] to-[#112240]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a]/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#0a0f1a] via-[#0a0f1a]/50 to-transparent" />
         
         {/* Navigation Action Buttons */}
         <div className="absolute top-28 left-6 sm:left-12 z-10 flex items-center gap-3">
