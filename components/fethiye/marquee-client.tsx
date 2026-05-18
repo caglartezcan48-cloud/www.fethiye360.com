@@ -30,10 +30,11 @@ export function MarqueeClient({ banners }: MarqueeClientProps) {
   const duplicatedBanners = [...banners, ...banners]
 
   return (
-    <section className="relative bg-[#0a192f] pt-20 pb-4 overflow-hidden">
+    <section className="relative bg-[#0a192f]/40 py-8 md:py-12 border-y border-slate-800/40 overflow-hidden">
       {/* Gradient Edges */}
       <div className="absolute left-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-r from-[#0a192f] to-transparent pointer-events-none" />
       <div className="absolute right-0 top-0 bottom-0 w-20 z-10 bg-gradient-to-l from-[#0a192f] to-transparent pointer-events-none" />
+
       
       {/* Marquee Container */}
       <div 

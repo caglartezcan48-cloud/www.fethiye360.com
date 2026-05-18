@@ -24,6 +24,18 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -69,6 +81,7 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
   const [cart, setCart] = useState<CartItem[]>([])
   const [paymentMethod, setPaymentMethod] = useState<'Nakit' | 'Kart'>('Nakit')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [updating, setUpdating] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -199,10 +212,46 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
   const [hasProfileInfo, setHasProfileInfo] = useState(false)
   const [isEditingInfo, setIsEditingInfo] = useState(false)
 
+  const [isMissingInfoModalOpen, setIsMissingInfoModalOpen] = useState(false)
+
+  const handleSaveMissingInfo = async () => {
+    if (!customerName || !customerPhone || !customerAddress) {
+      toast.error('Lütfen tüm alanları doldurun!')
+      return
+    }
+
+    try {
+      setUpdating(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Oturum bulunamadı')
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          full_name: customerName,
+          phone: customerPhone,
+          address: customerAddress,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
+
+      if (error) throw error
+
+      toast.success('Bilgileriniz güncellendi! Siparişinize devam edebilirsiniz.')
+      setIsMissingInfoModalOpen(false)
+      setHasProfileInfo(true)
+    } catch (error) {
+      toast.error('Bilgiler güncellenemedi.')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
   const handleCheckout = async () => {
     if (cart.length === 0 || isSubmitting) return
+    
     if (!customerName || !customerPhone || !customerAddress) {
-      toast.error('Profil bilgileriniz (Adres ve Telefon) eksik! Lütfen profil sayfanızdan bilgilerinizi güncelleyin.')
+      setIsMissingInfoModalOpen(true)
       return
     }
     
@@ -619,6 +668,60 @@ export function OrderLayout({ products, businessId, businessName, whatsappNumber
         onAddToCart={addToCart}
         theme="dark"
       />
+      {/* Missing Info Modal */}
+      <Dialog open={isMissingInfoModalOpen} onOpenChange={setIsMissingInfoModalOpen}>
+        <DialogContent className="bg-[#112240] border-white/10 text-white rounded-[40px] max-w-md shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black uppercase flex items-center gap-3">Teslimat Bilgileri Eksik</DialogTitle>
+            <DialogDescription className="text-slate-400 text-xs font-medium italic">Siparişi tamamlayabilmek için lütfen kayıtlı telefon ve adres bilgilerinizi güncelleyin.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-6">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ad Soyad</Label>
+              <Input 
+                value={customerName} 
+                onChange={(e) => setCustomerName(e.target.value)} 
+                className="bg-[#0a192f] border-white/5 rounded-2xl h-14 font-bold" 
+                placeholder="Adınız Soyadınız"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Telefon Numarası</Label>
+              <Input 
+                value={customerPhone} 
+                onChange={(e) => setCustomerPhone(e.target.value)} 
+                className="bg-[#0a192f] border-white/5 rounded-2xl h-14 font-bold" 
+                placeholder="05XX XXX XX XX"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Teslimat Adresi</Label>
+              <Textarea 
+                value={customerAddress} 
+                onChange={(e) => setCustomerAddress(e.target.value)} 
+                className="bg-[#0a192f] border-white/5 rounded-2xl min-h-[120px] resize-none text-sm leading-relaxed" 
+                placeholder="Mahalle, Sokak, No, Kat/Daire..."
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => setIsMissingInfoModalOpen(false)} 
+              className="rounded-2xl font-black uppercase tracking-widest text-[10px] h-14"
+            >
+              İptal
+            </Button>
+            <Button 
+              onClick={handleSaveMissingInfo} 
+              disabled={updating} 
+              className="bg-[#64ffda] text-[#0a192f] rounded-2xl font-black uppercase tracking-widest text-[10px] h-14 flex-1 shadow-lg shadow-[#64ffda]/20 hover:bg-[#52e0c4] transition-all"
+            >
+              {updating ? 'Kaydediliyor...' : 'Bilgileri Kaydet ve Devam Et'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

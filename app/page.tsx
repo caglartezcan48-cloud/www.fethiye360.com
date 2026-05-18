@@ -1,5 +1,6 @@
 import { Header } from '@/components/fethiye/header'
 import { Hero } from '@/components/fethiye/hero'
+import { MarqueeBanners } from '@/components/fethiye/marquee-banners'
 import { ToursSection } from '@/components/fethiye/tours-section'
 import { CityStats } from '@/components/fethiye/city-stats'
 import { Footer } from '@/components/fethiye/footer'
@@ -15,6 +16,7 @@ export default function HomePage() {
       </div>
       <Header />
       <Hero />
+      <MarqueeBanners />
       <ToursSection />
       <SocialSection />
       <MapSection />
