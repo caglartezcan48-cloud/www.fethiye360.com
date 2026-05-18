@@ -70,26 +70,9 @@ export default async function SocialFeedPage() {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px]" />
       </div>
 
-      {/* Navbar Social HD */}
-      <header className="sticky top-0 z-50 bg-[#0a192f]/80 backdrop-blur-2xl border-b border-white/5 px-6 py-4">
-        <div className="max-w-xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-[#64ffda]/10 transition-all border border-white/5">
-              <ArrowLeft className="w-5 h-5 text-slate-400 group-hover:text-[#64ffda]" />
-            </div>
-          </Link>
-          <div className="flex flex-col items-center">
-            <h1 className="text-xl font-black text-white tracking-tighter uppercase italic flex items-center gap-2">
-              Fethiye <Sparkles className="w-4 h-4 text-[#64ffda] animate-pulse" /> Sosyal
-            </h1>
-          </div>
-          <Link href="/sosyal/yukle" className="p-3 bg-[#64ffda] text-[#0a192f] rounded-xl hover:scale-110 transition-transform shadow-lg shadow-[#64ffda]/20">
-            <Camera className="w-5 h-5" />
-          </Link>
-        </div>
-      </header>
+      <Header />
 
-      <main className="max-w-7xl mx-auto px-4 pt-8 space-y-12">
+      <main className="max-w-7xl mx-auto px-4 pt-28 space-y-12">
         
         {/* Stories System */}
         <div className="max-w-xl mx-auto">
@@ -123,14 +106,24 @@ export default async function SocialFeedPage() {
           )}
         </div>
 
-        {/* Floating Profile Button for Mobile */}
+        {/* Floating Quick Action Stack */}
         {user && (
-          <Link 
-            href="/profil" 
-            className="fixed bottom-8 right-8 w-16 h-16 bg-[#112240] border border-[#64ffda]/30 rounded-full flex items-center justify-center shadow-2xl z-50 group hover:scale-110 transition-transform backdrop-blur-xl"
-          >
-            <Users className="w-6 h-6 text-[#64ffda] group-hover:animate-bounce" />
-          </Link>
+          <div className="fixed bottom-24 right-6 sm:right-8 z-50 flex flex-col gap-4">
+            <Link 
+              href="/sosyal/yukle" 
+              className="w-14 h-14 bg-gradient-to-r from-[#64ffda] to-[#52e0c4] text-[#0a192f] rounded-full flex items-center justify-center shadow-[0_4px_25px_rgba(100,255,218,0.35)] hover:shadow-[0_4px_30px_rgba(100,255,218,0.55)] hover:scale-110 active:scale-95 transition-all duration-300 animate-pulse"
+              title="Fotoğraf Paylaş"
+            >
+              <Camera className="w-5.5 h-5.5" />
+            </Link>
+            <Link 
+              href="/profil" 
+              className="w-14 h-14 bg-[#112240]/90 border border-[#64ffda]/30 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 backdrop-blur-xl group"
+              title="Profilim"
+            >
+              <Users className="w-5.5 h-5.5 text-[#64ffda] group-hover:animate-bounce" />
+            </Link>
+          </div>
         )}
       </main>
       <BottomNav />

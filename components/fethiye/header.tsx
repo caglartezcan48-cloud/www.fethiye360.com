@@ -186,7 +186,8 @@ export function Header() {
                 ) : (
                   <button 
                     onClick={() => setIsSearchExpanded(true)}
-                    className="p-3 bg-white/5 text-slate-400 hover:text-[#64ffda] hover:bg-white/10 rounded-2xl transition-all border border-white/5 flex items-center"
+                    className="p-3 bg-white/5 text-slate-400 hover:text-[#64ffda] hover:bg-white/10 hover:border-[#64ffda]/30 rounded-2xl transition-all duration-300 border border-white/10 flex items-center active:scale-95 shadow-md"
+                    title="Ara"
                   >
                     <SearchIcon />
                   </button>
