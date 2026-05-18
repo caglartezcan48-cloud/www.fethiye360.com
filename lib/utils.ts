@@ -27,11 +27,11 @@ export const compressImage = async (
   options: ImageCompressionOptions = {}
 ): Promise<Blob> => {
   const {
-    maxWidth = 1920,
-    maxHeight = 1920,
-    quality = 0.85,
+    maxWidth = 3840, // 4K Ultra HD width
+    maxHeight = 3840, // 4K Ultra HD height
+    quality = 0.95, // Near-lossless premium visual sharpness
     format = 'webp',
-    maxFileSizeKB = 800
+    maxFileSizeKB = 3000 // Allow up to 3MB per image for extreme detail depth
   } = options
 
   if (!file.type.startsWith('image/')) return file
@@ -122,9 +122,9 @@ export const compressImage = async (
  */
 export const compressImageLegacy = (
   file: File, 
-  maxWidth = 1200, 
-  maxHeight = 1200, 
-  quality = 0.8
+  maxWidth = 3840, 
+  maxHeight = 3840, 
+  quality = 0.95
 ): Promise<Blob> => {
   return compressImage(file, { maxWidth, maxHeight, quality, format: 'jpeg' })
 }
