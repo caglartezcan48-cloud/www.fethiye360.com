@@ -35,11 +35,7 @@ export function Footer() {
                   Gezi Rehberi
                 </a>
               </li>
-              <li>
-                <a href="#harita" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Harita
-                </a>
-              </li>
+
               <li>
                 <a href="#hakkinda" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   Hakkında
