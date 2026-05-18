@@ -47,8 +47,7 @@ export default function AdminLoginPage() {
           return
         }
 
-        router.push('/admin')
-        router.refresh()
+        window.location.href = '/admin'
       }
     } catch {
       setError('Bir hata olustu, tekrar deneyin')
