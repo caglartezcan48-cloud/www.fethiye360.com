@@ -201,9 +201,14 @@ export function Header() {
                             </div>
                             <div className="text-left">
                               <div className="text-white font-semibold text-xs group-hover/item:text-[#64ffda] transition-colors line-clamp-1">{result.name}</div>
-                              <div className="text-slate-500 text-[9px] uppercase tracking-widest flex items-center gap-1.5">
-                                <span>{result.type === 'category' ? 'Kategori' : result.type === 'post' ? 'Gönderi' : 'İşletme'}</span>
+                              <div className="text-slate-500 text-[9px] uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
+                                <span>{
+                                  result.type === 'category' ? 'Kategori' : 
+                                  result.type === 'post' ? 'Gönderi' : 
+                                  result.type === 'product' ? 'Ürün / Hizmet' : 'İşletme'
+                                }</span>
                                 {result.category_name && <span className="normal-case tracking-normal text-slate-600">• {result.category_name}</span>}
+                                {result.subtitle && <span className="normal-case tracking-normal text-slate-400">• {result.subtitle}</span>}
                               </div>
                             </div>
                           </div>
