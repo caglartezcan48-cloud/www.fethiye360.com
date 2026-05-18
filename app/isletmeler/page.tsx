@@ -251,11 +251,20 @@ function BusinessesContent() {
         <div className="max-w-7xl mx-auto space-y-12">
           
           {/* Hero & Search */}
-          <div className="text-center space-y-8 max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter uppercase italic leading-none">
-              HİZMET <span className="text-[#64ffda]">MERKEZİ</span>
+          <div className="text-center space-y-6 max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#64ffda] animate-pulse" />
+              <span className="text-[9px] font-black text-white/80 uppercase tracking-[0.3em]">Premium Hizmet Rehberi</span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tighter uppercase italic leading-none">
+              FETHİYE'DE İHTİYACINIZ OLAN <br className="hidden sm:inline" />
+              HER ŞEY <span className="text-[#64ffda] drop-shadow-[0_0_35px_rgba(100,255,218,0.4)]">TEK BURADA</span>
             </h1>
-            <p className="text-slate-400 font-medium italic">Fethiye'de ihtiyacınız olan her şey tek bir noktada.</p>
+            
+            <p className="text-slate-400 text-xs sm:text-sm font-medium tracking-wide max-w-xl mx-auto">
+              Fethiye'nin en seçkin restoranları, otelleri, usta kadroları ve profesyonel hizmet sağlayıcıları tek bir çatı altında.
+            </p>
             
             <form onSubmit={handleSearch} className="relative group">
               <input 
