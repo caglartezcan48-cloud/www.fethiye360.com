@@ -174,28 +174,49 @@ export default function BannerForm({ banner, isEditing = false }: BannerFormProp
             <p className="text-xs text-slate-500 mt-2 truncate">{formData.background_image}</p>
           </div>
         ) : (
-          <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:border-[#64ffda] transition-colors">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-              onChange={handleFileUpload}
-              className="hidden"
-              disabled={isUploading}
-            />
-            {isUploading ? (
-              <div className="flex flex-col items-center">
-                <Loader2 className="w-10 h-10 text-[#64ffda] animate-spin" />
-                <span className="text-slate-400 mt-2">Yukleniyor...</span>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center">
-                <Upload className="w-10 h-10 text-slate-500" />
-                <span className="text-slate-400 mt-2">Gorsel yuklemek icin tiklayin</span>
-                <span className="text-slate-500 text-xs mt-1">JPEG, PNG, WebP, GIF, AVIF - Max 5MB</span>
-              </div>
-            )}
-          </label>
+          <div className="space-y-4">
+            <label className="flex flex-col items-center justify-center h-48 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:border-[#64ffda] transition-colors">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={isUploading}
+              />
+              {isUploading ? (
+                <div className="flex flex-col items-center">
+                  <Loader2 className="w-10 h-10 text-[#64ffda] animate-spin" />
+                  <span className="text-slate-400 mt-2">Yukleniyor...</span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <Upload className="w-10 h-10 text-slate-500" />
+                  <span className="text-slate-400 mt-2">Gorsel yuklemek icin tiklayin</span>
+                  <span className="text-slate-500 text-xs mt-1">JPEG, PNG, WebP, GIF, AVIF - Max 5MB</span>
+                </div>
+              )}
+            </label>
+
+            <div className="flex items-center gap-4 my-2">
+              <div className="h-[1px] flex-1 bg-slate-700/50"></div>
+              <span className="text-slate-500 text-xs uppercase font-semibold tracking-wider">VEYA GÖRSEL URL'Sİ YAPIŞTIRIN</span>
+              <div className="h-[1px] flex-1 bg-slate-700/50"></div>
+            </div>
+
+            <div>
+              <input
+                type="text"
+                placeholder="https://example.com/resim.jpg"
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-[#64ffda] transition-colors text-sm"
+                value={formData.background_image}
+                onChange={(e) => setFormData(prev => ({ ...prev, background_image: e.target.value }))}
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                İnternetteki herhangi bir görselin adresini (linkini) buraya doğrudan yapıştırabilirsiniz.
+              </p>
+            </div>
+          </div>
         )}
       </div>
 
